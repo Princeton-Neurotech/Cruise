@@ -3,11 +3,14 @@ import tkinter as tk
 import time
 import msvcrt
 import numpy as np
+from threading import Timer,Thread
+from pynput import keyboard
 
 print("Press ENTER to start the stopwatch")
 print("and, press CTRL + C to stop the stopwatch")
 
 """
+Stopwatch
 while True:
     try:
         input() # for ENTER 
@@ -21,58 +24,66 @@ while True:
         break
 """
 
-# sec_list = []
-start_time = time.time()
-count = 0
-while True:     
-    curr_time = time.time()
+"""from threading import Timer
+
+timeout = 10
+t = Timer(timeout, print, ['Sorry, times up'])
+t.start()
+prompt = "You have %d seconds to choose the correct answer...\n" % timeout
+answer = input(prompt)
+t.cancel()"""
+
+def key_press(key, could_put_anything):
+    """Aysnc key press handler
+    """
+    print("Key press detected: ", key)
+
+    # end loop if return False  --> q = quitting
+    if key=='q':
+        return False
     
-    if msvcrt.kbhit(): # returns true if keypress is waiting to be read
-        k = msvcrt.getch() # reads keypress and returns resulting char
-        # sec_list.append(round(curr_time - start_time, 2))
-        # sec_array = np.array(sec_list)
-        # (sec_array >= (round(curr_time - start_time, 2) - 60)).sum()
-        count += 1
-        print("Key Pressed", k, "Count", count)
+    return True
 
-        count_stack = []
-        if ((round(curr_time - start_time) % 5) == 0):
-            # create a stack to store all counts within 1s timeframe
-            while(round(curr_time - start_time) % 5 == 0):
-                count_stack.append(count)
-            # pop the last count within 1s timeframe
-            saved_num_char = count_stack.pop()
-            print(saved_num_char)
 
-        # print(round(math.fmod(round((curr_time - start_time), 3), 5.000), 3) == 0.000)
+# queue = Queue([2,3,4])
+test = [0]
+with keyboard.Listener(on_press= lambda key: key_press(key, test)) as listener:
+    while True:
+        counter = 0
 
-        # bool(has_been_printed)
-        # has_been_printed = False
 
-        # print(round(curr_time - start_time))
 
-        # if ((round(curr_time - start_time) % 5) == 0):
-            # save array to keep track of num of char
-            # time.sleep(0.9999)
-            # print_start_time = time.time()
-            # print_curr_time = time.time()
-            # print(print_curr_time - print_start_time)
-            # while (print_curr_time - print_start_time != 1.0):
-                # print_curr_time = time.time()
-                # if ((print_curr_time - print_start_time) == 0.9999):
-                    # saved_num_char = count
-                    # print(saved_num_char)
-            # print(print_curr_time - print_start_time)
-           
+# ------------ ^ ------------------
+
+
+
+check = False
+sec_list = []
+count_list = []
+
+start_time = time.time()
+#count = 0
+sec_array = np.array([])
+while True:  
+
+    curr_time = time.time()
+    #if msvcrt.kbhit() == False: # returns true if keypress is waiting to be read
+    #INPUT
+    char = msvcrt.getch() # reads keypress and returns resulting char
+    sec_list.append(round(curr_time - start_time, 2))
+    sec_array = np.array(sec_list)
+
+    print("Key Pressed", char, "Count", (sec_array >= (round(curr_time - start_time, 2) - 60)).sum())
+    
+    #PRINTS CHARS WRITTEN IN LAST MIN  EACH 5 SECONDS  
+    if (round(curr_time - start_time) % 5) - 1 == 0 and (curr_time - start_time != 0):
+        check = True
+    elif (round(curr_time - start_time) % 5) == 0 and (curr_time - start_time != 0) and check == True:
+        check = False
+        print((sec_array >= (round(curr_time - start_time, 2) - 60)).sum())
+   
         
-            # if has_been_printed == False:
-                # saved_num_char = count
-                # print(saved_num_char)
-
-                # if 
-                # has_been_printed = 
-            
-        # total_num_char = [saved_num_char]
+        
 
 def charcount():
     output.delete(0.0,"end")
