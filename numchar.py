@@ -45,15 +45,11 @@ def key_press(key, could_put_anything):
     return True
 
 
-# queue = Queue([2,3,4])
-test = [0]
-with keyboard.Listener(on_press= lambda key: key_press(key, test)) as listener:
-    while True:
-        counter = 0
 
 
 
-# ------------ ^ ------------------
+
+
 
 
 
