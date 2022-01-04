@@ -4,7 +4,6 @@ from tkinter import *
 import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
-import tkinter as tk
 from sys import exit
 
 class gui():
@@ -15,6 +14,7 @@ class gui():
         self.globalSentencecount = 0
         self.globcalPagecount = 0
         self.timeLastChange = time.time()
+        self.timeRoadblock = time.time()
         self.startTime = time.time()
         self.outputCharcount = 0
         self.outputWordcount = 0
@@ -25,23 +25,33 @@ class gui():
         self.inputUserWordcountThreshold = 0
         self.inputUserPagecountThreshold = 0
         self.window = 0
-        self.popupRoot = 0
+        self.popupRoot = Tk()
         self.totalCharcount = []
         self.totalWordcount = []
         self.totalSentencecount = []
-        self.totalpagecount = []
+        self.totalPagecount = []
         self.totalStandby = []
         self.roadblock = False
-    
+        self.popupDisplayRan = False
+
+    def popupDisplay(self):
+        self.popupRoot = Tk()
+        roadblockNotification = "You've hit a roadblock"
+        popupButton = Button(self.popupRoot, text=roadblockNotification, font=("Verdana", 12), bg="yellow", command=exit)
+        self.popupRoot.geometry('400x50+700+500')
+        popupButton.pack()
+        self.popupDisplayRan = True
+
     def popup(self):
-        if self.roadblock == True:
-            roadblockNotification = "You've hit a roadblock"
-            popupRoot = Tk()
-            popupButton = Button(popupRoot, text=roadblockNotification, font=("Verdana", 12), bg="yellow", command=exit)
-            popupRoot.geometry('400x50+700+500') 
-            popupButton.pack()
-        self.window.after(1000, self.popup)
-    
+        print("roadblock:", self.roadblock)
+        if self.roadblock and not self.popupDisplayRan:
+            self.popupRoot.after(10000, self.popupDisplay)
+
+    def quit(self):
+        if not self.roadblock and self.popupDisplayRan is True:
+            self.popupRoot.destroy()
+            self.popupDisplayRan = False
+
     def realtime(self):
         self.outputCharcount.delete(0.0, "end")
         self.outputWordcount.delete(0.0, "end")
@@ -73,12 +83,20 @@ class gui():
         for word in words:
             if dictionary.check(word) and word != ".":
                 wordcount = wordcount + 1
-        if wordcount < int('0' + wordcountThreshold) or pagecount < int('0' + pagecountThreshold):
+        wordcountThresholdInt = int('0' + wordcountThreshold)
+        pagecountThresholdInt = int('0' + pagecountThreshold)
+        if wordcount < wordcountThresholdInt or pagecount < pagecountThresholdInt:
             localRoadblock = True
             self.roadblock = localRoadblock
             self.popup()
         else:
-            self.roadblock = False
+            localRoadblock = False
+            self.roadblock = localRoadblock
+            self.quit()
+            # if self.roadblock is False and self.popupDisplayRan is True and self.popupRoot.winfo_exists() is True:
+                # print("exists: ", self.popupRoot.winfo_exists())
+                # self.popupRoot.destroy()
+        print("condition:", wordcount < wordcountThresholdInt)
         for char in prompt:
             if char == "\n":
                 continue
@@ -99,20 +117,22 @@ class gui():
         else:
             self.roadblock = False
 
+        self.totalPagecount.append(pagecount)
         self.totalSentencecount.append(sentencecount)
         self.totalWordcount.append(wordcount)
         self.totalCharcount.append(charcount)
-            
+        self.totalStandby.append(self.totalStandby.count("You've entered a standby"))
+
         # print(round(time.time() - self.time_last_change, 2))
         self.outputCharcount.insert(tk.INSERT, charcount)
         self.outputWordcount.insert(tk.INSERT, wordcount)
         self.outputSentencecount.insert(tk.INSERT, sentencecount)
         self.outputPagecount.insert(tk.INSERT, pagecount)
         self.outputStandby.insert(tk.INSERT, standby_notification)
-                
+
         # repeatedly call realtime()
-        self.window.after(1000, self.realtime)
-        
+        self.window.after(5000, self.realtime)
+
     def initUI(self):
         times = []
         # Create interface
@@ -120,14 +140,14 @@ class gui():
         self.window.title("Roadblocks Project")
         self.window.geometry("500x600")
 
-        #Textbox for prompt
+        # Textbox for prompt
         promptLabel = tk.Label(self.window, text="Write prompt here")
         self.inputUserPrompt = tk.Text(self.window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
 
         # Textbox for wordcount threshold
         wordcountThresholdLabel = tk.Label(self.window, text="Wordcount threshold")
         self.inputUserWordcountThreshold = tk.Text(self.window, width=10, height=1, font=("Helvetica", 12), wrap="word")
-        
+
         pagecountThresholdLabel = tk.Label(self.window, text="Page count threshold")
         self.inputUserPagecountThreshold = tk.Text(self.window, width=10, height=1, font=("Helvetica", 12), wrap="word")
 
@@ -141,7 +161,7 @@ class gui():
 
         sentencecountLabel = tk.Label(self.window, text="Sentence count")
         self.outputSentencecount = tk.Text(self.window, width=20, height=1, font=("Helvetica", 12), wrap="word")
-        
+
         pagecountLabel = tk.Label(self.window, text="Page count")
         self.outputPagecount = tk.Text(self.window, width=20, height=1, font=("Helvetica", 12), wrap="word")
 
