@@ -1,6 +1,6 @@
 import time
 import tkinter as tk
-from tkinter import *
+# from tkinter import *
 import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -13,42 +13,50 @@ class gui():
         self.globalWordcount = 0
         self.globalSentencecount = 0
         self.globcalPagecount = 0
+
         self.timeLastChange = time.time()
         self.timeRoadblock = time.time()
         self.startTime = time.time()
+
         self.outputCharcount = 0
         self.outputWordcount = 0
         self.outputSentencecount = 0
         self.outputPagecount = 0
         self.outputStandby = ""
+
         self.inputUserPrompt = 0
         self.inputUserWordcountThreshold = 0
         self.inputUserPagecountThreshold = 0
+
         self.window = 0
-        self.popupRoot = Tk()
+        self.popupRoot = tk.Tk()
+
         self.totalCharcount = []
         self.totalWordcount = []
         self.totalSentencecount = []
         self.totalPagecount = []
         self.totalStandby = []
+
         self.roadblock = False
         self.popupDisplayRan = False
 
     def popupDisplay(self):
-        self.popupRoot = Tk()
-        roadblockNotification = "You've hit a roadblock"
-        popupButton = Button(self.popupRoot, text=roadblockNotification, font=("Verdana", 12), bg="yellow", command=exit)
+        self.popupRoot = tk.Tk()
         self.popupRoot.geometry('400x50+700+500')
+        popupButton = tk.Button(self.popupRoot, text="You've hit a roadblock", font=("Verdana", 12), bg="yellow", command=exit)
         popupButton.pack()
         self.popupDisplayRan = True
 
     def popup(self):
         print("roadblock:", self.roadblock)
-        if self.roadblock and not self.popupDisplayRan:
-            self.popupRoot.after(10000, self.popupDisplay)
+        # nee to wait at beginning before displaying roadblock
+        # if no popup and should have popup, display it
+        if not self.popupDisplayRan:
+            self.popupDisplay()
 
-    def quit(self):
-        if not self.roadblock and self.popupDisplayRan is True:
+    def popupClose(self):
+        # do we need the first part of the if?
+        if self.popupDisplayRan:
             self.popupRoot.destroy()
             self.popupDisplayRan = False
 
@@ -92,7 +100,7 @@ class gui():
         else:
             localRoadblock = False
             self.roadblock = localRoadblock
-            self.quit()
+            self.popupClose()
             # if self.roadblock is False and self.popupDisplayRan is True and self.popupRoot.winfo_exists() is True:
                 # print("exists: ", self.popupRoot.winfo_exists())
                 # self.popupRoot.destroy()
@@ -194,7 +202,7 @@ class gui():
 
         begin.pack()
 
-        self.popup()
+        # self.popup()
         self.realtime()
         self.window.mainloop()
         self.popupRoot.mainloop()
