@@ -907,5 +907,5 @@ def generate_feature_vectors_from_samples(file_path, nsamples, period,
 
 feature_vector = generate_feature_vectors_from_samples(filepath, 60, 1, state = None, remove_redundant = True, cols_to_ignore = None)
 print(feature_vector)
-# error: s, dur = get_time_slice(matrix, start = t, period = period)
+# ERROR: s, dur = get_time_slice(matrix, start = t, period = period)
 # too many values to unpack (expected 2)
