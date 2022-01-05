@@ -1,4 +1,5 @@
 import time
+import pandas as pd
 import tkinter as tk
 import numpy as np
 import enchant
@@ -6,31 +7,57 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
 
 class gui():
+    """
+    STANDBY:
+    Discrete gui notification that you haven't typed for 60s
+
+    ROADBLOCK:
+    min_goal = 10 words/ 5 minute --> if ml predicts 
+    from brain data + recent historic data that not going to hit min_goal in next 5 mins
+    tells you to stop --> we call this a roadblock - ml predicts words/ 5 minute
+    and is trained by u typing e.g. retrain every 10 mins?
+
+    CHANGES:
+    Last 5 minutes - 5s spacing take readings
+
+    # length of history list readings needed (one every 5s): 120 
+    15 for past - sum up every 3 entries ie indexes 0-2, 3-5, ... for the first 60 entries (features are words typed in 15s intervals for past 5mins)
+    60 indexes to sum for future (label = words typed in future 5mins)
+
+    Takes 10 minutes to create datapoint 1
+    after that making a new datapoint every 5s
+    --> 60 datapoints in next 5 mins
+    Therefore after 15mins have 60 datapoints
+    
+    # to make a queue
+    examp_list = [1,2,3]
+    examp_list.append(123) - appends 123 to the end (start of the queue)
+    first_item = examp_list.pop(0) - pops start (end of the queue)
+    """
 
     def __init__(self):
         self.PAGE_LENGTH = 4002
 
-        self.global_charcount = 0
-        self.global_wordcount = 0
-        self.global_sentencecount = 0
-        self.global_pagecount = 0
+        self.last_charcount = 0
+        self.last_wordcount = 0
+        self.last_sentencecount = 0
 
         self.time_last_change = time.time()
-        self.time_roadblock = time.time()
         self.start_time = time.time()
 
-        self.popup_root = None
-
-        self.total_charcount = []
-        self.total_word_count = []
-        self.total_sentence_count = []
-        self.total_page_count = []
-        self.total_standby = []
+        self.history_charcount = []
+        self.history_word_count = []
+        self.history_sentence_count = []
+        self.history_page_count = []
+        self.history_standby = []
 
         self.roadblock = False
         self.nb_standby = 0
 
-        # Create interface
+        # Root of tk popup window when opened
+        self.popup_root = None
+
+        # Main tk window
         self.main_window = tk.Tk()
         self.main_window.title("Roadblocks Project")
         self.main_window.geometry("500x600")
@@ -41,10 +68,10 @@ class gui():
 
         # Textbox for wordcount threshold
         wordcountThresholdLabel = tk.Label(self.main_window, text="Wordcount threshold")
-        self.input_user_wordcount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
+        self.input_wordcount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
 
         pagecountThresholdLabel = tk.Label(self.main_window, text="Page count threshold")
-        self.input_user_pagecount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
+        self.input_pagecount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
 
         begin = tk.Button(self.main_window, text="Begin", command=self.realtime)
 
@@ -82,10 +109,10 @@ class gui():
         self.output_standby.pack()
 
         wordcountThresholdLabel.pack()
-        self.input_user_wordcount_threshold.pack()
+        self.input_wordcount_threshold.pack()
 
         pagecountThresholdLabel.pack()
-        self.input_user_pagecount_threshold.pack()
+        self.input_pagecount_threshold.pack()
 
         begin.pack()
 
@@ -95,8 +122,8 @@ class gui():
         # if no popup and should have popup, display it
         if not self.popup_root:
             self.popup_root = tk.Tk() # create popup window
-            popupButton = tk.Button(self.popup_root, text="You've hit a roadblock", font=("Verdana", 12), bg="yellow", command=exit)
-            popupButton.pack()
+            popup_button = tk.Button(self.popup_root, text="You've hit a roadblock", font=("Verdana", 12), bg="yellow", command=exit)
+            popup_button.pack()
 
     def popup_close(self):
         if self.popup_root:
@@ -129,9 +156,9 @@ class gui():
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
-        try: wordcountThresholdInt = int(self.input_user_wordcount_threshold.get(0.0, "end"))
+        try: wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
         except: pass
-        try: pagecountThresholdInt = int(self.input_user_pagecount_threshold.get(0.0, "end"))
+        try: pagecountThresholdInt = int(self.input_pagecount_threshold.get(0.0, "end"))
         except: pass
 
         # roadblock popup if haven't written enough words or pages
@@ -147,11 +174,11 @@ class gui():
         charcount = len(prompt.replace('\n',''))
 
         # if anything has changed since last time update it and update time of last change
-        if charcount != self.global_charcount or wordcount != self.global_wordcount or sentencecount != self.global_sentencecount:
+        if charcount != self.last_charcount or wordcount != self.last_wordcount or sentencecount != self.last_sentencecount:
             self.time_last_change = time.time()
-            self.global_charcount = charcount
-            self.global_wordcount = wordcount
-            self.global_sentencecount = sentencecount
+            self.last_charcount = charcount
+            self.last_wordcount = wordcount
+            self.last_sentencecount = sentencecount
         
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
         standbyNotification = ""
@@ -167,11 +194,11 @@ class gui():
                 self.popup_close()
 
         # for data collection
-        self.total_page_count.append(pagecount)
-        self.total_sentence_count.append(sentencecount)
-        self.total_word_count.append(wordcount)
-        self.total_charcount.append(charcount)
-        self.total_standby.append(self.nb_standby)
+        self.history_page_count.append(pagecount)
+        self.history_sentence_count.append(sentencecount)
+        self.history_word_count.append(wordcount)
+        self.history_charcount.append(charcount)
+        self.history_standby.append(self.nb_standby)
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
