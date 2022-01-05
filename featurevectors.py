@@ -1,6 +1,9 @@
 import numpy as np
 from numpy import genfromtxt
-from scipy import *
+from scipy import signal
+from scipy.stats import skew, kurtosis
+from scipy.linalg import logm
+from scipy.fft import fft
 
 def matrix_from_csv_file(file_path):
     """
@@ -269,8 +272,8 @@ def feature_moments(matrix):
         Original: [fcampelo]
     """
 
-    skw = scipy.stats.skew(matrix, axis=0, bias=False)
-    krt = scipy.stats.kurtosis(matrix, axis=0, bias=False)
+    skw = skew(matrix, axis=0, bias=False)
+    krt = kurtosis(matrix, axis=0, bias=False)
     ret = np.append(skw, krt)
 
     names = ['skew_' + str(i) for i in range(matrix.shape[1])]
@@ -605,7 +608,7 @@ def feature_logcov(covM):
     Author:
         Original: [fcampelo]
     """
-    log_cov = scipy.linalg.logm(covM)
+    log_cov = logm(covM)
     indx = np.triu_indices(log_cov.shape[0])
     ret = np.abs(log_cov[indx])
 
@@ -668,7 +671,7 @@ def feature_fft(matrix, period=1., mains_f=50.,
     # Compute the (absolute values of the) FFT
     # Extract only the first half of each FFT vector, since all the information
     # is contained there (by construction the FFT returns a symmetric vector).
-    fft_values = np.abs(scipy.fft.fft(matrix, axis=0))[0:N // 2] * 2 / N
+    fft_values = np.abs(fft(matrix, axis=0))[0:N // 2] * 2 / N
 
     # Compute the corresponding frequencies of the FFT components
     freqs = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
@@ -897,7 +900,7 @@ def generate_feature_vectors_from_samples(file_path, nsamples, period,
             break
 
         # Perform the resampling of the vector
-        ry, rx = scipy.signal.resample(s[:, 1:], num=nsamples,
+        ry, rx = signal.resample(s[:, 1:], num=nsamples,
                                        t=s[:, 0], axis=0)
 
         # Slide the slice by 1/2 period
