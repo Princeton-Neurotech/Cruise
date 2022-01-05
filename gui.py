@@ -91,7 +91,7 @@ class gui():
 
     def popupDisplay(self):
         print("roadblock:", self.roadblock)
-        # need to wait at beginning before displaying roadblock
+        # MAKE NOTIFICATION NOT COME UP IMMEDIATELY
         # if no popup and should have popup, display it
         if not self.popupRoot:
             self.popupRoot = tk.Tk() # create popup window
