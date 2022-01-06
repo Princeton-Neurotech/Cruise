@@ -2,14 +2,14 @@ import argparse
 import time
 import numpy as np
 import pandas as pd
-from feature_vectors import *
+from brain_feature_vectors import *
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
-class Comms:
+class brain_data:
 
     def __init__(self, boardID=-1, serial=''):
         # self.data = []
@@ -19,6 +19,7 @@ class Comms:
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
         self.board = BoardShim(self.myBoardID, self.params)
+        self.brain_fv = []
 
     def startStream(self):
         """
@@ -138,16 +139,39 @@ class Comms:
 if __name__ == "__main__":
     myBoard = Comms(-1, 'COM3')
     time1 = 0
+    counter1 = 0
     myBoard.startStream()
-    print(myBoard.getData())
+    start_time = time.time()
+    created_df = False
+    features = calc_feature_vector(myBoard.getCurrentData(250), "feature vectors")
+    feature_list = features[-1].copy()
+    
     while True:
-        print(myBoard.getCurrentData(1))
-        print(myBoard.get_samplingRate())
-        print(myBoard.getEEGChannels())
-        print(feature_fft(myBoard.getCurrentData(1), period=1., mains_f=50.,
-                filter_mains=True, filter_DC=True,
-                normalise_signals=True,
-                ntop=10, get_power_spectrum=True))
-        time1 = time1 + 1
-    time.sleep(time1)
+        brain_fv = calc_feature_vector(myBoard.getCurrentData(250), "feature vectors")
+        if  time.time() - start_time > 3:
+            if created_df is False:
+                brain_df = pd.DataFrame(columns=brain_fv[-1])
+                print(brain_df)
+                created_df = True
+
+            print(myBoard.get_samplingRate())
+            print(myBoard.getEEGChannels())
+
+            brain_df.loc[len(brain_df)]=brain_fv[0] 
+            print(brain_df)
+
+            time1 += 1
+            counter1 += 1
+            
+            # print(len(brain_fv[0]),len(brain_fv[-1]))
+            #print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)
+    
     myBoard.stopStream()
+
+
+    #TODO: Run the EEG stream and keyboard data stream simultaneously merging both data processes
+    #into a unique process for every observation (make sure rows are complete) 
+    #keep track of the time each row takes to process and modify code  
+    # ADJUST Keyboard input data stream to match time AND 
+    # ADJUST EEG input data stream (Change matrix size) to match time
+
