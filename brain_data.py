@@ -2,6 +2,7 @@ import argparse
 import time
 import numpy as np
 import pandas as pd
+from feature_vectors import *
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
@@ -135,7 +136,18 @@ class Comms:
 
 
 if __name__ == "__main__":
-    myBoard = Comms(0, 'COM3')
+    myBoard = Comms(-1, 'COM3')
+    time1 = 0
     myBoard.startStream()
-    time.sleep(1)
+    print(myBoard.getData())
+    while True:
+        print(myBoard.getCurrentData(1))
+        print(myBoard.get_samplingRate())
+        print(myBoard.getEEGChannels())
+        print(feature_fft(myBoard.getCurrentData(1), period=1., mains_f=50.,
+                filter_mains=True, filter_DC=True,
+                normalise_signals=True,
+                ntop=10, get_power_spectrum=True))
+        time1 = time1 + 1
+    time.sleep(time1)
     myBoard.stopStream()

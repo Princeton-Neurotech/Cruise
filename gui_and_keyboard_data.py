@@ -25,7 +25,7 @@ class gui():
     15s for past - sum up every 3 entries ie indexes 0-2, 3-5, ... for the first 60 entries
     (features are words typed in 15s intervals for past 5 mins)
     (20 groups of elements)
-    60 indexes to sum for future (label = words typed in future 5mins)
+    60 indexes to sum for future (label = words typed in future 5 mins)
 
     Takes 10 minutes to create datapoint 1
     after that making a new datapoint every 5s --> 60 datapoints in next 5 mins
@@ -45,7 +45,8 @@ class gui():
         self.last_sentencecount = 0
 
         self.time_last_change = time.time()
-        self.start_time = time.time()
+        self.time_for_features = time.time()
+        self.history_time_seconds = []
 
         self.history_charcount = []
         self.history_word_count = []
@@ -146,6 +147,8 @@ class gui():
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
 
+        round(time.time() - self.time_for_features, 2)
+
         charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
 
         dictionary = enchant.Dict("en_US")
@@ -207,21 +210,72 @@ class gui():
                 self.popup_close()
 
         # for data collection
-        self.history_page_count.append(pagecount)
-        self.history_sentence_count.append(sentencecount)
-        self.history_word_count.append(wordcount)
+        self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
         self.history_charcount.append(charcount)
+        self.history_word_count.append(wordcount)
+        self.history_sentence_count.append(sentencecount)
+        self.history_page_count.append(pagecount)
         self.history_standby.append(self.nb_standby)
-
+        
         self.history_dffeatures = pd.DataFrame(self.history_features)
 
+        self.history_dffeatures["time (s)"] = self.history_time_seconds
+        
         self.history_dffeatures["charcount"] = self.history_charcount
         self.history_dffeatures["wordcount"] = self.history_word_count
         self.history_dffeatures["sentencecount"] = self.history_sentence_count
         self.history_dffeatures["pagecount"] = self.history_page_count
         self.history_dffeatures["standby"] = self.history_standby
 
+        self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
+        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
+        self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
+        self.history_dffeatures["change in pagecount"] = self.history_dffeatures["pagecount"].diff()
+        
+        self.history_dffeatures["chars produced"] = self.history_dffeatures["change in charcount"].copy()
+        self.history_dffeatures["chars produced"][self.history_dffeatures["chars produced"] < 0] = 0
+        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
+        self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["sentences produced"][self.history_dffeatures["sentences produced"] < 0] = 0
+        self.history_dffeatures["pages produced"] = self.history_dffeatures["change in pagecount"].copy()
+        self.history_dffeatures["pages produced"][self.history_dffeatures["pages produced"] < 0] = 0
+
+        self.history_dffeatures["chars deleted"] = -1*self.history_dffeatures["change in charcount"].copy()
+        self.history_dffeatures["chars deleted"][self.history_dffeatures["chars deleted"] < 0] = 0
+        self.history_dffeatures["chars deleted"] = self.history_dffeatures["chars deleted"].abs()
+        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
+        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
+        self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
+        self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
+        self.history_dffeatures["pages deleted"] = -1*self.history_dffeatures["change in pagecount"].copy()
+        self.history_dffeatures["pages deleted"][self.history_dffeatures["pages deleted"] < 0] = 0
+        self.history_dffeatures["pages deleted"] = self.history_dffeatures["pages deleted"].abs()
+
         print(self.history_dffeatures)
+
+        """
+        # collect features data, sum 3 indexes so 15s of data for first 5 min
+        if time.time() - self.time_for_features < 300:
+            index = 0
+            charcount_column = self.history_dffeatures.iloc[:, 0]
+            wordcount_column = self.history_dffeatures.iloc[:, 1]
+            sentencecount_column = self.history_dffeatures.iloc[:, 2]
+            pagecount_column = self.history_dffeatures.iloc[:, 3]
+            standby_column = self.history_dffeatures.iloc[:, 4]
+
+            print(charcount_column.loc[index])
+            first_row = charcount_column.loc[index]
+            second_row = charcount_column.loc[index+1]
+            third_row = charcount_column.loc[index+2]
+            sum_charcount = sum(first_row, second_row, third_row)
+
+            index = index + 3
+
+            print(sum_charcount)
+        """
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -230,8 +284,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
+        # call realtime() every 1s
+        self.main_window.after(1000, self.realtime)
 
 
 if __name__ == '__main__':

@@ -5,8 +5,8 @@ from scipy.stats import skew, kurtosis
 from scipy.linalg import logm
 from scipy.fft import fft
 
+"""
 def matrix_from_csv_file(file_path):
-    """
     Returns the data matrix given the path of a CSV file.
 
     Parameters:
@@ -20,19 +20,17 @@ def matrix_from_csv_file(file_path):
         Original: [lmanso]
         Revision and documentation: [fcampelo]
 
-    """
-
     csv_data = np.genfromtxt(filepath, delimiter=',')
     csv_data = np.delete(csv_data, 5, 1)
     full_matrix = csv_data[1:]
 
     return full_matrix
+"""
 
-
-# NEED TO BRING IN MUSE DATA IN REALTIME AND CREATE MATRIX  
-filepath = r"C:\Users\hudso\Downloads\eeg-feature-generation-master\eeg-feature-generation-master\dataset\original_data\name_concentrating.csv"
-matrix = matrix_from_csv_file(filepath)
-print(matrix)
+# NEED TO BRING IN MUSE DATA IN REALTIME AND CREATE MATRIX TO PASS TO BELOW FUNCTIONS 
+# filepath = r"C:\Users\hudso\Downloads\eeg-feature-generation-master\eeg-feature-generation-master\dataset\original_data\name_concentrating.csv"
+# matrix = matrix_from_csv_file(filepath)
+# print(matrix)
 
 
 def get_time_slice(full_matrix, start=0., period=1.):
