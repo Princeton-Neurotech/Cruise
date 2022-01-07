@@ -13,9 +13,9 @@ class gui():
     Discrete gui notification that you haven't typed for 60s
 
     ROADBLOCK:
-    min_goal = 200 words / 5 minutes --> if ml predicts from brain data + recent historic 
-    data that not going to hit min_goal in next 5 mins tells you to stop --> we call this 
-    a roadblock - ml predicts 200 words / 5 minute and is trained by you typing e.g. retrain 
+    min_goal = 200 words / 5 minutes --> if ml predicts from brain data + recent historic
+    data that not going to hit min_goal in next 5 mins tells you to stop --> we call this
+    a roadblock - ml predicts 200 words / 5 minute and is trained by you typing e.g. retrain
     every 10 mins?
 
     CHANGES:
@@ -145,17 +145,22 @@ class gui():
 
         round(time.time() - self.time_for_features, 2)
 
-        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
+        char, charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0, 0
 
         dictionary = enchant.Dict("en_US")
 
         prompt = self.input_user_prompt.get(0.0, "end")
+
+        char = prompt.replace('\n', '')
+        charcount = len(prompt.replace('\n', ''))
+        pagecount = len(prompt) // self.PAGE_LENGTH
+
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
             words = word_tokenize(sentence)
 
             # if first letter of first word is capital, considered sentence
-            if words and words[0].isupper() and dictionary.check(words[0]):
+            if char[0].isupper() and dictionary.check(words[0]):
                 sentencecount += 1
             for word in words:
                 # this dictionary counts . as words, but not ! or ?
@@ -179,11 +184,6 @@ class gui():
             self.popup_display()
         else:
             self.popup_close()
-
-        # print("condition:", wordcount < wordcountThresholdInt)
-
-        pagecount = len(prompt) // self.PAGE_LENGTH
-        charcount = len(prompt.replace('\n', ''))
 
         # if anything has changed since last time update it and update time of last change
         if charcount != self.last_charcount or wordcount != self.last_wordcount or sentencecount != self.last_sentencecount:
@@ -222,7 +222,7 @@ class gui():
         self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
         self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
         self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
-        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["words deleted"] = -1 * self.history_dffeatures["change in wordcount"].copy()
         self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
         self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
         # print(self.history_dffeatures)
@@ -264,7 +264,7 @@ class gui():
         # if time.time() - self.time_for_features < 300:
         i = 0
         indexes = 300
-        for i in range (indexes):
+        for i in range(indexes):
             # self.final_dffeatures.drop(self.final_dffeatures.columns[0], axis=1, inplace=True)
             self.features_5s = self.history_dffeatures.sum(axis=0)
             i = i + 5
