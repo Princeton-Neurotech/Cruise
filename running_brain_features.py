@@ -3,8 +3,8 @@ import time
 import numpy as np
 import pandas as pd
 
-import brain_feature_vectors
-import ml
+from brain_data_computations import *
+from machine_learning import *
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
