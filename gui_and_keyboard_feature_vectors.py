@@ -145,28 +145,32 @@ class gui():
 
         round(time.time() - self.time_for_features, 2)
 
-        char, charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0, 0
+        chars, charcount, wordcount, sentencecount, pagecount = " ", 0, 0, 0, 0
 
-        dictiononary = enchant.Dict("en_US")
+        dictionary = enchant.Dict("en_US")
 
         prompt = self.input_user_prompt.get(0.0, "end")
-
-        char = prompt.replace('\n', '')
-        
-        charcount = len(prompt.replace('\n', ''))
-        pagecount = len(prompt) // self.PAGE_LENGTH
 
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
             words = word_tokenize(sentence)
+        
+            for char in chars:
+                if chars == " " or chars == "\n":
+                    continue
+                charcount += 1
 
             # if first letter of first word is capital, considered sentence
-            if char[0].isupper() and dictionary.check(words[0]):
+            if words and chars[0].isupper() and dictionary.check(words[0]):
                 sentencecount += 1
+            
             for word in words:
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     wordcount += 1
+        
+        charcount = len(prompt.replace('\n', ''))
+        pagecount = len(prompt) // self.PAGE_LENGTH
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
