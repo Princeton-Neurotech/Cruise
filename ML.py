@@ -28,23 +28,22 @@ class ml():
     """
 
     def __init__(self):
-        self.X_df = pd.DataFrame()
-        self.y_df = pd.DataFrame()
+        self.X_df = pd.DataFrame() # features
+        self.y_df = pd.DataFrame() # label
         self.ml_model = None
 
     def add_training_data(self, features, label):
         # check data is good - data is strictly positive
-        if None in features or label==None:
+        if None in features or label == None:
             return
         self.X_df = self.X_df.append(features)
-        self.X_df = self.X_df.append(label)
+        self.y_df = self.X_df.append(label)
 
         # if length % 50 call train model to train every 50 
 
     def train_model():
         # update ml model
         self.X_df = RandomForestRegressor()
-
 
     def predict(features):
         # Return expected words per 5 minute
