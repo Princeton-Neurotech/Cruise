@@ -5,7 +5,7 @@ The general pipeline involved in this project is:
 - Realtime Program: develop a program that can keep track of number of characters, words, sentences, and standby times (defined as if the user has not typed for 1 minute) in real time 
 - GUI: Developing a graphical user interface to complement the above program
 - Machine Learning:
- - Keyboard Input Features: defined by previous word count, change in word count, words produced, and words deleted
- - Brain Data Features: defined by a variety of computations such as mean, standard deviation, skewness, kurtosis, maximum, minimum, covariance matrix, eigenvalues of    covariance matrix, and fast fourier transform
- - Label: words typed in the future 5 minutes
- - Model: merge keyboard input and brain data feature vectors and train model (Random Forest Regressor) to predict when user is approaching a roadblock
+   - Keyboard Input Features: defined by previous word count, change in word count, words produced, and words deleted
+   - Brain Data Features: defined by a variety of computations such as mean, standard deviation, skewness, kurtosis, maximum, minimum, covariance matrix, eigenvalues of    covariance matrix, and fast fourier transform
+   - Label: words typed in the future 5 minutes
+   - Model: merge keyboard input and brain data feature vectors and train model (Random Forest Regressor) to predict when user is approaching a roadblock
