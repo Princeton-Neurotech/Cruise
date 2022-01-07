@@ -161,10 +161,10 @@ class gui():
         # moving window queue
         i = 0
         overlap = 2 
-        window_length = 30 # 30s
-        split = window_length / overlap # 15s
-        batch = (i * split) + window_length # 10 batches every 5 min
-        batch_length = 10 # 10s batches
+        window_length = 5 # 5s
+        split = window_length / overlap # 2.5s
+        batch = (i * split) + window_length 
+        batch_length = 120 # 120 batches every 5 min
         retrain_delay = 300 # 5 min
         num_batches = retrain_delay / batch_length
         self.wordcount_queue.append(wordcount)
