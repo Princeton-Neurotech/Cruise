@@ -5,8 +5,7 @@ import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
-from ml2 import ml2
-
+from ml import *
 
 class gui():
     """
@@ -34,30 +33,11 @@ class gui():
     """
 
     def __init__(self):
-        self.diff_wordcount_queue = [None for _ in range(2*5*60/1)] #5 mins in future, 5min in past * 
-        self.ml_object = ml2()
-
-        # TODO: remove useless variables below here!!!!
+        # 5 mins in future, 5 mins in past (length=120, 60 and 60)
+        self.wordcount_queue = []
+        self.time_last_change = 0
+        self.ml_object = ml()
         self.PAGE_LENGTH = 4002
-
-        self.last_charcount = 0
-        self.last_wordcount = 0
-        self.last_sentencecount = 0
-
-        self.time_last_change = time.time()
-        self.time_for_features = time.time()
-        self.history_time_seconds = []
-
-        self.history_charcount = []
-        self.history_word_count = []
-        self.history_sentence_count = []
-        self.history_page_count = []
-        self.history_standby = []
-        self.history_features = []
-        self.history_dffeatures = []
-        self.features_5s = 0
-        self.keyboard_input_fv = []
-
         self.roadblock = False
         self.nb_standby = 0
 
@@ -130,8 +110,7 @@ class gui():
         # if no popup and should have popup, display it
         if not self.popup_root:
             self.popup_root = tk.Tk()  # create popup window
-            popup_button = tk.Button(self.popup_root, text="You've hit a roadblock", font=("Verdana", 12), bg="yellow",
-                                     command=exit)
+            popup_button = tk.Button(self.popup_root, text="You've hit a roadblock", font=("Verdana", 12), bg="yellow", command=exit)
             popup_button.pack()
 
     def popup_close(self):
@@ -145,50 +124,62 @@ class gui():
         self.output_sentencecount.delete(0.0, "end")
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
+        
+        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
 
-        chars, charcount, wordcount, sentencecount, pagecount = " ", 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
+
         prompt = self.input_user_prompt.get(0.0, "end")
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
+            sentencecount += 1
             words = word_tokenize(sentence)
-            for word in words:
+            for i, word in enumerate (words):
+                if i == len(words) - 1:
+                    if word[-1] != "." and word[-1] != "?" and word[-1] != "!":
+                        sentencecount -=1 
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     wordcount += 1
         
-            for char in chars:
-                if chars == " " or chars == "\n":
-                    continue
-                charcount += 1
-
-            # if first letter of first word is capital, considered sentence
-            if words and chars[0].isupper() and dictionary.check(words[0]):
-                sentencecount += 1
-        
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
 
-
-
-        # u wrote or deleted nothing for 60s
+        # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
         standbyNotification = ""
-        if sum(self.diff_wordcount_queue[:-60])==0:
+        if charcount == 0:
+            self.time_last_change = time.time()
+            self.last_charcount = charcount
+            self.last_wordcount = wordcount
+            self.last_sentencecount = sentencecount
+
+        if time.time() - self.time_last_change > 60:
             standbyNotification = "You've entered a standby"
             self.nb_standby += 1
 
-        # 
-        self.diff_wordcount_queue.pop(0) #remove oldest reading
-        self.diff_wordcount_queue.append(abs(wordcount)-self.last_wordcount)
-
-        training_features = [sum(self.diff_wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
-        training_label = sum(self.diff_wordcount_queue[:-300])
-
-        # uptdate ml object
+        # moving window queue
+        i = 0
+        overlap = 2 
+        window_length = 30 # 30s
+        split = window_length / overlap # 15s
+        batch = (i * split) + window_length # 10 batches every 5 min
+        batch_length = 10 # 10s batches
+        retrain_delay = 300 # 5 min
+        num_batches = retrain_delay / batch_length
+        self.wordcount_queue.append(wordcount)
+        print(self.wordcount_queue)
+        if len(self.wordcount_queue) > retrain_delay:
+            self.wordcount_queue.pop(0) # remove oldest reading
+        
+        # online training
+        training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
+        training_label = sum(self.wordcount_queue[:-300])
+        
+        # update ml object
+        self.ml_object = self.ml_object
 
         # set Thresholds to -1 unless a number exists
-        # TODO: remove pagecount and charcount useless variables now
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
         try:
             wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
@@ -198,14 +189,13 @@ class gui():
         # if nothing has changed from last loop and the last change was over 180s ago --> roadblock
         # this is wrong --> roadblocks are set by ml model only
         curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
+        ml_prediction = []
         ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
         if ml_label_predicted:
             if self.roadblock:
                 self.popup_display()
             else:
                 self.popup_close()
-
-        self.last_wordcount = wordcount
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -214,9 +204,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # call realtime() every 1s
-        self.main_window.after(1000, self.realtime)
-
+        # call realtime() every 10s
+        self.main_window.after(10000, self.realtime)
 
 if __name__ == '__main__':
     gui1 = gui()

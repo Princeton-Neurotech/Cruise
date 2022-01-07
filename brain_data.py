@@ -2,7 +2,9 @@ import argparse
 import time
 import numpy as np
 import pandas as pd
-from brain_feature_vectors import *
+
+import brain_feature_vectors
+import ml
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
@@ -18,7 +20,6 @@ class Comms:
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
         self.board = BoardShim(self.myBoardID, self.params)
-        self.brain_fv = []
 
     def startStream(self):
         """
@@ -144,7 +145,7 @@ if __name__ == "__main__":
     created_df = False
     
     while True:
-        brain_fv = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+        brain_fv = calc_feature_vector(myBoard.getData(),  "feature vectors")
         feature_list = brain_fv[-1].copy()
         if  time.time() - start_time > 3:
             if created_df is False:
