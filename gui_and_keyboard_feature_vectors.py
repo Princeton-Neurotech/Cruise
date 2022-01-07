@@ -154,6 +154,10 @@ class gui():
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
             words = word_tokenize(sentence)
+            for word in words:
+                # this dictionary counts . as words, but not ! or ?
+                if dictionary.check(word) and word != ".":
+                    wordcount += 1
         
             for char in chars:
                 if chars == " " or chars == "\n":
@@ -163,11 +167,6 @@ class gui():
             # if first letter of first word is capital, considered sentence
             if words and chars[0].isupper() and dictionary.check(words[0]):
                 sentencecount += 1
-            
-            for word in words:
-                # this dictionary counts . as words, but not ! or ?
-                if dictionary.check(word) and word != ".":
-                    wordcount += 1
         
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
