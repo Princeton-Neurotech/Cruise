@@ -5,6 +5,7 @@ import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
+from ml2 import ml2
 
 
 class gui():
@@ -24,7 +25,7 @@ class gui():
     # length of history list readings needed (one every 5s): 120
     5s for past - sum up every 5 entries ie indexes 0-4, 4-8, ... for the first 300 entries
     (features are words typed in 5s intervals for past 5 mins)
-    (length of queue is 60) - can change to 15s intervals if want length of queue to be 20 based on # of bins
+    (length of queue is 120) - can change to 15s intervals if want length of queue to be 20 based on # of bins
     60 indexes to sum for future (label = words typed in future 5 mins)
 
     Takes 10 minutes to create datapoint 1
@@ -33,6 +34,10 @@ class gui():
     """
 
     def __init__(self):
+        self.diff_wordcount_queue = [None for _ in range(2*5*60/1)] #5 mins in future, 5min in past * 
+        self.ml_object = ml2()
+
+        # TODO: remove useless variables below here!!!!
         self.PAGE_LENGTH = 4002
 
         self.last_charcount = 0
@@ -122,8 +127,6 @@ class gui():
         begin.pack()
 
     def popup_display(self):
-        # print("roadblock:", self.roadblock)
-        # MAKE NOTIFICATION NOT COME UP IMMEDIATELY
         # if no popup and should have popup, display it
         if not self.popup_root:
             self.popup_root = tk.Tk()  # create popup window
@@ -143,14 +146,9 @@ class gui():
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
 
-        round(time.time() - self.time_for_features, 2)
-
         chars, charcount, wordcount, sentencecount, pagecount = " ", 0, 0, 0, 0
-
         dictionary = enchant.Dict("en_US")
-
         prompt = self.input_user_prompt.get(0.0, "end")
-
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
             words = word_tokenize(sentence)
@@ -171,110 +169,43 @@ class gui():
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
 
+
+
+        # u wrote or deleted nothing for 60s
+        # if nothing has changed from last loop and the last change was over 60s ago --> standby
+        standbyNotification = ""
+        if sum(self.diff_wordcount_queue[:-60])==0:
+            standbyNotification = "You've entered a standby"
+            self.nb_standby += 1
+
+        # 
+        self.diff_wordcount_queue.pop(0) #remove oldest reading
+        self.diff_wordcount_queue.append(abs(wordcount)-self.last_wordcount)
+
+        training_features = [sum(self.diff_wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
+        training_label = sum(self.diff_wordcount_queue[:-300])
+
+        # uptdate ml object
+
         # set Thresholds to -1 unless a number exists
+        # TODO: remove pagecount and charcount useless variables now
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
         try:
             wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
         except:
             pass
-        try:
-            pagecountThresholdInt = int(self.input_pagecount_threshold.get(0.0, "end"))
-        except:
-            pass
-
-        # roadblock popup if haven't written enough words or pages
-        self.roadblock = wordcount < wordcountThresholdInt or pagecount < pagecountThresholdInt
-        if self.roadblock:
-            self.popup_display()
-        else:
-            self.popup_close()
-
-        # if anything has changed since last time update it and update time of last change
-        if charcount != self.last_charcount or wordcount != self.last_wordcount or sentencecount != self.last_sentencecount:
-            self.time_last_change = time.time()
-            self.last_charcount = charcount
-            self.last_wordcount = wordcount
-            self.last_sentencecount = sentencecount
-
-        # if nothing has changed from last loop and the last change was over 60s ago --> standby
-        standbyNotification = ""
-        if time.time() - self.time_last_change > 60:
-            standbyNotification = "You've entered a standby"
-            self.nb_standby += 1
 
         # if nothing has changed from last loop and the last change was over 180s ago --> roadblock
-        if time.time() - self.time_last_change > 180:
+        # this is wrong --> roadblocks are set by ml model only
+        curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
+        ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
+        if ml_label_predicted:
             if self.roadblock:
                 self.popup_display()
             else:
                 self.popup_close()
 
-        """
-        self.history_charcount.append(charcount)
-        self.history_sentence_count.append(sentencecount)
-        self.history_page_count.append(pagecount)
-        self.history_standby.append(self.nb_standby)
-        self.history_dffeatures = pd.DataFrame(self.history_features)
-        """
-
-        # for data collection
-        self.history_word_count.append(wordcount)
-        self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
-        self.history_dffeatures = pd.DataFrame(self.history_features)
-        self.history_dffeatures["time (s)"] = self.history_time_seconds
-        self.history_dffeatures["wordcount"] = self.history_word_count
-        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
-        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
-        self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
-        self.history_dffeatures["words deleted"] = -1 * self.history_dffeatures["change in wordcount"].copy()
-        self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
-        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
-        # print(self.history_dffeatures)
-
-        """
-        self.history_dffeatures["time (s)"] = self.history_time_seconds
-        self.history_dffeatures["charcount"] = self.history_charcount
-        self.history_dffeatures["wordcount"] = self.history_word_count
-        self.history_dffeatures["sentencecount"] = self.history_sentence_count
-        self.history_dffeatures["pagecount"] = self.history_page_count
-        self.history_dffeatures["standby"] = self.history_standby
-        self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
-        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
-        self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
-        self.history_dffeatures["change in pagecount"] = self.history_dffeatures["pagecount"].diff()
-        self.history_dffeatures["chars produced"] = self.history_dffeatures["change in charcount"].copy()
-        self.history_dffeatures["chars produced"][self.history_dffeatures["chars produced"] < 0] = 0
-        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
-        self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
-        self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy()
-        self.history_dffeatures["sentences produced"][self.history_dffeatures["sentences produced"] < 0] = 0
-        self.history_dffeatures["pages produced"] = self.history_dffeatures["change in pagecount"].copy()
-        self.history_dffeatures["pages produced"][self.history_dffeatures["pages produced"] < 0] = 0
-        self.history_dffeatures["chars deleted"] = -1*self.history_dffeatures["change in charcount"].copy()
-        self.history_dffeatures["chars deleted"][self.history_dffeatures["chars deleted"] < 0] = 0
-        self.history_dffeatures["chars deleted"] = self.history_dffeatures["chars deleted"].abs()
-        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
-        self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
-        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
-        self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
-        self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
-        self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
-        self.history_dffeatures["pages deleted"] = -1*self.history_dffeatures["change in pagecount"].copy()
-        self.history_dffeatures["pages deleted"][self.history_dffeatures["pages deleted"] < 0] = 0
-        self.history_dffeatures["pages deleted"] = self.history_dffeatures["pages deleted"].abs()
-        """
-
-        # collect features data, sum 5 indexes so 5s of data for first 5 min
-        # if time.time() - self.time_for_features < 300:
-        i = 0
-        indexes = 300
-        for i in range(indexes):
-            # self.final_dffeatures.drop(self.final_dffeatures.columns[0], axis=1, inplace=True)
-            self.features_5s = self.history_dffeatures.sum(axis=0)
-            i = i + 5
-            self.keyboard_input_fv = self.features_5s.tolist()
-        print(self.features_5s)
-        # print(self.keyboard_input_fv)
+        self.last_wordcount = wordcount
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
