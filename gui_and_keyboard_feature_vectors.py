@@ -147,11 +147,12 @@ class gui():
 
         char, charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0, 0
 
-        dictionary = enchant.Dict("en_US")
+        dictiononary = enchant.Dict("en_US")
 
         prompt = self.input_user_prompt.get(0.0, "end")
 
         char = prompt.replace('\n', '')
+        
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
 

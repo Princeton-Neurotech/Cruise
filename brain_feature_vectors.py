@@ -792,7 +792,8 @@ def calc_feature_vector(matrix, state):
     var_names += v
     var_values = np.hstack([var_values, x])
 
-    log_cov = feature_logcov(covM)
+    covM = feature_covariance_matrix(matrix)
+    # log_cov = feature_logcov(covM)
     var_names += v
     var_values = np.hstack([var_values, x])
 

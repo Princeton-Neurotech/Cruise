@@ -9,10 +9,9 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
-class brain_data:
+class Comms:
 
     def __init__(self, boardID=-1, serial=''):
-        # self.data = []
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
@@ -143,11 +142,10 @@ if __name__ == "__main__":
     myBoard.startStream()
     start_time = time.time()
     created_df = False
-    features = calc_feature_vector(myBoard.getCurrentData(250), "feature vectors")
-    feature_list = features[-1].copy()
     
     while True:
-        brain_fv = calc_feature_vector(myBoard.getCurrentData(250), "feature vectors")
+        brain_fv = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+        feature_list = brain_fv[-1].copy()
         if  time.time() - start_time > 3:
             if created_df is False:
                 brain_df = pd.DataFrame(columns=brain_fv[-1])
@@ -159,19 +157,8 @@ if __name__ == "__main__":
 
             brain_df.loc[len(brain_df)]=brain_fv[0] 
             print(brain_df)
-
-            time1 += 1
-            counter1 += 1
             
             # print(len(brain_fv[0]),len(brain_fv[-1]))
             #print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)
     
     myBoard.stopStream()
-
-
-    #TODO: Run the EEG stream and keyboard data stream simultaneously merging both data processes
-    #into a unique process for every observation (make sure rows are complete) 
-    #keep track of the time each row takes to process and modify code  
-    # ADJUST Keyboard input data stream to match time AND 
-    # ADJUST EEG input data stream (Change matrix size) to match time
-
