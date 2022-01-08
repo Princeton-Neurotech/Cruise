@@ -169,8 +169,16 @@ class gui():
         beginning_intervals = 0
         for beginning_intervals in range (0, retrain_delay + 1, 5): # beginning interval of each batch
             self.beginning_intervals_array.insert(0, beginning_intervals)
-        # print(self.beginning_intervals_array) 
+            end_intervals = beginning_intervals + 10
+            self.end_intervals_array.insert(0, end_intervals)
+        i = len(self.end_intervals_array) - 60
+        print(len(self.end_intervals_array))
+        self.end_intervals_array.pop(self.end_intervals_array[1])
+        self.end_intervals_array.pop(self.end_intervals_array[2])
+        print(self.beginning_intervals_array) 
+        print(self.end_intervals_array) 
         
+        """"
         # end intervals
         index = 0
         for index in np.arange(0, batch_length - 1, 1):
@@ -191,10 +199,11 @@ class gui():
             i2 -= 1
             self.end_intervals_array = self.end_intervals_array
 
+        """
         # match indices of arrays
-        temp = len(self.beginning_intervals_array) * '% s = %% s, '
-        intervals = temp % tuple(self.beginning_intervals_array) % tuple(self.beginning_intervals_array)
-        print(intervals)
+        # temp = len(self.beginning_intervals_array) * '% s = %% s, '
+        # intervals = temp % tuple(self.beginning_intervals_array) % tuple(self.beginning_intervals_array)
+        # print(intervals)
         
         # online training
         # for index in np.arange(0, batch_length - 1, 1):
