@@ -19,17 +19,13 @@ class gui():
     every 10 mins?
 
     CHANGES:
-    Last 5 minutes - 5s spacing take readings
+    Last 5 minutes - 10s spacing take readings
 
-    # Length of history list readings needed (one every 5s): 240
-    5s for past - sliding window queue for 5s intervals with overlap (05, 2.5-7.5, 5-10, etc.)
-    (features are words typed in 5s intervals for past 5 mins)
-    (length of queue is 240) - can change intervals if want length of queue to be different, based on # of bins
-    120 indexes to sum for future (label = words typed in future 5 mins)
-
-    Takes 10 minutes to create datapoint 1
-    after that making a new datapoint every 5s --> 60 datapoints in next 5 mins
-    Therefore after 15mins have 60 datapoints
+    # Length of history list readings needed (queue) (one every 10s): 120
+    10s for past - sliding window queue for 5s intervals with overlap (0-10, 5-15, 10-20, etc.)
+    60 features - words typed in 10s intervals for past 5 mins
+    60 labels - summed indexes for future - words typed in future 5 mins
+    Can change intervals if want length of queue to be different, based on # of bins
     """
 
     def __init__(self):
@@ -40,6 +36,8 @@ class gui():
         self.PAGE_LENGTH = 4002
         self.roadblock = False
         self.nb_standby = 0
+        self.beginning_intervals_array = []
+        self.end_intervals_array = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -166,20 +164,43 @@ class gui():
         self.wordcount_queue.append(wordcount)
         if len(self.wordcount_queue) > retrain_delay:
             self.wordcount_queue.pop(0) # remove oldest reading
+         
+        # beginning intervals
+        beginning_intervals = 0
+        for beginning_intervals in range (0, retrain_delay + 1, 5): # beginning interval of each batch
+            self.beginning_intervals_array.insert(0, beginning_intervals)
+        # print(self.beginning_intervals_array) 
         
-        index = 0  
+        # end intervals
+        index = 0
         for index in np.arange(0, batch_length - 1, 1):
-            end_batches = (index * split) + window_length # end interval of each batch
-            end_batches = int(end_batches)
-        beginning_batches = 0
-        for beginning_batches in range (0, retrain_delay + 1, 5): # beginning interval of each batch
-            beginning_batches = beginning_batches
+            end_intervals = (index * split) + window_length # end interval of each batch
+            end_intervals = int(end_intervals)
+            self.end_intervals_array.insert(0, end_intervals)
+        # print(self.end_intervals_array)
+
+        # reverse arrays
+        i1 = len(self.beginning_intervals_array) - 1
+        while(i1 >= 0):
+            print(self.beginning_intervals_array[i1])
+            i1 -= 1
+            self.beginning_intervals_array = self.beginning_intervals_array
+        i2 = len(self.end_intervals_array) - 1
+        while(i2 >= 0):
+            print(self.end_intervals_array[i2])
+            i2 -= 1
+            self.end_intervals_array = self.end_intervals_array
+
+        # match indices of arrays
+        temp = len(self.beginning_intervals_array) * '% s = %% s, '
+        intervals = temp % tuple(self.beginning_intervals_array) % tuple(self.beginning_intervals_array)
+        print(intervals)
         
         # online training
-        for index in np.arange(0, batch_length - 1, 1):
-            keyboard_training_features = [sum(self.wordcount_queue[beginning_batches:end_batches])]
-            print(keyboard_training_features)
-            keyboard_training_label = sum(self.wordcount_queue[:-300])
+        # for index in np.arange(0, batch_length - 1, 1):
+            # keyboard_training_features = [sum(self.wordcount_queue[beginning_intervals:end_intervals])]
+            # print(keyboard_training_features)
+            # keyboard_training_label = sum(self.wordcount_queue[:-300])
         
         # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
         # training_label = sum(self.wordcount_queue[:-300])
