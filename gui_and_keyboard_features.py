@@ -6,6 +6,7 @@ import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
 import machine_learning 
+import itertools as it
 
 class gui():
     """
@@ -21,23 +22,22 @@ class gui():
     CHANGES:
     Last 5 minutes - 10s spacing take readings
 
-    # Length of history list readings needed (queue) (one every 10s): 120
+    # Length of history list readings needed (queue) (one every 10s): 120 (past and future)
     10s for past - sliding window queue for 5s intervals with overlap (0-10, 5-15, 10-20, etc.)
     60 features - words typed in 10s intervals for past 5 mins
-    60 labels - summed indexes for future - words typed in future 5 mins
+    1 label - 60 summed indexes for future - words typed in future 5 mins
     Can change intervals if want length of queue to be different, based on # of bins
     """
 
     def __init__(self):
-        # 5 mins in future, 5 mins in past (length=120, 60 and 60)
-        self.wordcount_queue = []
+        # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
+        self.np_wordcount_queue = []
         # self.ml_object = machine_learning.ml()
         self.time_last_change = 0
         self.PAGE_LENGTH = 4002
         self.roadblock = False
         self.nb_standby = 0
-        self.beginning_intervals_array = []
-        self.end_intervals_array = []
+        self.intervals_array = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -161,55 +161,55 @@ class gui():
         batch_length = 60 # 60 batches every 5 min
         retrain_delay = 300 # 5 min
         num_batches = retrain_delay / batch_length # 300/10 = 30
-        self.wordcount_queue.append(wordcount)
-        if len(self.wordcount_queue) > retrain_delay:
-            self.wordcount_queue.pop(0) # remove oldest reading
+        self.np_wordcount_queue = np.empty(1000)
+        # print(self.np_wordcount_queue)
+        self.np_wordcount_queue = np.append(self.np_wordcount_queue, int(wordcount))
+        # print(self.np_wordcount_queue)
+        if len(self.np_wordcount_queue) > retrain_delay:
+            self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
          
         # beginning intervals
+        index = 0
         beginning_intervals = 0
         for beginning_intervals in range (0, retrain_delay + 1, 5): # beginning interval of each batch
-            self.beginning_intervals_array.insert(0, beginning_intervals)
+            beginning_intervals = beginning_intervals
             end_intervals = beginning_intervals + 10
-            self.end_intervals_array.insert(0, end_intervals)
-        i = len(self.end_intervals_array) - 60
-        print(len(self.end_intervals_array))
-        self.end_intervals_array.pop(self.end_intervals_array[1])
-        self.end_intervals_array.pop(self.end_intervals_array[2])
-        print(self.beginning_intervals_array) 
-        print(self.end_intervals_array) 
+            for index in range (0, 1, 5):
+                self.intervals_array = np.empty(1000)
+                self.intervals_array = np.insert(0, beginning_intervals, beginning_intervals)
+                self.intervals_array = np.insert(0, end_intervals, end_intervals)
+        self.intervals_array = np.delete(self.intervals_array, 0)
+        self.intervals_array = np.delete(self.intervals_array, 1)
+        self.intervals_array = np.flip(self.intervals_array)
+        print(self.intervals_array)
+
+        x = self.intervals_array
+        def moving_window(x, length, step=1):
+            streams = it.tee(x, length)
+            return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
+        x_ = list(moving_window(x, 2))
+        for index in range (0, 60, 1):
+            x_list = list(x_[index])
+            # print(x_list)
         
-        """"
-        # end intervals
-        index = 0
-        for index in np.arange(0, batch_length - 1, 1):
-            end_intervals = (index * split) + window_length # end interval of each batch
-            end_intervals = int(end_intervals)
-            self.end_intervals_array.insert(0, end_intervals)
-        # print(self.end_intervals_array)
-
-        # reverse arrays
-        i1 = len(self.beginning_intervals_array) - 1
-        while(i1 >= 0):
-            print(self.beginning_intervals_array[i1])
-            i1 -= 1
-            self.beginning_intervals_array = self.beginning_intervals_array
-        i2 = len(self.end_intervals_array) - 1
-        while(i2 >= 0):
-            print(self.end_intervals_array[i2])
-            i2 -= 1
-            self.end_intervals_array = self.end_intervals_array
-
+        # print(self.np_wordcount_queue.size)
         """
-        # match indices of arrays
-        # temp = len(self.beginning_intervals_array) * '% s = %% s, '
-        # intervals = temp % tuple(self.beginning_intervals_array) % tuple(self.beginning_intervals_array)
-        # print(intervals)
-        
+        Alternative for getting # words typed in each sliding window:
+
+        Make data collection window 5 seconds. For each sliding window, add 
+        the # words in those 5 seconds to the next # words in the next 5
+        seconds. 
+        Example: # words in sliding window 0-10 = #window1 + #window2
+                # words in sliding window 5-15 = #window2 + #window3
+                # words in sliding window 10-20 = #window3 + #window4
+                etc....
+        """
+
         # online training
-        # for index in np.arange(0, batch_length - 1, 1):
-            # keyboard_training_features = [sum(self.wordcount_queue[beginning_intervals:end_intervals])]
-            # print(keyboard_training_features)
-            # keyboard_training_label = sum(self.wordcount_queue[:-300])
+        for index in np.arange(0, batch_length - 1, 1):
+            keyboard_training_features = self.np_wordcount_queue[x_list].sum()
+            print(keyboard_training_features)
+            keyboard_training_label = sum(self.np_wordcount_queue[:-300])
         
         # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
         # training_label = sum(self.wordcount_queue[:-300])
@@ -241,8 +241,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # call realtime() every 10s
-        self.main_window.after(10000, self.realtime)
+        # call realtime() every 5s
+        self.main_window.after(5000, self.realtime)
 
 if __name__ == '__main__':
     gui1 = gui()

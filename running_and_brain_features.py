@@ -157,9 +157,9 @@ if __name__ == "__main__":
             print(myBoard.getEEGChannels())
 
             brain_df.loc[len(brain_df)] = brain_training_features[0] 
-            print(type(brain_df))
+            print(brain_df)
             
             # print(len(brain_fv[0]),len(brain_fv[-1]))
-            #print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)
+            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)
     
     myBoard.stopStream()
