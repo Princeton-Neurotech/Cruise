@@ -11,7 +11,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
-class Comms:
+class braindata:
 
     def __init__(self, boardID=-1, serial=''):
         self.isRunning = False
@@ -137,7 +137,7 @@ class Comms:
 
 
 if __name__ == "__main__":
-    myBoard = Comms(-1, 'COM3')
+    myBoard = braindata(-1, 'COM3')
     time1 = 0
     counter1 = 0
     myBoard.startStream()
@@ -145,19 +145,19 @@ if __name__ == "__main__":
     created_df = False
     
     while True:
-        brain_fv = calc_feature_vector(myBoard.getData(),  "feature vectors")
-        feature_list = brain_fv[-1].copy()
-        if  time.time() - start_time > 3:
+        brain_training_features = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+        # feature_list = training_features[-1].copy()
+        # first three sec lengths of lists change (unknown why) but afterwards doesn't change
+        if time.time() - start_time > 3: 
             if created_df is False:
-                brain_df = pd.DataFrame(columns=brain_fv[-1])
-                print(brain_df)
+                brain_df = pd.DataFrame(columns = brain_training_features[-1])
                 created_df = True
 
             print(myBoard.get_samplingRate())
             print(myBoard.getEEGChannels())
 
-            brain_df.loc[len(brain_df)]=brain_fv[0] 
-            print(brain_df)
+            brain_df.loc[len(brain_df)] = brain_training_features[0] 
+            print(type(brain_df))
             
             # print(len(brain_fv[0]),len(brain_fv[-1]))
             #print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)

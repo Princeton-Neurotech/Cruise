@@ -521,6 +521,7 @@ def feature_covariance_matrix(matrix):
         Original: [fcampelo]
     """
 
+    """
     covM = np.cov(matrix.T)
     indx = np.triu_indices(covM.shape[0])
     ret = covM[indx]
@@ -531,6 +532,7 @@ def feature_covariance_matrix(matrix):
             names.extend(['covM_' + str(i) + '_' + str(j)])
 
     return covM
+    """
 
 
 # return ret, names,
@@ -538,9 +540,8 @@ def feature_covariance_matrix(matrix):
 # covariance_matrix = feature_covariance_matrix(first_sliced_matrix)
 # print(covariance_matrix)
 
-
+"""
 def feature_eigenvalues(covM):
-    """
     Computes the eigenvalues of the covariance matrix passed as the function
     argument.
 
@@ -555,19 +556,19 @@ def feature_eigenvalues(covM):
     Author:
         Original: [lmanso]
         Revision and documentation: [fcampelo]
-    """
 
     ret = np.linalg.eigvals(covM).flatten()
     names = ['eigenval_' + str(i) for i in range(covM.shape[0])]
     return ret, names
+    """
 
 
 # eigenvalues_matrix = feature_eigenvalues(covariance_matrix)
 # print(eigenvalues_matrix)
 
 
-def feature_logcov(covM):
-    """
+# def feature_logcov(covM):
+"""
     Computes the matrix logarithm of the covariance matrix of the signals.
     Since the matrix is symmetric, only the lower triangular elements
     (including the main diagonal) are returned.
@@ -603,7 +604,7 @@ def feature_logcov(covM):
 
     Author:
         Original: [fcampelo]
-    """
+
     log_cov = logm(covM)
     indx = np.triu_indices(log_cov.shape[0])
     ret = np.abs(log_cov[indx])
@@ -614,9 +615,7 @@ def feature_logcov(covM):
             names.extend(['logcovM_' + str(i) + '_' + str(j)])
 
     return log_cov
-
-
-# return ret, names,
+    """
 
 # logcov_matrix = feature_logcov(covariance_matrix)
 # print(logcov_matrix)
@@ -784,6 +783,7 @@ def calc_feature_vector(matrix, state):
     var_names += v
     var_values = np.hstack([var_values, x])
 
+    """
     covM = feature_covariance_matrix(matrix)
     var_names += v
     var_values = np.hstack([var_values, x])
@@ -795,6 +795,7 @@ def calc_feature_vector(matrix, state):
     log_cov = feature_logcov(covM)
     var_names += v
     var_values = np.hstack([var_values, x])
+    """
 
     x, v = feature_fft(matrix)
     var_names += v

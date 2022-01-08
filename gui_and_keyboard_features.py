@@ -1,11 +1,11 @@
 import time
 import pandas as pd
-import tkinter as tk
 import numpy as np
+import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
-from ml import *
+import machine_learning 
 
 class gui():
     """
@@ -21,11 +21,11 @@ class gui():
     CHANGES:
     Last 5 minutes - 5s spacing take readings
 
-    # length of history list readings needed (one every 5s): 120
-    5s for past - sum up every 5 entries ie indexes 0-4, 4-8, ... for the first 300 entries
+    # Length of history list readings needed (one every 5s): 240
+    5s for past - sliding window queue for 5s intervals with overlap (05, 2.5-7.5, 5-10, etc.)
     (features are words typed in 5s intervals for past 5 mins)
-    (length of queue is 120) - can change to 15s intervals if want length of queue to be 20 based on # of bins
-    60 indexes to sum for future (label = words typed in future 5 mins)
+    (length of queue is 240) - can change intervals if want length of queue to be different, based on # of bins
+    120 indexes to sum for future (label = words typed in future 5 mins)
 
     Takes 10 minutes to create datapoint 1
     after that making a new datapoint every 5s --> 60 datapoints in next 5 mins
@@ -35,8 +35,8 @@ class gui():
     def __init__(self):
         # 5 mins in future, 5 mins in past (length=120, 60 and 60)
         self.wordcount_queue = []
+        # self.ml_object = machine_learning.ml()
         self.time_last_change = 0
-        self.ml_object = ml()
         self.PAGE_LENGTH = 4002
         self.roadblock = False
         self.nb_standby = 0
@@ -126,9 +126,7 @@ class gui():
         self.output_standby.delete(0.0, "end")
         
         charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
-
         dictionary = enchant.Dict("en_US")
-
         prompt = self.input_user_prompt.get(0.0, "end")
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
         for sentence in completeSentences:
@@ -159,25 +157,34 @@ class gui():
             self.nb_standby += 1
 
         # moving window queue
-        i = 0
         overlap = 2 
-        window_length = 5 # 5s
-        split = window_length / overlap # 2.5s
-        batch = (i * split) + window_length 
-        batch_length = 120 # 120 batches every 5 min
+        window_length = 10 # 10s
+        split = window_length / overlap # 5s
+        batch_length = 60 # 60 batches every 5 min
         retrain_delay = 300 # 5 min
-        num_batches = retrain_delay / batch_length
+        num_batches = retrain_delay / batch_length # 300/10 = 30
         self.wordcount_queue.append(wordcount)
-        print(self.wordcount_queue)
         if len(self.wordcount_queue) > retrain_delay:
             self.wordcount_queue.pop(0) # remove oldest reading
         
+        index = 0  
+        for index in np.arange(0, batch_length - 1, 1):
+            end_batches = (index * split) + window_length # end interval of each batch
+            end_batches = int(end_batches)
+        beginning_batches = 0
+        for beginning_batches in range (0, retrain_delay + 1, 5): # beginning interval of each batch
+            beginning_batches = beginning_batches
+        
         # online training
-        training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
-        training_label = sum(self.wordcount_queue[:-300])
+        for index in np.arange(0, batch_length - 1, 1):
+            keyboard_training_features = [sum(self.wordcount_queue[beginning_batches:end_batches])]
+            print(keyboard_training_features)
+            keyboard_training_label = sum(self.wordcount_queue[:-300])
+        
+        # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
+        # training_label = sum(self.wordcount_queue[:-300])
         
         # update ml object
-        self.ml_object = self.ml_object
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
@@ -186,8 +193,7 @@ class gui():
         except:
             pass
 
-        # if nothing has changed from last loop and the last change was over 180s ago --> roadblock
-        # this is wrong --> roadblocks are set by ml model only
+        """
         curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
         ml_prediction = []
         ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
@@ -196,6 +202,7 @@ class gui():
                 self.popup_display()
             else:
                 self.popup_close()
+        """
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
