@@ -139,7 +139,7 @@ class gui():
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
-                    return self.wordcount
+                    # return self.wordcount
         
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
@@ -159,8 +159,6 @@ class gui():
 
         # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
         # training_label = sum(self.wordcount_queue[:-300])
-        
-        # update ml object
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
@@ -190,20 +188,18 @@ class gui():
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)
     
-    def sliding_window(self):
-        # moving window queue
-        overlap = 2 
-        window_length = 10 # 10s
-        split = window_length / overlap # 5s
-        batch_length = 60 # 60 batches every 5 min
-        retrain_delay = 300 # 5 min
-        num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
-        self.np_wordcount_queue = np.zeros(1000)
-        self.np_wordcount_queue = np.insert(self.np_wordcount_queue, 0, int(self.wordcount))
-        if len(self.np_wordcount_queue) > retrain_delay:
-            self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
+    overlap = 2 
+    window_length = 10 # 10s
+    split = window_length / overlap # 5s
+    batch_length = 60 # 60 batches every 5 min
+    retrain_delay = 300 # 5 min
+    num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
+    # np_wordcount_queue = np.zeros(1000)
+    # np_wordcount_queue = np.insert(np_wordcount_queue, 0, int(wordcount))
+    # if len(np_wordcount_queue) > retrain_delay:
+        # np_wordcount_queue = np.delete(np_wordcount_queue, 0) # remove oldest reading
          
-        """
+    """
             Alternative for getting # words typed in each sliding window:
 
             Make data collection window 5 seconds. For each sliding window, add 
@@ -213,23 +209,23 @@ class gui():
                     # words in sliding window 5-15 = #window2 + #window3
                     # words in sliding window 10-20 = #window3 + #window4
                     etc....
-        """
-        self.main_window.after(5000, self.realtime)
-        index = 0
-        self.wordcount_queue = []
-        for index in np.arange(0, 29, 1):
-            self.realtime()
-            self.wordcount_queue.append(self.wordcount)
-            return self.wordcount_queue
+    """
 
-        print(self.wordcount_queue)
-        first_half_sum = self.wordcount_queue[0] # first 5s (0-5)
-        second_half_sum = self.wordcount_queue[1] # second 5s (5-10)
-        third_half_sum = self.wordcount_queue[2] # second 5s (10-15)
+    def sliding_window(self):
+        index = 0
+        wordcount_queue = []
+        realtime = self.realtime()
+        for realtime in np.arange(0, 29, 1): # compute two batches each time, 60 in all
+            wordcount_queue.append(self.wordcount)
+            print(wordcount_queue)
+       
+        first_half_sum = wordcount_queue[0] # first 5s (0-5)
+        second_half_sum = wordcount_queue[1] # second 5s (5-10)
+        third_half_sum = wordcount_queue[2] # second 5s (10-15)
         first_batch = first_half_sum + second_half_sum
         second_batch = second_half_sum + third_half_sum
 
-        """
+    """
         index = 0
         beginning_intervals = 0
         for beginning_intervals in range (0, retrain_delay + 1, 5): 
@@ -254,7 +250,7 @@ class gui():
             keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
             keyboard_training_label = sum(self.np_wordcount_queue[:-300])
             print(keyboard_training_features)
-        """
+    """
 
 
 if __name__ == '__main__':
