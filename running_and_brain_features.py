@@ -3,8 +3,9 @@ import time
 import numpy as np
 import pandas as pd
 
-from brain_data_computations import *
-from machine_learning import *
+import gui_and_keyboard_features 
+import brain_data_computations
+import machine_learning 
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
@@ -137,29 +138,46 @@ class braindata:
 
 
 if __name__ == "__main__":
+    brain_data_intervals = gui_and_keyboard_features.gui()
+    brain_data_comps = brain_data_computations.computations()
     myBoard = braindata(-1, 'COM3')
-    time1 = 0
-    counter1 = 0
     myBoard.startStream()
     start_time = time.time()
     created_df = False
+    intervals_array = []
     
     while True:
-        brain_training_features = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+        brain_columns = brain_data_comps.calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
         # feature_list = training_features[-1].copy()
         # first three sec lengths of lists change (unknown why) but afterwards doesn't change
         if time.time() - start_time > 3: 
             if created_df is False:
-                brain_df = pd.DataFrame(columns = brain_training_features[-1])
+                total_brain_data = pd.DataFrame(columns = brain_columns[-1])
                 created_df = True
 
             print(myBoard.get_samplingRate())
             print(myBoard.getEEGChannels())
 
-            brain_df.loc[len(brain_df)] = brain_training_features[0] 
-            print(brain_df)
+            total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
+            # print(brain_training_features[0])
+            print(total_brain_data)
             
             # print(len(brain_fv[0]),len(brain_fv[-1]))
-            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) *1000)
-    
+            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
+
+            # moving window queue
+            overlap = 2 
+            window_length = 10 # 10s
+            split = window_length / overlap # 5s
+            batch_length = 60 # 60 batches every 5 min
+            retrain_delay = 300 # 5 min
+            num_batches = retrain_delay / batch_length # 300/10 = 30
+
+            # if len(self.np_wordcount_queue) > retrain_delay:
+                # self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
+        
+            for index in np.arange(0, batch_length - 1, 1):
+                brain_training_features = total_brain_data[brain_data_intervals.split_intervals_array].sum()
+                # brain_training_label = sum(total_brain_data[:-300])
+        print(brain_training_features)
     myBoard.stopStream()

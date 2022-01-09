@@ -38,6 +38,7 @@ class gui():
         self.roadblock = False
         self.nb_standby = 0
         self.intervals_array = []
+        self.split_intervals_array = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -161,55 +162,52 @@ class gui():
         batch_length = 60 # 60 batches every 5 min
         retrain_delay = 300 # 5 min
         num_batches = retrain_delay / batch_length # 300/10 = 30
-        self.np_wordcount_queue = np.empty(1000)
+        self.np_wordcount_queue = np.zeros(1000)
         # print(self.np_wordcount_queue)
-        self.np_wordcount_queue = np.append(self.np_wordcount_queue, int(wordcount))
+        self.np_wordcount_queue = np.insert(self.np_wordcount_queue, 0, int(wordcount))
         # print(self.np_wordcount_queue)
         if len(self.np_wordcount_queue) > retrain_delay:
             self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
          
-        # beginning intervals
         index = 0
         beginning_intervals = 0
-        for beginning_intervals in range (0, retrain_delay + 1, 5): # beginning interval of each batch
-            beginning_intervals = beginning_intervals
-            end_intervals = beginning_intervals + 10
+        for beginning_intervals in range (0, retrain_delay + 1, 5): 
+            beginning_intervals = beginning_intervals # beginning interval of each batch
+            end_intervals = beginning_intervals + 10 # end interval of each batch
             for index in range (0, 1, 5):
-                self.intervals_array = np.empty(1000)
-                self.intervals_array = np.insert(0, beginning_intervals, beginning_intervals)
-                self.intervals_array = np.insert(0, end_intervals, end_intervals)
-        self.intervals_array = np.delete(self.intervals_array, 0)
-        self.intervals_array = np.delete(self.intervals_array, 1)
-        self.intervals_array = np.flip(self.intervals_array)
-        print(self.intervals_array)
+                self.intervals_array.insert(0, beginning_intervals)
+                self.intervals_array.insert(0, end_intervals)
+        self.intervals_array.pop(0) # extra 310
+        self.intervals_array.pop(1) # extra 305
+        self.intervals_array.reverse() # was in reverse order beforehand
 
-        x = self.intervals_array
+        # move across array in window fashion, printing each beginning and end interval pair
         def moving_window(x, length, step=1):
             streams = it.tee(x, length)
             return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
-        x_ = list(moving_window(x, 2))
+        self.split_intervals_array = moving_window(self.intervals_array, 2)
+        print(self.split_intervals_array)
         for index in range (0, 60, 1):
-            x_list = list(x_[index])
-            # print(x_list)
+            # self.split_intervals_array = list(self.split_intervals_array[index])
+            # print(self.np_wordcount_queue.size)
         
-        # print(self.np_wordcount_queue.size)
-        """
-        Alternative for getting # words typed in each sliding window:
+            # online training
+            # for index in np.arange(0, batch_length - 1, 1):
+                # keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
+                # keyboard_training_label = sum(self.np_wordcount_queue[:-300])
+        # print(keyboard_training_features)
 
-        Make data collection window 5 seconds. For each sliding window, add 
-        the # words in those 5 seconds to the next # words in the next 5
-        seconds. 
-        Example: # words in sliding window 0-10 = #window1 + #window2
-                # words in sliding window 5-15 = #window2 + #window3
-                # words in sliding window 10-20 = #window3 + #window4
-                etc....
-        """
+            """
+            Alternative for getting # words typed in each sliding window:
 
-        # online training
-        for index in np.arange(0, batch_length - 1, 1):
-            keyboard_training_features = self.np_wordcount_queue[x_list].sum()
-            print(keyboard_training_features)
-            keyboard_training_label = sum(self.np_wordcount_queue[:-300])
+            Make data collection window 5 seconds. For each sliding window, add 
+            the # words in those 5 seconds to the next # words in the next 5
+            seconds. 
+            Example: # words in sliding window 0-10 = #window1 + #window2
+                    # words in sliding window 5-15 = #window2 + #window3
+                    # words in sliding window 10-20 = #window3 + #window4
+                    etc....
+            """
         
         # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
         # training_label = sum(self.wordcount_queue[:-300])
