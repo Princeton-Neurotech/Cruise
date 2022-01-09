@@ -32,6 +32,7 @@ class gui():
     def __init__(self):
         # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
         self.np_wordcount_queue = []
+        self.wordcount = 0
         # self.ml_object = machine_learning.ml()
         self.time_last_change = 0
         self.PAGE_LENGTH = 4002
@@ -124,7 +125,7 @@ class gui():
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
         
-        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
+        charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
         prompt = self.input_user_prompt.get(0.0, "end")
         completeSentences = sent_tokenize(prompt)  # produces array of sentences
@@ -137,7 +138,8 @@ class gui():
                         sentencecount -=1 
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
-                    wordcount += 1
+                    self.wordcount += 1
+                    return self.wordcount
         
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
@@ -148,67 +150,13 @@ class gui():
         if charcount == 0:
             self.time_last_change = time.time()
             self.last_charcount = charcount
-            self.last_wordcount = wordcount
+            self.last_wordcount = self.wordcount
             self.last_sentencecount = sentencecount
 
         if time.time() - self.time_last_change > 60:
             standbyNotification = "You've entered a standby"
             self.nb_standby += 1
 
-        # moving window queue
-        overlap = 2 
-        window_length = 10 # 10s
-        split = window_length / overlap # 5s
-        batch_length = 60 # 60 batches every 5 min
-        retrain_delay = 300 # 5 min
-        num_batches = retrain_delay / batch_length # 300/10 = 30
-        self.np_wordcount_queue = np.zeros(1000)
-        # print(self.np_wordcount_queue)
-        self.np_wordcount_queue = np.insert(self.np_wordcount_queue, 0, int(wordcount))
-        # print(self.np_wordcount_queue)
-        if len(self.np_wordcount_queue) > retrain_delay:
-            self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
-         
-        index = 0
-        beginning_intervals = 0
-        for beginning_intervals in range (0, retrain_delay + 1, 5): 
-            beginning_intervals = beginning_intervals # beginning interval of each batch
-            end_intervals = beginning_intervals + 10 # end interval of each batch
-            for index in range (0, 1, 5):
-                self.intervals_array.insert(0, beginning_intervals)
-                self.intervals_array.insert(0, end_intervals)
-        self.intervals_array.pop(0) # extra 310
-        self.intervals_array.pop(1) # extra 305
-        self.intervals_array.reverse() # was in reverse order beforehand
-
-        # move across array in window fashion, printing each beginning and end interval pair
-        def moving_window(x, length, step=1):
-            streams = it.tee(x, length)
-            return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
-        self.split_intervals_array = moving_window(self.intervals_array, 2)
-        print(self.split_intervals_array)
-        for index in range (0, 60, 1):
-            # self.split_intervals_array = list(self.split_intervals_array[index])
-            # print(self.np_wordcount_queue.size)
-        
-            # online training
-            # for index in np.arange(0, batch_length - 1, 1):
-                # keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
-                # keyboard_training_label = sum(self.np_wordcount_queue[:-300])
-        # print(keyboard_training_features)
-
-            """
-            Alternative for getting # words typed in each sliding window:
-
-            Make data collection window 5 seconds. For each sliding window, add 
-            the # words in those 5 seconds to the next # words in the next 5
-            seconds. 
-            Example: # words in sliding window 0-10 = #window1 + #window2
-                    # words in sliding window 5-15 = #window2 + #window3
-                    # words in sliding window 10-20 = #window3 + #window4
-                    etc....
-            """
-        
         # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
         # training_label = sum(self.wordcount_queue[:-300])
         
@@ -234,13 +182,75 @@ class gui():
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
-        self.output_wordcount.insert(tk.INSERT, wordcount)
+        self.output_wordcount.insert(tk.INSERT, self.wordcount)
         self.output_sentencecount.insert(tk.INSERT, sentencecount)
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)
+    
+    def sliding_window(self):
+        # moving window queue
+        overlap = 2 
+        window_length = 10 # 10s
+        split = window_length / overlap # 5s
+        batch_length = 60 # 60 batches every 5 min
+        retrain_delay = 300 # 5 min
+        num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
+        self.np_wordcount_queue = np.zeros(1000)
+        self.np_wordcount_queue = np.insert(self.np_wordcount_queue, 0, int(self.wordcount))
+        if len(self.np_wordcount_queue) > retrain_delay:
+            self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
+         
+         
+        """
+            Alternative for getting # words typed in each sliding window:
+
+            Make data collection window 5 seconds. For each sliding window, add 
+            the # words in those 5 seconds to the next # words in the next 5
+            seconds. 
+            Example: # words in sliding window 0-10 = #window1 + #window2
+                    # words in sliding window 5-15 = #window2 + #window3
+                    # words in sliding window 10-20 = #window3 + #window4
+                    etc....
+        """
+        
+        index = 0
+        for index in np.arange(0, 29, 1):
+            first_half_sum = self.wordcount # first 5s (0-5)
+            second_half_sum = self.wordcount # second 5s (5-10)
+            third_half_sum = self.wordcount # second 5s (10-15)
+            first_batch = first_half_sum + second_half_sum
+            second_batch = second_half_sum + third_half_sum
+
+        """
+        index = 0
+        beginning_intervals = 0
+        for beginning_intervals in range (0, retrain_delay + 1, 5): 
+            beginning_intervals = beginning_intervals # beginning interval of each batch
+            end_intervals = beginning_intervals + 10 # end interval of each batch
+            for index in range (0, 1, 5):
+                self.intervals_array.insert(0, beginning_intervals)
+                self.intervals_array.insert(0, end_intervals)
+        self.intervals_array.pop(0) # extra 310
+        self.intervals_array.pop(1) # extra 305
+        self.intervals_array.reverse() # was in reverse order beforehand
+
+        # move across array in window fashion, printing each beginning and end interval pair
+        def moving_window(x, length, step=1):
+            streams = it.tee(x, length)
+            return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
+        self.split_intervals_array = list(moving_window(self.intervals_array, 2))
+        print(self.split_intervals_array)
+        
+        # online training
+        for index in np.arange(0, batch_length - 1, 1):
+            keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
+            keyboard_training_label = sum(self.np_wordcount_queue[:-300])
+            print(keyboard_training_features)
+        """
+
 
 if __name__ == '__main__':
     gui1 = gui()
