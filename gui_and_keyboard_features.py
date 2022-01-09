@@ -203,7 +203,6 @@ class gui():
         if len(self.np_wordcount_queue) > retrain_delay:
             self.np_wordcount_queue = np.delete(self.np_wordcount_queue, 0) # remove oldest reading
          
-         
         """
             Alternative for getting # words typed in each sliding window:
 
@@ -215,14 +214,20 @@ class gui():
                     # words in sliding window 10-20 = #window3 + #window4
                     etc....
         """
-        
+        self.main_window.after(5000, self.realtime)
         index = 0
+        self.wordcount_queue = []
         for index in np.arange(0, 29, 1):
-            first_half_sum = self.wordcount # first 5s (0-5)
-            second_half_sum = self.wordcount # second 5s (5-10)
-            third_half_sum = self.wordcount # second 5s (10-15)
-            first_batch = first_half_sum + second_half_sum
-            second_batch = second_half_sum + third_half_sum
+            self.realtime()
+            self.wordcount_queue.append(self.wordcount)
+            return self.wordcount_queue
+
+        print(self.wordcount_queue)
+        first_half_sum = self.wordcount_queue[0] # first 5s (0-5)
+        second_half_sum = self.wordcount_queue[1] # second 5s (5-10)
+        third_half_sum = self.wordcount_queue[2] # second 5s (10-15)
+        first_batch = first_half_sum + second_half_sum
+        second_batch = second_half_sum + third_half_sum
 
         """
         index = 0
@@ -256,6 +261,7 @@ if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
+    gui1.sliding_window()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
