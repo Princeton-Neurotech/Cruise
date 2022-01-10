@@ -204,6 +204,11 @@ class gui():
         self.main_window.after(5000, self.lists_of_lists) 
         print(self.total_wordcount_list)
         return self.total_wordcount_list
+        # for i in range(2, len(self.total_wordcount_list), wordcount_index):
+        #     # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
+        #     wordcount_in_interval = self.total_wordcount_list[i][1]
+        #     print(wordcount_in_interval)
+        #     wordcount_index += 1
 
         """
                 np_wordcount_queue = np.zeros(1000)
