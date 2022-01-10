@@ -3,7 +3,6 @@ import time
 import numpy as np
 import pandas as pd
 
-import gui_and_keyboard_features 
 from brain_data_computations import *
 
 import brainflow
@@ -134,49 +133,51 @@ class braindata:
         :param boardID: -1 for Synth, 0 for Cyton, 22 for MUSE2
         """
         self.myBoardID = boardID
+    
+    def collectData(self):
+        """
+        Collect data every 5s, organize a sliding window queue in which the window length
+        is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min)
+        """
+        start_time = time.time()
+        created_df = False
+        
+        while True:
+            brain_columns = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+            # feature_list = training_features[-1].copy()
+            # first three sec lengths of lists change (unknown why) but afterwards doesn't change
+            if time.time() - start_time > 3: 
+                if created_df is False:
+                    total_brain_data = pd.DataFrame(columns = brain_columns[-1])
+                    created_df = True
 
+                total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
+                print(total_brain_data)
+
+                every_5s_data = []
+                data_time = time.time()
+                while (time.time() - data_time) % 5 == 0:
+                    total_brain_data.sum(axis=0)
+                    every_5s_data.append(total_brain_data)
+                    
+                all_batches = []
+                data_index = 0
+                for i in range (0, 60):
+                    first_batch = every_5s_data[data_index] + every_5s_data[data_index + 1] # ex. 0-10
+                    second_batch = every_5s_data[data_index + 1] + every_5s_data[data_index + 2] # ex. 5-15
+                    all_batches.append(first_batch)
+                    all_batches.append(second_batch)
+                    data_index += 2
+                print(all_batches)
+
+                # print(len(brain_fv[0]),len(brain_fv[-1]))
+                # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
 
 if __name__ == "__main__":
-    # brain_data_intervals = gui_and_keyboard_features.gui()
-    # brain_data_computations = brain_data_computations.computations()
     myBoard = braindata(-1, 'COM3')
     myBoard.startStream()
-    start_time = time.time()
-    created_df = False
-    intervals_array = []
-    
-    while True:
-        brain_columns = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
-        # feature_list = training_features[-1].copy()
-        # first three sec lengths of lists change (unknown why) but afterwards doesn't change
-        if time.time() - start_time > 3: 
-            if created_df is False:
-                total_brain_data = pd.DataFrame(columns = brain_columns[-1])
-                created_df = True
-
-            total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
-            print(total_brain_data)
-
-            every_5s_data = []
-            data_time = time.time()
-            while (time.time() - data_time) % 5 == 0:
-                total_brain_data.sum(axis=0)
-                every_5s_data.append(total_brain_data)
-            
-            all_batches = []
-            data_index = 0
-            for i in range (0, 60):
-                first_batch = every_5s_data[data_index] + every_5s_data[data_index + 1] # ex. 0-10
-                second_batch = every_5s_data[data_index + 1] + every_5s_data[data_index + 2] # ex. 5-15
-                data_index += 2
-                all_batches.append(first_batch)
-                all_batches.append(second_batch)
-            # print(all_batches)
-
-            print(myBoard.get_samplingRate())
-            print(myBoard.getEEGChannels())
-
-            # print(len(brain_fv[0]),len(brain_fv[-1]))
-            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
-
+    sampling_rate = myBoard.get_samplingRate()
+    eeg_channels = myBoard.getEEGChannels()
+    current_data = myBoard.getCurrentData(60)
+    collect_data = myBoard.collectData()
     myBoard.stopStream()
