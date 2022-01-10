@@ -5,7 +5,7 @@ import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
-import machine_learning 
+import machine_learning
 import itertools as it
 
 class gui():
@@ -126,7 +126,7 @@ class gui():
         self.output_sentencecount.delete(0.0, "end")
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
-        
+
         charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
         prompt = self.input_user_prompt.get(0.0, "end")
@@ -137,13 +137,13 @@ class gui():
             for i, word in enumerate (words):
                 if i == len(words) - 1:
                     if word[-1] != "." and word[-1] != "?" and word[-1] != "!":
-                        sentencecount -=1 
+                        sentencecount -=1
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
         self.wordcount_list.append(self.wordcount)
         # print("wordcount list:", self.wordcount_list)
-        
+
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
 
@@ -176,11 +176,11 @@ class gui():
 
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)
-        
+
         return self.wordcount_list
-    
+
     def lists_of_lists(self):
-        overlap = 2 
+        overlap = 2
         window_length = 10 # 10s
         split = window_length / overlap # 5s
         batch_length = 60 # 60 batches every 5 min
@@ -189,7 +189,7 @@ class gui():
 
         self.total_wordcount_list.append(self.wordcount_list)
         self.wordcount_list = []
-        self.main_window.after(5000, self.lists_of_lists) 
+        self.main_window.after(5000, self.lists_of_lists)
         print(self.total_wordcount_list)
         return self.total_wordcount_list
 
@@ -242,6 +242,7 @@ class gui():
         print(training_label)
         
         self.main_window.after(300000, self.every_5_min) # run every 5 min
+
 
 if __name__ == '__main__':
     gui1 = gui()
