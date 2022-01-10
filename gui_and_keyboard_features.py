@@ -217,14 +217,6 @@ class gui():
                 dataframe["wordcount"] = ""
                 print(dataframe)
                 
-                curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
-                ml_prediction = []
-                ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
-                if ml_label_predicted:
-                    if self.roadblock:
-                        self.popup_display()
-                    else:
-                        self.popup_close()
                 """
         
     def every_5_min(self):
@@ -239,8 +231,19 @@ class gui():
             i += 1
         print(keyboard_training_features)
         training_label = sum(keyboard_training_features[:-300])
-        print(training_label)
+        # print(training_label)
         
+        """
+        curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
+        ml_prediction = []
+        ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
+        if ml_label_predicted:
+            if self.roadblock:
+                self.popup_display()
+            else:
+                self.popup_close()
+        """
+
         self.main_window.after(300000, self.every_5_min) # run every 5 min
 
 
