@@ -203,15 +203,7 @@ class gui():
         self.wordcount_list = []
         self.main_window.after(5000, self.lists_of_lists) 
         print(self.total_wordcount_list)
-        # second list is 0-5, third is 5-10, fourth is 10-15, etc.
-        # second value in list is most updated, use this - wordcount every 5s
-        wordcount_index = 2 # first two inner lists are unused, first interval wanted is 0-10
-        for self.wordcount_list in range (0, len(self.total_wordcount_list), wordcount_index):
-            # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
-            wordcount_in_interval = self.wordcount_list[1]
-            print(wordcount_in_interval)
-            wordcount_index += 1
-        # print(self.total_wordcount_list)
+        return self.total_wordcount_list
 
         """
                 np_wordcount_queue = np.zeros(1000)
@@ -282,12 +274,29 @@ class gui():
                     else:
                         self.popup_close()
         """
+    def every_5_min(self):
+        # second list is 0-5, third is 5-10, fourth is 10-15, etc.
+        # second value in list is most updated, use this - wordcount every 5s
+        wordcount_index = 2 # first two inner lists are unused, first interval wanted is 0-10
+        final_wordcount_list = []
+        # print(self.wordcount_list)
+        # for  in range (0, len(self.total_wordcount_list), wordcount_index):
+        for i in range (0, len(self.total_wordcount_list), wordcount_index):
+            # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
+            wordcount_in_interval = self.wordcount_list[i]
+            print(wordcount_in_interval)
+            # final_wordcount_list.append(wordcount_in_interval)
+            wordcount_index += 1
+        # print(wordcount_index)
+        
+        self.main_window.after(5000, self.every_5_min) # run every 5 min
 
 if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
     gui1.lists_of_lists()
+    gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
