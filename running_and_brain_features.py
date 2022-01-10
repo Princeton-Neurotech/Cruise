@@ -1,4 +1,3 @@
-import argparse
 import time
 import numpy as np
 import pandas as pd
@@ -10,7 +9,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
-class braindata:
+class Comms:
 
     def __init__(self, boardID=-1, serial=''):
         self.isRunning = False
@@ -174,7 +173,8 @@ class braindata:
                 # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
 
 if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
+    myBoard = Comms(-1, 'COM3')
+    # comps = brain_data_computations.computations()
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
