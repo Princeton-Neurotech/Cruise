@@ -186,49 +186,14 @@ class gui():
         batch_length = 60 # 60 batches every 5 min
         retrain_delay = 300 # 5 min
         num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
-        
-        """
-            Alternative for getting # words typed in each sliding window:
-
-            Make data collection window 5 seconds. For each sliding window, add 
-            the # words in those 5 seconds to the next # words in the next 5
-            seconds. 
-            Example: # words in sliding window 0-10 = #window1 + #window2
-                    # words in sliding window 5-15 = #window2 + #window3
-                    # words in sliding window 10-20 = #window3 + #window4
-                    etc....
-        """
 
         self.total_wordcount_list.append(self.wordcount_list)
         self.wordcount_list = []
         self.main_window.after(5000, self.lists_of_lists) 
         print(self.total_wordcount_list)
         return self.total_wordcount_list
-        # for i in range(2, len(self.total_wordcount_list), wordcount_index):
-        #     # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
-        #     wordcount_in_interval = self.total_wordcount_list[i][1]
-        #     print(wordcount_in_interval)
-        #     wordcount_index += 1
 
         """
-                np_wordcount_queue = np.zeros(1000)
-                np_wordcount_queue = np.insert(np_wordcount_queue, 0, int(self.wordcount))
-                if len(np_wordcount_queue) > retrain_delay:
-                np_wordcount_queue = np.delete(np_wordcount_queue, 0) # remove oldest reading
-                
-                index = 0
-                wordcount_queue = []
-                realtime = self.realtime()
-                for index in np.arange(0, 29, realtime): # compute two batches each time, 60 in all
-                    wordcount_queue.append(self.wordcount)
-                    self.realtime()
-                    # print(wordcount_queue)
-                    first_half_sum = wordcount_queue[index] # first 5s (0-5)
-                    second_half_sum = wordcount_queue[index] # second 5s (5-10)
-                    third_half_sum = wordcount_queue[index] # second 5s (10-15)
-                    first_batch = first_half_sum + second_half_sum
-                    second_batch = second_half_sum + third_half_sum
-
                 index = 0
                 beginning_intervals = 0
                 for beginning_intervals in range (0, retrain_delay + 1, 5): 
@@ -251,24 +216,6 @@ class gui():
                 dataframe = pd.DataFrame(self.np_split_intervals_array)
                 dataframe["wordcount"] = ""
                 print(dataframe)
-
-                realtime_time = time.time()
-                realtime_index = 0
-                time_frame_condition = round((time.time() - realtime_time), 2)
-                while time_frame_condition <= 300:
-                    time_frame_condition = round((time.time() - realtime_time), 2)
-                    if time_frame_condition % 5 == 0 and time_frame_condition >= 0:
-                        dataframe.insert(realtime_index, "wordcount", self.wordcount_list)
-                        realtime_index += 1
-                
-                # online training
-                for index in np.arange(0, batch_length - 1, 1):
-                    keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
-                    keyboard_training_label = sum(self.np_wordcount_queue[:-300])
-                    print(keyboard_training_features)
-                
-                training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
-                training_label = sum(self.wordcount_queue[:-300])
                 
                 curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
                 ml_prediction = []
@@ -278,23 +225,23 @@ class gui():
                         self.popup_display()
                     else:
                         self.popup_close()
-        """
+                """
+        
     def every_5_min(self):
         # second list is 0-5, third is 5-10, fourth is 10-15, etc.
-        # second value in list is most updated, use this - wordcount every 5s
-        wordcount_index = 2 # first two inner lists are unused, first interval wanted is 0-10
-        final_wordcount_list = []
-        # print(self.wordcount_list)
-        # for  in range (0, len(self.total_wordcount_list), wordcount_index):
-        for i in range (0, len(self.total_wordcount_list), wordcount_index):
-            # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
-            wordcount_in_interval = self.wordcount_list[i]
-            print(wordcount_in_interval)
-            # final_wordcount_list.append(wordcount_in_interval)
-            wordcount_index += 1
-        # print(wordcount_index)
+        # first two inner lists are unused, first interval wanted is 0-10
+        keyboard_training_features = []
+        wordcount_index = 1
+        for i in range(2, len(self.total_wordcount_list), wordcount_index):
+            # access second element of each inner list, most updated wordcount every 5s
+            wordcount_in_interval = self.total_wordcount_list[i][1]
+            keyboard_training_features.append(wordcount_in_interval)
+            i += 1
+        print(keyboard_training_features)
+        training_label = sum(keyboard_training_features[:-300])
+        print(training_label)
         
-        self.main_window.after(5000, self.every_5_min) # run every 5 min
+        self.main_window.after(300000, self.every_5_min) # run every 5 min
 
 if __name__ == '__main__':
     gui1 = gui()

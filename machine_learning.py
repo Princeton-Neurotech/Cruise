@@ -37,7 +37,7 @@ class ml():
         self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
         self.features.append(ml_brain_data.brain_training_features) # add brain features
 
-        self.label = ml_keyboard_data.keyboard_training_label
+        self.label = ml_keyboard_data.training_label
 
         self.X_df = pd.DataFrame()
         self.y_df = pd.DataFrame()

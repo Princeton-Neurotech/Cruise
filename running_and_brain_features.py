@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import gui_and_keyboard_features 
-import brain_data_computations
+from brain_data_computations import *
 import machine_learning 
 
 import brainflow
@@ -139,7 +139,6 @@ class braindata:
 
 if __name__ == "__main__":
     brain_data_intervals = gui_and_keyboard_features.gui()
-    brain_data_comps = brain_data_computations.computations()
     myBoard = braindata(-1, 'COM3')
     myBoard.startStream()
     start_time = time.time()
@@ -147,7 +146,7 @@ if __name__ == "__main__":
     intervals_array = []
     
     while True:
-        brain_columns = brain_data_comps.calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+        brain_columns = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
         # feature_list = training_features[-1].copy()
         # first three sec lengths of lists change (unknown why) but afterwards doesn't change
         if time.time() - start_time > 3: 
