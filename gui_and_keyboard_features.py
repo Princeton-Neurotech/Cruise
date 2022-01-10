@@ -40,6 +40,8 @@ class gui():
         self.nb_standby = 0
         self.intervals_array = []
         self.split_intervals_array = []
+        self.wordcount_list = [0, ]
+        self.total_wordcount_list = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -139,7 +141,8 @@ class gui():
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
-                    # return self.wordcount
+        self.wordcount_list.append(self.wordcount)
+        # print("wordcount list:", self.wordcount_list)
         
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
@@ -153,12 +156,9 @@ class gui():
             self.last_wordcount = self.wordcount
             self.last_sentencecount = sentencecount
 
-        if time.time() - self.time_last_change > 60:
+        if (time.time() - self.time_last_change) > 60:
             standbyNotification = "You've entered a standby"
             self.nb_standby += 1
-
-        # training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
-        # training_label = sum(self.wordcount_queue[:-300])
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
@@ -166,17 +166,6 @@ class gui():
             wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
         except:
             pass
-
-        """
-        curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
-        ml_prediction = []
-        ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
-        if ml_label_predicted:
-            if self.roadblock:
-                self.popup_display()
-            else:
-                self.popup_close()
-        """
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -187,19 +176,18 @@ class gui():
 
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)
+        
+        return self.wordcount_list
     
-    overlap = 2 
-    window_length = 10 # 10s
-    split = window_length / overlap # 5s
-    batch_length = 60 # 60 batches every 5 min
-    retrain_delay = 300 # 5 min
-    num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
-    # np_wordcount_queue = np.zeros(1000)
-    # np_wordcount_queue = np.insert(np_wordcount_queue, 0, int(wordcount))
-    # if len(np_wordcount_queue) > retrain_delay:
-        # np_wordcount_queue = np.delete(np_wordcount_queue, 0) # remove oldest reading
-         
-    """
+    def lists_of_lists(self):
+        overlap = 2 
+        window_length = 10 # 10s
+        split = window_length / overlap # 5s
+        batch_length = 60 # 60 batches every 5 min
+        retrain_delay = 300 # 5 min
+        num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
+        
+        """
             Alternative for getting # words typed in each sliding window:
 
             Make data collection window 5 seconds. For each sliding window, add 
@@ -209,55 +197,97 @@ class gui():
                     # words in sliding window 5-15 = #window2 + #window3
                     # words in sliding window 10-20 = #window3 + #window4
                     etc....
-    """
+        """
 
-    def sliding_window(self):
-        index = 0
-        wordcount_queue = []
-        realtime = self.realtime()
-        for realtime in np.arange(0, 29, 1): # compute two batches each time, 60 in all
-            wordcount_queue.append(self.wordcount)
-            print(wordcount_queue)
-       
-        first_half_sum = wordcount_queue[0] # first 5s (0-5)
-        second_half_sum = wordcount_queue[1] # second 5s (5-10)
-        third_half_sum = wordcount_queue[2] # second 5s (10-15)
-        first_batch = first_half_sum + second_half_sum
-        second_batch = second_half_sum + third_half_sum
+        self.total_wordcount_list.append(self.wordcount_list)
+        self.wordcount_list = []
+        self.main_window.after(5000, self.lists_of_lists) 
+        print(self.total_wordcount_list)
+        # second list is 0-5, third is 5-10, fourth is 10-15, etc.
+        # second value in list is most updated, use this - wordcount every 5s
+        wordcount_index = 2 # first two inner lists are unused, first interval wanted is 0-10
+        for self.wordcount_list in range (0, len(self.total_wordcount_list), wordcount_index):
+            # ACCESS SECOND ELEMENT OF EACH INNER LIST FOR 5 MIN
+            wordcount_in_interval = self.wordcount_list[1]
+            print(wordcount_in_interval)
+            wordcount_index += 1
+        # print(self.total_wordcount_list)
 
-    """
-        index = 0
-        beginning_intervals = 0
-        for beginning_intervals in range (0, retrain_delay + 1, 5): 
-            beginning_intervals = beginning_intervals # beginning interval of each batch
-            end_intervals = beginning_intervals + 10 # end interval of each batch
-            for index in range (0, 1, 5):
-                self.intervals_array.insert(0, beginning_intervals)
-                self.intervals_array.insert(0, end_intervals)
-        self.intervals_array.pop(0) # extra 310
-        self.intervals_array.pop(1) # extra 305
-        self.intervals_array.reverse() # was in reverse order beforehand
+        """
+                np_wordcount_queue = np.zeros(1000)
+                np_wordcount_queue = np.insert(np_wordcount_queue, 0, int(self.wordcount))
+                if len(np_wordcount_queue) > retrain_delay:
+                np_wordcount_queue = np.delete(np_wordcount_queue, 0) # remove oldest reading
+                
+                index = 0
+                wordcount_queue = []
+                realtime = self.realtime()
+                for index in np.arange(0, 29, realtime): # compute two batches each time, 60 in all
+                    wordcount_queue.append(self.wordcount)
+                    self.realtime()
+                    # print(wordcount_queue)
+                    first_half_sum = wordcount_queue[index] # first 5s (0-5)
+                    second_half_sum = wordcount_queue[index] # second 5s (5-10)
+                    third_half_sum = wordcount_queue[index] # second 5s (10-15)
+                    first_batch = first_half_sum + second_half_sum
+                    second_batch = second_half_sum + third_half_sum
 
-        # move across array in window fashion, printing each beginning and end interval pair
-        def moving_window(x, length, step=1):
-            streams = it.tee(x, length)
-            return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
-        self.split_intervals_array = list(moving_window(self.intervals_array, 2))
-        print(self.split_intervals_array)
-        
-        # online training
-        for index in np.arange(0, batch_length - 1, 1):
-            keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
-            keyboard_training_label = sum(self.np_wordcount_queue[:-300])
-            print(keyboard_training_features)
-    """
+                index = 0
+                beginning_intervals = 0
+                for beginning_intervals in range (0, retrain_delay + 1, 5): 
+                    beginning_intervals = beginning_intervals # beginning interval of each batch
+                    end_intervals = beginning_intervals + 10 # end interval of each batch
+                    for index in range (0, 1, 5):
+                        self.intervals_array.insert(0, beginning_intervals)
+                        self.intervals_array.insert(0, end_intervals)
+                self.intervals_array.pop(0) # extra 310
+                self.intervals_array.pop(1) # extra 305
+                self.intervals_array.reverse() # was in reverse order beforehand
 
+                # move across array in window fashion, printing each beginning and end interval pair
+                def moving_window(x, length, step=1):
+                    streams = it.tee(x, length)
+                    return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
+                self.split_intervals_array = list(moving_window(self.intervals_array, 2))
+                # print(self.split_intervals_array)
+                self.np_split_intervals_array = np.array(self.split_intervals_array)
+                dataframe = pd.DataFrame(self.np_split_intervals_array)
+                dataframe["wordcount"] = ""
+                print(dataframe)
+
+                realtime_time = time.time()
+                realtime_index = 0
+                time_frame_condition = round((time.time() - realtime_time), 2)
+                while time_frame_condition <= 300:
+                    time_frame_condition = round((time.time() - realtime_time), 2)
+                    if time_frame_condition % 5 == 0 and time_frame_condition >= 0:
+                        dataframe.insert(realtime_index, "wordcount", self.wordcount_list)
+                        realtime_index += 1
+                
+                # online training
+                for index in np.arange(0, batch_length - 1, 1):
+                    keyboard_training_features = self.np_wordcount_queue[self.split_intervals_array].sum()
+                    keyboard_training_label = sum(self.np_wordcount_queue[:-300])
+                    print(keyboard_training_features)
+                
+                training_features = [sum(self.wordcount_queue[i:5*i+5]) for i in range(5*60/5)]
+                training_label = sum(self.wordcount_queue[:-300])
+                
+                curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
+                ml_prediction = []
+                ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
+                if ml_label_predicted:
+                    if self.roadblock:
+                        self.popup_display()
+                    else:
+                        self.popup_close()
+        """
 
 if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
-    gui1.sliding_window()
+    gui1.lists_of_lists()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
