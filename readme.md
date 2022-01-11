@@ -11,4 +11,4 @@ The general pipeline involved in this project is:
    - Model: merge keyboard input and brain data feature vectors and train model (Random Forest Regressor) to predict when user is approaching a roadblock
 - What we want to implement in the future:
    - Include a keyword user input box and once a user hits a roadblock, recommend articles on the internet that contain those keywords
-   - for NeuroTechX spring competition, use steady state visually evoked potentials through adding a flickering user input promp box and another flickering box on the side, using the data where the user is looking to help predict whether they will hit a roadblock in the future 
+   - For NeuroTechX spring competition, use steady state visually evoked potentials through adding a flickering user input promp box and another flickering box on the side, using the data where the user is looking to help predict whether they will hit a roadblock in the future 
