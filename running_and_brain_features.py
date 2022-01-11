@@ -2,14 +2,14 @@ import time
 import numpy as np
 import pandas as pd
 
-from brain_data_computations import *
+from brain_data_test import *
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
-class Comms:
+class braindata:
 
     def __init__(self, boardID=-1, serial=''):
         self.isRunning = False
@@ -142,23 +142,30 @@ class Comms:
         created_df = False
         
         while True:
-            brain_columns = calc_feature_vector(myBoard.getCurrentData(250),  "feature vectors")
+            brain_columns = calc_feature_vector(myBoard.getCurrentData(10),  "feature vectors")
             # feature_list = training_features[-1].copy()
             # first three sec lengths of lists change (unknown why) but afterwards doesn't change
             if time.time() - start_time > 3: 
                 if created_df is False:
                     total_brain_data = pd.DataFrame(columns = brain_columns[-1])
                     created_df = True
+                # print(total_brain_data)
 
-                total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
-                print(total_brain_data)
-
+                i = 0
                 every_5s_data = []
-                data_time = time.time()
-                while (time.time() - data_time) % 5 == 0:
-                    total_brain_data.sum(axis=0)
-                    every_5s_data.append(total_brain_data)
+                # for i in range (0, 295, 5): # sum every 5 rows (each row 1s) in every column for 5 min
+                total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
+                while time.time() - start_time < 300:
+                    pd5 = total_brain_data[i:i+5]
+                    every_5s_data.append(pd5.mean())
+                    print(every_5s_data)
+                # print(pd5)
+                # print(pd5.mean())
+                # every_5s_data.append(pd5.mean())
+                # print(every_5s_data)
+                # print(pd5.mean().values.tolist())
                     
+            """
                 all_batches = []
                 data_index = 0
                 for i in range (0, 60):
@@ -172,12 +179,14 @@ class Comms:
                 # print(len(brain_fv[0]),len(brain_fv[-1]))
                 # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
 
+            """
+
 if __name__ == "__main__":
-    myBoard = Comms(-1, 'COM3')
+    myBoard = braindata(-1, 'COM3')
     # comps = brain_data_computations.computations()
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
-    current_data = myBoard.getCurrentData(60)
+    current_data = myBoard.getCurrentData(10)
     collect_data = myBoard.collectData()
     myBoard.stopStream()
