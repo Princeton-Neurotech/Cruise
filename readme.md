@@ -9,3 +9,6 @@ The general pipeline involved in this project is:
    - Brain Data Features: defined by a variety of computations such as mean, standard deviation, skewness, kurtosis, maximum, minimum, covariance matrix, eigenvalues of    covariance matrix, and fast fourier transform
    - Label: words typed in the future 5 minutes
    - Model: merge keyboard input and brain data feature vectors and train model (Random Forest Regressor) to predict when user is approaching a roadblock
+- What we want to implement in the future:
+   - Include a keyword user input box and once a user hits a roadblock, recommend articles on the internet that contain those keywords
+   - For NeuroTechX spring competition, use steady state visually evoked potentials through adding a flickering user input promp box and another flickering box on the side, using the data where the user is looking to help predict whether they will hit a roadblock in the future 
