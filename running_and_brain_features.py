@@ -131,13 +131,14 @@ class braindata:
         """
         self.myBoardID = boardID
 
+    """
     def GetDataFrame(self):
-        """demo how to convert it to pandas DF and plot data
-        """
+        # demo how to convert it to pandas DF and plot data
         eeg_channels = BoardShim.get_eeg_channels(BoardIds.SYNTHETIC_BOARD.value)
         df = pd.DataFrame(np.transpose(self.data))
         print('Data From the Board')
         print(df.head(10))
+    """
 
     def collectData(self):
         """
@@ -158,18 +159,26 @@ class braindata:
                 # print(total_brain_data)
                 """
                 goal: take the mean of every column in total_brain_data pandas dataframe for every 5s 
-                (each row takes 1s to complete), then add 5s time intervals in a sliding window fashion 
-                (0-10, 5-15, 10-20, etc.) for a total of 5 min (redoing this entire process every 5 min)
-                current problem: can print first 5 rows, but when wanting to iterate in for or while 
-                loop to print every 5 rows, stops working and prints NaN!
+                (each row takes 1s to complete), then take the mean 5s time intervals in a sliding window 
+                fashion (0-10, 5-15, 10-20, etc.) for a total of 5 min (redoing this entire process every 
+                5 min)
+                current problem: can print first 5 rows at a time, but outputs in an unorganized way with
+                empty dataframes between each set; when taking the mean it prints NaN!
                 """
-                i = 0
-                every_5s_data = []
+                # every_5s_data = []
                 # for i in range (0, 295, 5): # sum every 5 rows (each row 1s) in every column for 5 min
                 # while time.time() - start_time < 300:
+                # total_brain_data_dict = total_brain_data.to_dict('records')
+                i = 0
                 total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
-                pd5 = total_brain_data[i:i+5]
-                print(pd5.mean(axis=1)) 
+                for row in total_brain_data.itertuples():
+                    pd5 = total_brain_data[i:i+5]
+                    print(pd5) 
+                    # print(i)
+                    # print(row)
+                    i += 5
+                # for row in total_brain_data.itertuples():
+                     # print(row)
                 # every_5s_data.append(pd5.mean())
                 # print(pd5.mean().values.tolist())
                     

@@ -5,9 +5,10 @@ import numpy as np
 import gui_and_keyboard_features 
 import running_and_brain_features
 
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.datasets import load_iris
 
 class ml():
 
@@ -55,11 +56,25 @@ class ml():
 
         self.y_df = pd.DataFrame(label, columns = ['label']) # add label - only keyboard
 
+        # find best combination of hyperparameter values
+        # param_grid = ['n_estimators': [], 'max_features': [] ]
+
     # if length % 120 call train model to train every 300s
     def train_model(self):
         # update ml model
         self.ml_model = RandomForestRegressor()
         self.ml_model.fit(self.X_df, self.y_df)
+        # ensemble learning through using random forest classifier?
+        self.ml_model = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, n_jobs=-1)
+        self.ml_model.fit(self.X_df, self.y_df)
+
+        # or for feature importance: 
+        # self.ml_model.fit(iris["data", iris["target"]])
+        # for name, score in zip(iris["features_names"], self.ml_model.feature_importances_):
+            # print(name, score)
+
+        # grid_search = GridSearchCV(self.ml_model, param_grid, cv=[], scoring='neg_mean_squared_error', return_train_score=True)
+        # grid_search.fit(self.X_df, self.y_df)
 
     def predict(self):
         # Return expected words per 5 minute
