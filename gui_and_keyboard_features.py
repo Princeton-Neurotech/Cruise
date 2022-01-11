@@ -28,7 +28,6 @@ class gui():
     1 label - 60 summed indexes for future - words typed in future 5 mins
     Can change intervals if want length of queue to be different, based on # of bins
     """
-
     def __init__(self):
         # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
         self.np_wordcount_queue = []

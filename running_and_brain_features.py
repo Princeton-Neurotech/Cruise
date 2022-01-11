@@ -10,7 +10,6 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
 class braindata:
-
     def __init__(self, boardID=-1, serial=''):
         self.isRunning = False
         self.myBoardID = boardID
@@ -68,7 +67,6 @@ class braindata:
         """
         Tells the board to stop streaming data
         """
-
         if self.isRunning:
             print('Stopping Stream')
             self.board.stop_stream()
@@ -132,7 +130,15 @@ class braindata:
         :param boardID: -1 for Synth, 0 for Cyton, 22 for MUSE2
         """
         self.myBoardID = boardID
-    
+
+    def GetDataFrame(self):
+        """demo how to convert it to pandas DF and plot data
+        """
+        eeg_channels = BoardShim.get_eeg_channels(BoardIds.SYNTHETIC_BOARD.value)
+        df = pd.DataFrame(np.transpose(self.data))
+        print('Data From the Board')
+        print(df.head(10))
+
     def collectData(self):
         """
         Collect data every 5s, organize a sliding window queue in which the window length
@@ -150,7 +156,6 @@ class braindata:
                     total_brain_data = pd.DataFrame(columns = brain_columns[-1])
                     created_df = True
                 # print(total_brain_data)
-
                 """
                 goal: take the mean of every column in total_brain_data pandas dataframe for every 5s 
                 (each row takes 1s to complete), then add 5s time intervals in a sliding window fashion 
@@ -178,10 +183,8 @@ class braindata:
                     all_batches.append(second_batch)
                     data_index += 2
                 print(all_batches)
-
                 # print(len(brain_fv[0]),len(brain_fv[-1]))
                 # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
-
             """
 
 if __name__ == "__main__":
