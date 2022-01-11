@@ -2,7 +2,7 @@ import time
 import numpy as np
 import pandas as pd
 
-from brain_data_test import *
+import brain_data_test 
 
 import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
@@ -142,7 +142,7 @@ class braindata:
         created_df = False
         
         while True:
-            brain_columns = calc_feature_vector(myBoard.getCurrentData(10),  "feature vectors")
+            brain_columns = brain_data_test.calc_feature_vector(myBoard.getCurrentData(10),  "feature vectors")
             # feature_list = training_features[-1].copy()
             # first three sec lengths of lists change (unknown why) but afterwards doesn't change
             if time.time() - start_time > 3: 
@@ -151,18 +151,21 @@ class braindata:
                     created_df = True
                 # print(total_brain_data)
 
+                """
+                goal: take the mean of every column in total_brain_data pandas dataframe for every 5s 
+                (each row takes 1s to complete), then add 5s time intervals in a sliding window fashion 
+                (0-10, 5-15, 10-20, etc.) for a total of 5 min (redoing this entire process every 5 min)
+                current problem: can print first 5 rows, but when wanting to iterate in for or while 
+                loop to print every 5 rows, stops working and prints NaN!
+                """
                 i = 0
                 every_5s_data = []
                 # for i in range (0, 295, 5): # sum every 5 rows (each row 1s) in every column for 5 min
+                # while time.time() - start_time < 300:
                 total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
-                while time.time() - start_time < 300:
-                    pd5 = total_brain_data[i:i+5]
-                    every_5s_data.append(pd5.mean())
-                    print(every_5s_data)
-                # print(pd5)
-                # print(pd5.mean())
+                pd5 = total_brain_data[i:i+5]
+                print(pd5.mean(axis=1)) 
                 # every_5s_data.append(pd5.mean())
-                # print(every_5s_data)
                 # print(pd5.mean().values.tolist())
                     
             """
@@ -183,7 +186,6 @@ class braindata:
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
-    # comps = brain_data_computations.computations()
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
