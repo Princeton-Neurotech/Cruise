@@ -188,7 +188,8 @@ class braindata:
                         total_every_5s.append(every_5s)
                         print(total_every_5s)
                     
-                    """
+                    # current problem: understand all data coming in and correctly indexing each 5s
+                    # interval to compose each 10s sliding window interval
                     data_index = 0
                     for data_index in range (0, 30, 1):
                         first_batch = (total_every_5s[data_index] + total_every_5s[data_index + 1]) / 2 # ex. 0-10
