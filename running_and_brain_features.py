@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import pandas as pd
+import statistics
 
 import brain_data_test 
 
@@ -10,6 +11,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 
 class braindata:
+
     def __init__(self, boardID=-1, serial=''):
         self.isRunning = False
         self.myBoardID = boardID
@@ -17,6 +19,9 @@ class braindata:
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
         self.board = BoardShim(self.myBoardID, self.params)
+        self.brain_columns = None
+        self.total_brain_data = None
+        self.mean = None
 
     def startStream(self):
         """
@@ -142,65 +147,65 @@ class braindata:
 
     def collectData(self):
         """
-        Collect data every 5s, organize a sliding window queue in which the window length
-        is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min)
+            Collect data every 5s, organize a sliding window queue in which the window length
+            is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
+            Then take the mean of every column for every 5s (each row takes 1s to complete), then 
+            take the mean 5s time intervals in a sliding window fashion  
         """
+                    
         start_time = time.time()
         created_df = False
-        
+        count = 0
+        previous_mean = 0
+        every_5s = []
+        total_every_5s = []
+        all_batches = []
+
         while True:
-            brain_columns = brain_data_test.calc_feature_vector(myBoard.getCurrentData(10),  "feature vectors")
+            self.brain_columns = brain_data_test.calc_feature_vector(myBoard.getCurrentData(250))
             # feature_list = training_features[-1].copy()
-            # first three sec lengths of lists change (unknown why) but afterwards doesn't change
-            if time.time() - start_time > 3: 
+            # print(len(brain_fv[0]),len(brain_fv[-1]))
+            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
+
+            # first 3s lengths of lists change (unknown why) but afterwards doesn't change
+            if (time.time() - start_time) > 3: 
                 if created_df is False:
-                    total_brain_data = pd.DataFrame(columns = brain_columns[-1])
+                    self.total_brain_data = pd.DataFrame(columns=self.brain_columns[-1])
                     created_df = True
-                # print(total_brain_data)
-                """
-                goal: take the mean of every column in total_brain_data pandas dataframe for every 5s 
-                (each row takes 1s to complete), then take the mean 5s time intervals in a sliding window 
-                fashion (0-10, 5-15, 10-20, etc.) for a total of 5 min (redoing this entire process every 
-                5 min)
-                current problem: can print first 5 rows at a time, but outputs in an unorganized way with
-                empty dataframes between each set; when taking the mean it prints NaN!
-                """
-                # every_5s_data = []
-                # for i in range (0, 295, 5): # sum every 5 rows (each row 1s) in every column for 5 min
-                # while time.time() - start_time < 300:
-                # total_brain_data_dict = total_brain_data.to_dict('records')
-                i = 0
-                total_brain_data.loc[len(total_brain_data)] = brain_columns[0] 
-                for row in total_brain_data.itertuples():
-                    pd5 = total_brain_data[i:i+5]
-                    print(pd5) 
-                    # print(i)
-                    # print(row)
-                    i += 5
-                # for row in total_brain_data.itertuples():
-                     # print(row)
-                # every_5s_data.append(pd5.mean())
-                # print(pd5.mean().values.tolist())
+            
+                self.total_brain_data.loc[len(self.total_brain_data)] = self.brain_columns[0] 
+
+                while (count % 5) == 0:
+                    for col in self.total_brain_data:
+                        self.total_brain_data[col] = self.total_brain_data[col].astype(float)
+                        self.mean = self.total_brain_data[col].mean(axis=0) 
+                        numeric_mean = pd.to_numeric(self.mean, errors = 'coerce')
+                        if previous_mean != numeric_mean:
+                            every_5s.append(self.mean)
+                            # print(every_5_sec)
+                            # print(self.mean) # mean of every column for every 5s
+                        previous_mean = numeric_mean
+                        total_every_5s.append(every_5s)
+                        print(total_every_5s)
                     
-            """
-                all_batches = []
-                data_index = 0
-                for i in range (0, 60):
-                    first_batch = every_5s_data[data_index] + every_5s_data[data_index + 1] # ex. 0-10
-                    second_batch = every_5s_data[data_index + 1] + every_5s_data[data_index + 2] # ex. 5-15
-                    all_batches.append(first_batch)
-                    all_batches.append(second_batch)
-                    data_index += 2
-                print(all_batches)
-                # print(len(brain_fv[0]),len(brain_fv[-1]))
-                # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
-            """
+                    """
+                    data_index = 0
+                    for data_index in range (0, 30, 1):
+                        first_batch = (total_every_5s[data_index] + total_every_5s[data_index + 1]) / 2 # ex. 0-10
+                        second_batch = (total_every_5s[data_index + 1] + total_every_5s[data_index + 2]) / 2 # ex. 5-15
+                        all_batches.append(first_batch)
+                        # print(first_batch)
+                        # all_batches.append(second_batch)
+                        data_index += 2
+                        # print(all_batches)
+                    """  
+                    
+            count += 1
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
-    current_data = myBoard.getCurrentData(10)
     collect_data = myBoard.collectData()
-    myBoard.stopStream()
+    # myBoard.stopStream()

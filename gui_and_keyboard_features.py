@@ -30,15 +30,12 @@ class gui():
     """
     def __init__(self):
         # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
-        self.np_wordcount_queue = []
         self.wordcount = 0
         # self.ml_object = machine_learning.ml()
         self.time_last_change = 0
         self.PAGE_LENGTH = 4002
         self.roadblock = False
         self.nb_standby = 0
-        self.intervals_array = []
-        self.split_intervals_array = []
         self.wordcount_list = [0, ]
         self.total_wordcount_list = []
 

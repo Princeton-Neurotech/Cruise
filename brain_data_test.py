@@ -632,7 +632,7 @@ def feature_fft(matrix, period = 1., mains_f = 50.,
 	return ret, names
 
 
-def calc_feature_vector(matrix, state):
+def calc_feature_vector(matrix):
 	"""
 	Calculates all previously defined features and concatenates everything into 
 	a single feature vector.
@@ -724,9 +724,9 @@ def calc_feature_vector(matrix, state):
 	var_names += v
 	var_values = np.hstack([var_values, x])
 	
-	if state != None:
-		var_values = np.hstack([var_values, np.array([state])])
-		var_names += ['Label']
+    # if state != None:
+    # var_values = np.hstack([var_values, np.array([state])])
+    # var_names += ['Label']
 
 	return var_values, var_names
 
