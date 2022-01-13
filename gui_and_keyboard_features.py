@@ -37,7 +37,6 @@ class gui():
         self.roadblock = False
         self.nb_standby = 0
         self.wordcount_list = [0, ]
-        self.total_wordcount_list = []
         
         self.time_for_features = time.time()
         self.history_time_seconds = []
@@ -46,7 +45,7 @@ class gui():
         self.history_standby = []
         self.history_features = []
         self.history_dffeatures = []
-        self.features_5s = 0
+        self.keyboard_training_features = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -201,19 +200,29 @@ class gui():
         
         for col in self.history_dffeatures:
             if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY_' + col] = self.history_dffeatures[col].rolling(5).mean() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
             elif col == "standby":
-                self.history_dffeatures["5rSUMMARY_" + col] = self.history_dffeatures[col].rolling(5).max()
+                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY_' + col] = self.history_dffeatures[col].rolling(5).sum() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
         # print(self.history_dffeatures)
 
-        if round(time.time() - self.time_for_features, 2) > 5:
-            every_5s_index = 3
-            for every_5s_index in range (3, 60, 1):
-                every_5s_data = self.history_dffeatures.iloc[[every_5s_index]]
-                every_5s_index += 1
-                print(every_5s_data)
+        # features
+        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        print(self.keyboard_training_features)
+
+        """
+        # label
+        training_label = sum(self.keyboard_training_features[:-300])
+        print(training_label)
+
+        ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
+        if ml_label_predicted:
+            if self.roadblock:
+                self.popup_display()
+            else:
+                self.popup_close()
+        """
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -222,8 +231,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
+        # call realtime() every 1s
+        self.main_window.after(1000, self.realtime)
 
         return self.wordcount_list
 
@@ -276,22 +285,11 @@ class gui():
             keyboard_training_features.append(wordcount_in_interval)
             i += 1
         # print(keyboard_training_features)
-        training_label = sum(keyboard_training_features[:-300])
-        # print(training_label)
-        
         
         curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
-        ml_prediction = []
-        ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
-        if ml_label_predicted:
-            if self.roadblock:
-                self.popup_display()
-            else:
-                self.popup_close()
+
+        self.main_window.after(300000, self.every_5_min) # run every 5 min
         """
-
-        # self.main_window.after(300000, self.every_5_min) # run every 5 min
-
 
 if __name__ == '__main__':
     gui1 = gui()

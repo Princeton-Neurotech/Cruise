@@ -34,9 +34,9 @@ class ml():
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = running_and_brain_features.braindata()
 
-        self.features = []
-        self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
-        self.features.append(ml_brain_data.brain_training_features) # add brain features
+        self.features = pd.DataFrame()
+        self.features = ml_keyboard_data.keyboard_training_features.append() # add keyboard features
+        self.features = ml_brain_data.brain_training_features.append() # add brain features
 
         self.label = ml_keyboard_data.training_label
 
@@ -52,11 +52,11 @@ class ml():
         if None in train_set or label == None:
             return
         self.X_df = self.X_df.append(train_set)
-        self.X_df.columns = ['wordcount', 'brain data']
+        self.X_df.columns = ['keyboard data', 'brain data']
 
-        self.y_df = pd.DataFrame(label, columns = ['label']) # add label - only keyboard
+        self.y_df = pd.DataFrame(label, columns = ['label']) # add label - only keyboard data
 
-        # find best combination of hyperparameter values
+        # find best combination of hyperparameter values (setup)
         # param_grid = ['n_estimators': [], 'max_features': [] ]
 
     # if length % 120 call train model to train every 300s
@@ -73,6 +73,7 @@ class ml():
         # for name, score in zip(iris["features_names"], self.ml_model.feature_importances_):
             # print(name, score)
 
+        # search for best hyperparameters
         # grid_search = GridSearchCV(self.ml_model, param_grid, cv=[], scoring='neg_mean_squared_error', return_train_score=True)
         # grid_search.fit(self.X_df, self.y_df)
 

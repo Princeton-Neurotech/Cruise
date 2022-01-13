@@ -19,8 +19,8 @@ class braindata:
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
         self.board = BoardShim(self.myBoardID, self.params)
-        self.brain_columns = None
         self.total_brain_data = None
+        self.brain_training_features = None
         self.mean = None
 
     def startStream(self):
@@ -128,7 +128,7 @@ class braindata:
         elif self.myBoardID == 22:
             print("Interaxon Muse 2 with bluetooth dongle is being used: MUSE2")
         elif self.myBoardID == 38:
-            print("Interaxon Muse 2 is being used: MUSE2")
+            print("Interaxon Muse 2 without bluetooth dongle is being used: MUSE2")
         return self.myBoardID
 
     def setBoard(self, boardID: int):
@@ -138,79 +138,51 @@ class braindata:
         """
         self.myBoardID = boardID
 
-    """
-    def GetDataFrame(self):
-        # demo how to convert it to pandas DF and plot data
-        eeg_channels = BoardShim.get_eeg_channels(BoardIds.SYNTHETIC_BOARD.value)
-        df = pd.DataFrame(np.transpose(self.data))
-        print('Data From the Board')
-        print(df.head(10))
-    """
-
     def collectData(self):
         """
-            Collect data every 5s, organize a sliding window queue in which the window length
-            is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
-            Then take the mean of every column for every 5s (each row takes 1s to complete), then 
-            take the mean 5s time intervals in a sliding window fashion  
+            Collect data, taking mean, every 5s, organize a sliding window queue in which the window 
+            length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
         """
                     
         start_time = time.time()
         created_df = False
-        count = 0
-        previous_mean = 0
-        every_5s = []
-        total_every_5s = []
-        all_batches = []
 
         while True:
-            self.brain_columns = brain_data_test.calc_feature_vector(myBoard.getCurrentData(250))
+            self.total_brain_data = brain_data_test.calc_feature_vector(myBoard.getCurrentData(250))
             # feature_list = training_features[-1].copy()
             # print(len(brain_fv[0]),len(brain_fv[-1]))
             # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
 
             # first 3s lengths of lists change (unknown why) but afterwards doesn't change
-            if (time.time() - start_time) > 3: 
-                if created_df is False:
-                    self.total_brain_data = pd.DataFrame(columns=self.brain_columns[-1])
-                    created_df = True
+            # if (time.time() - start_time) > 3: 
+            if created_df is False:
+                self.brain_training_features = pd.DataFrame(columns=self.total_brain_data[-1])
+                created_df = True
+
+            self.brain_training_features.loc[len(self.brain_training_features)] = self.total_brain_data[0] 
+            # print(self.brain_training_features)
             
-                self.total_brain_data.loc[len(self.total_brain_data)] = self.brain_columns[0] 
-                print(self.total_brain_data)
-                
-                while (count % 5) == 0:
-                    for col in self.total_brain_data:
-                        self.total_brain_data[col] = self.total_brain_data[col].astype(float)
-                        self.mean = self.total_brain_data[col].mean(axis=0) 
-                        numeric_mean = pd.to_numeric(self.mean, errors = 'coerce')
-                        if previous_mean != numeric_mean:
-                            every_5s.append(self.mean)
-                            # print(every_5s)
-                            # print(len(every_5s))
-                            # print(self.mean) # mean of every column for every 5s
-                            # total_every_5s.append(every_5s)
-                        previous_mean = numeric_mean
-                    
-                    # current problem: understand all data coming in and correctly indexing each 5s
-                    # interval to compose each 10s sliding window interval
-                    """
-                    data_index = 0
-                    for data_index in range (0, 30, 1):
-                        first_batch = (total_every_5s[data_index] + total_every_5s[data_index + 1]) / 2 # ex. 0-10
-                        second_batch = (total_every_5s[data_index + 1] + total_every_5s[data_index + 2]) / 2 # ex. 5-15
-                        all_batches.append(first_batch)
-                        # print(first_batch)
-                        # all_batches.append(second_batch)
-                        data_index += 2
-                        # print(all_batches)
-                    """
-            count += 1
+            for col in self.brain_training_features:
+                self.brain_training_features[col] = self.brain_training_features[col].astype(float)
+                self.brain_training_features['5rSUMMARY ' + col] = self.brain_training_features[col].rolling(5).mean() 
+
+            time.sleep(1)
+    
+        """
+        def repeatCollectData(self):
+            start_time = time.time()
+            interval = 1
+            for i in range(20):
+                time.sleep(start_time + i*interval - time.time())
+                collectData()
+        """
 
 if __name__ == "__main__":
-    myBoard = braindata(38, 'COM3')
+    myBoard = braindata(-1, 'COM3')
     # print(brainflow.__version__)
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
     collect_data = myBoard.collectData()
+    # repeat_collect_data = myBoard.repeatCollectData()
     # myBoard.stopStream()

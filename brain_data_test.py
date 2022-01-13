@@ -724,9 +724,9 @@ def calc_feature_vector(matrix):
 	var_names += v
 	var_values = np.hstack([var_values, x])
 	
-    # if state != None:
-    # var_values = np.hstack([var_values, np.array([state])])
-    # var_names += ['Label']
+	# if state != None:
+		# var_values = np.hstack([var_values, np.array([state])])
+		# var_names += ['Label']
 
 	return var_values, var_names
 
