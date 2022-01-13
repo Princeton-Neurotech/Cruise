@@ -32,12 +32,21 @@ class gui():
         # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
         self.wordcount = 0
         # self.ml_object = machine_learning.ml()
-        self.time_last_change = 0
+        self.time_last_change = time.time()
         self.PAGE_LENGTH = 4002
         self.roadblock = False
         self.nb_standby = 0
         self.wordcount_list = [0, ]
         self.total_wordcount_list = []
+        
+        self.time_for_features = time.time()
+        self.history_time_seconds = []
+        self.history_word_count = []
+        self.history_sentence_count = []
+        self.history_standby = []
+        self.history_features = []
+        self.history_dffeatures = []
+        self.features_5s = 0
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -142,19 +151,21 @@ class gui():
 
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
-
+        
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
         standbyNotification = ""
-        if charcount == 0:
+        if charcount == 0 or self.last_charcount != charcount:
+            
             self.time_last_change = time.time()
-            self.last_charcount = charcount
-            self.last_wordcount = self.wordcount
-            self.last_sentencecount = sentencecount
-
-        if (time.time() - self.time_last_change) > 60:
+            
+        #print('TLC:', self.time_last_change, 'subs:', time.time() - self.time_last_change)
+        if (time.time() - self.time_last_change) > 10:
+            
             standbyNotification = "You've entered a standby"
-            self.nb_standby += 1
+            self.history_standby.append(1)
+        else:
+            self.history_standby.append(0)
 
         # set Thresholds to -1 unless a number exists
         wordcountThresholdInt, pagecountThresholdInt = -1, -1
@@ -162,6 +173,47 @@ class gui():
             wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
         except:
             pass
+        self.last_charcount = charcount
+
+         # for data collection
+        self.history_word_count.append(self.wordcount)
+        self.history_sentence_count.append(sentencecount)
+        self.history_dffeatures = pd.DataFrame(self.history_features)
+        self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
+        self.history_dffeatures["time (s)"] = self.history_time_seconds
+
+        # self.history_dffeatures["time (s)"] = self.history_time_seconds
+        self.history_dffeatures["wordcount"] = self.history_word_count
+        self.history_dffeatures["sentencecount"] = self.history_sentence_count
+        self.history_dffeatures["standby"] = self.history_standby
+        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
+        self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
+        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
+        self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["sentences produced"][self.history_dffeatures["sentences produced"] < 0] = 0
+        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
+        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
+        self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
+        self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
+        
+        for col in self.history_dffeatures:
+            if col == "wordcount" or col == "sentencecount":
+                self.history_dffeatures['5rSUMMARY_' + col] = self.history_dffeatures[col].rolling(5).mean() 
+            elif col == "standby":
+                self.history_dffeatures["5rSUMMARY_" + col] = self.history_dffeatures[col].rolling(5).max()
+            elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
+                self.history_dffeatures['5rSUMMARY_' + col] = self.history_dffeatures[col].rolling(5).sum() 
+        # print(self.history_dffeatures)
+
+        if round(time.time() - self.time_for_features, 2) > 5:
+            every_5s_index = 3
+            for every_5s_index in range (3, 60, 1):
+                every_5s_data = self.history_dffeatures.iloc[[every_5s_index]]
+                every_5s_index += 1
+                print(every_5s_data)
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -175,6 +227,7 @@ class gui():
 
         return self.wordcount_list
 
+    """
     def lists_of_lists(self):
         overlap = 2
         window_length = 10 # 10s
@@ -186,10 +239,9 @@ class gui():
         self.total_wordcount_list.append(self.wordcount_list)
         self.wordcount_list = []
         self.main_window.after(5000, self.lists_of_lists)
-        print(self.total_wordcount_list)
+        # print(self.total_wordcount_list)
         return self.total_wordcount_list
-
-        """
+        
                 index = 0
                 beginning_intervals = 0
                 for beginning_intervals in range (0, retrain_delay + 1, 5): 
@@ -212,8 +264,6 @@ class gui():
                 dataframe = pd.DataFrame(self.np_split_intervals_array)
                 dataframe["wordcount"] = ""
                 print(dataframe)
-                
-                """
         
     def every_5_min(self):
         # second list is 0-5, third is 5-10, fourth is 10-15, etc.
@@ -225,11 +275,11 @@ class gui():
             wordcount_in_interval = self.total_wordcount_list[i][1]
             keyboard_training_features.append(wordcount_in_interval)
             i += 1
-        print(keyboard_training_features)
+        # print(keyboard_training_features)
         training_label = sum(keyboard_training_features[:-300])
         # print(training_label)
         
-        """
+        
         curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
         ml_prediction = []
         ml_label_predicted = ml_prediction.predict(curr_features) < wordcountThresholdInt
@@ -240,15 +290,15 @@ class gui():
                 self.popup_close()
         """
 
-        self.main_window.after(300000, self.every_5_min) # run every 5 min
+        # self.main_window.after(300000, self.every_5_min) # run every 5 min
 
 
 if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
-    gui1.lists_of_lists()
-    gui1.every_5_min()
+    # gui1.lists_of_lists()
+    # gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line

@@ -126,6 +126,8 @@ class braindata:
         elif self.myBoardID == 0:
             print("OpenBCI Cyton is being used: CYTON")
         elif self.myBoardID == 22:
+            print("Interaxon Muse 2 with bluetooth dongle is being used: MUSE2")
+        elif self.myBoardID == 38:
             print("Interaxon Muse 2 is being used: MUSE2")
         return self.myBoardID
 
@@ -174,7 +176,8 @@ class braindata:
                     created_df = True
             
                 self.total_brain_data.loc[len(self.total_brain_data)] = self.brain_columns[0] 
-
+                print(self.total_brain_data)
+                
                 while (count % 5) == 0:
                     for col in self.total_brain_data:
                         self.total_brain_data[col] = self.total_brain_data[col].astype(float)
@@ -182,14 +185,15 @@ class braindata:
                         numeric_mean = pd.to_numeric(self.mean, errors = 'coerce')
                         if previous_mean != numeric_mean:
                             every_5s.append(self.mean)
-                            # print(every_5_sec)
+                            # print(every_5s)
+                            # print(len(every_5s))
                             # print(self.mean) # mean of every column for every 5s
+                            # total_every_5s.append(every_5s)
                         previous_mean = numeric_mean
-                        total_every_5s.append(every_5s)
-                        print(total_every_5s)
                     
                     # current problem: understand all data coming in and correctly indexing each 5s
                     # interval to compose each 10s sliding window interval
+                    """
                     data_index = 0
                     for data_index in range (0, 30, 1):
                         first_batch = (total_every_5s[data_index] + total_every_5s[data_index + 1]) / 2 # ex. 0-10
@@ -199,12 +203,12 @@ class braindata:
                         # all_batches.append(second_batch)
                         data_index += 2
                         # print(all_batches)
-                    """  
-                    
+                    """
             count += 1
 
 if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
+    myBoard = braindata(38, 'COM3')
+    # print(brainflow.__version__)
     myBoard.startStream()
     sampling_rate = myBoard.get_samplingRate()
     eeg_channels = myBoard.getEEGChannels()
