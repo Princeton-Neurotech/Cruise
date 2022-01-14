@@ -1,7 +1,6 @@
 import time
 import numpy as np
 import pandas as pd
-# import csv
 
 import brain_data_test 
 
@@ -18,9 +17,11 @@ class braindata:
         BoardShim.enable_dev_board_logger()
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
-        # self.params.other_info = 0
-        # self.params.file = 'C:/Users/hudso/Desktop/Princeton/NeuroTech/Our_Data/10.31.21 Colin/OpenBCISession_Colin Gamma/OpenBCI-RAW-2021-10-31_13-45-28'
+        # parameters for playing back a file
+        # self.params.other_info = 0 # board id of headset used in file
+        # self.params.file = 'OpenBCI-RAW-2021-10-31_13-45-28' # file name
         self.board = BoardShim(self.myBoardID, self.params)
+        self.brain_training_features = []
 
     def startStream(self):
         """
@@ -155,10 +156,11 @@ class braindata:
                 created_df = True
                 
             # dataframe now filled with numeric data of each applied function in "brain_data_test"
-            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0]  
+            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
            
             # make csv file of all compiled data every 5 min
-            if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
+            # TEST RUN: OUTPUTS 15880 ROWS IN 5 MIN
+            if (int(time.time() - start_time) % 60 == 0.0) and (int(time.time() - start_time) != 0):
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
@@ -169,20 +171,21 @@ class braindata:
                 cols = every_5_min_df.columns[0]
                 every_5_min_df.drop(columns=cols, inplace = True)
 
-                # get rolling mean every 5 rows for every column and compile into summary columns
+                # get rolling mean every 5s for every column and compile into summary columns
                 for col in every_5_min_df:
-                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(5).mean() 
+                    # each row takes at least 0.00099s, need every 5s, need every 555 rows
+                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(555).mean() 
             
                 # features are past data collected every 5 min, all summary columns
-                brain_training_features = every_5_min_df.iloc[:, 63:126]
-                print(brain_training_features)
+                self.brain_training_features = every_5_min_df.iloc[:, 63:126]
+                print(self.brain_training_features)
                 
                 self.csv_index += 1
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
     myBoard.startStream()
-    sampling_rate = myBoard.getSamplingRate()
-    eeg_channels = myBoard.getEEGChannels()
-    collect_data = myBoard.collectData()
+    myBoard.getSamplingRate()
+    myBoard.getEEGChannels()
+    myBoard.collectData()
     myBoard.stopStream()

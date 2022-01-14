@@ -13,11 +13,11 @@ from sklearn.datasets import load_iris
 class ml():
 
     """
-    Need an initial set of 30 mins of training data, start out ML classifier on that 
-    Need to figure out length of feature vector input... 1 min? 30 seconds? etc. 
-    Append wordcount and brain data together, making sure timeframe is same so rows are equal 
+    Initial set of 30 mins / 1 hr of training data: start out ML classifier on that 
+    Length of feature vector input: need to calculate number of rows in each dataframe
+    Append keyboard and brain data together, making sure timeframe is same so rows are equal 
     5 mins - > input that to algorithm to predict next 5 mins 
-    @ 6 mins -> predict next 5 mins of productivity 
+    @ 6 mins -> predict next 5 mins of productivity - are we retraining and predicting every 1 or 5 min?
     Get a guesstimate for produtivity in each minute, multiply by 5 
             
     TRAINING:
@@ -38,8 +38,9 @@ class ml():
         # make sure rows of keyboard and brain data is same
         # add columns to both dataframes that will match up and merge them based on this condition
         self.features = pd.DataFrame()
-        self.features = ml_keyboard_data.keyboard_training_features.append() # add keyboard features
-        self.features = ml_brain_data.brain_training_features.append() # add brain features
+        self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
+        self.features.append(ml_brain_data.brain_training_features) # add brain features
+        print(self.features)
 
         self.label = ml_keyboard_data.training_label
 
@@ -47,8 +48,6 @@ class ml():
         self.y_df = pd.DataFrame()
 
         self.ml_model = None
-
-        self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
 
     def add_training_data(self, train_set, label):
         # check data is good - data is strictly positive
@@ -58,6 +57,8 @@ class ml():
         self.X_df.columns = ['keyboard data', 'brain data']
 
         self.y_df = pd.DataFrame(label, columns = ['label']) # add label - only keyboard data
+
+        self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
 
         # find best combination of hyperparameter values (setup)
         # param_grid = ['n_estimators': [], 'max_features': [] ]
@@ -94,3 +95,9 @@ class ml():
         print("Scores:", scores)
         print("Mean:", scores.mean())
         print("Standard deviation:", scores.std())
+
+if __name__ == "__main__":
+    myml = ml()
+    myml.add_training_data(train_set, label)
+    myml.train_model()
+    myml.predict()

@@ -47,6 +47,7 @@ class gui():
         self.history_features = []
         self.history_dffeatures = []
         self.keyboard_training_features = []
+        self.training_label = []
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -175,9 +176,20 @@ class gui():
             pass
         self.last_charcount = charcount
 
-         # for data collection
+        """
+        WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
+        ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
+        if ml_label_predicted:
+            if self.roadblock:
+                self.popup_display()
+            else:
+                self.popup_close()
+        """
+
+        # for data collection
         self.history_word_count.append(self.wordcount)
         self.history_sentence_count.append(sentencecount)
+        data_time = time.time()
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
         self.history_dffeatures["time (s)"] = self.history_time_seconds
@@ -200,13 +212,13 @@ class gui():
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
         
         for col in self.history_dffeatures:
+            # each row takes at least 0.0008s, need every 5s, need every 625 rows
             if col == "wordcount" or col == "sentencecount":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
             elif col == "standby":
                 self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
-        # print(self.history_dffeatures)
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -222,24 +234,16 @@ class gui():
     
     def every_5_min(self):
         # features are past data collected every 5 min
-        keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        print(keyboard_training_features)
+        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        print(self.keyboard_training_features)
 
         # label is sum of all future data
-        training_label = self.history_dffeatures["words produced"][-300:].sum()
-        # print(training_label)
-
-        """
-        ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
-        if ml_label_predicted:
-            if self.roadblock:
-                self.popup_display()
-            else:
-                self.popup_close()
-        """
+        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
+        # print(self.training_label)
 
         # call every_5_min() every 5 min
-        self.main_window.after(10000, self.every_5_min)
+        # TEST RUN: OUTPUTS 537 ROWS IN 5 MIN
+        self.main_window.after(300000, self.every_5_min)
 
 if __name__ == '__main__':
     gui1 = gui()
