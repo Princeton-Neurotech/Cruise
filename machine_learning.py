@@ -34,31 +34,35 @@ class ml():
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = running_and_brain_features.braindata()
 
+        print(ml_keyboard_data.keyboard_training_features)
+
         # TO-DO:
-        # make sure rows of keyboard and brain data is same
+        # make sure rows of keyboard and brain data is same: 60 rows, each 5s worth, for 5 min
         # add columns to both dataframes that will match up and merge them based on this condition
         self.features = pd.DataFrame()
         self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
         self.features.append(ml_brain_data.brain_training_features) # add brain features
-        print(self.features)
 
-        self.label = ml_keyboard_data.training_label
+        self.label = ml_keyboard_data.training_label # add label
 
         self.X_df = pd.DataFrame()
         self.y_df = pd.DataFrame()
 
         self.ml_model = None
 
-    def add_training_data(self, train_set, label):
-        # check data is good - data is strictly positive
-        if None in train_set or label == None:
+        self.train_set = []
+
+    def add_training_data(self):
+        # check if data is good
+        if None in self.train_set or self.label == None:
             return
-        self.X_df = self.X_df.append(train_set)
+        
+        self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
+        
+        self.X_df = self.X_df.append(self.train_set)
         self.X_df.columns = ['keyboard data', 'brain data']
 
-        self.y_df = pd.DataFrame(label, columns = ['label']) # add label - only keyboard data
-
-        self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
+        self.y_df = pd.DataFrame(self.label, columns = ['label']) # add label - only keyboard data
 
         # find best combination of hyperparameter values (setup)
         # param_grid = ['n_estimators': [], 'max_features': [] ]
@@ -92,12 +96,12 @@ class ml():
 
         scores = cross_val_score(self.ml_model, self.X_df, self.y_df, scoring = "neg_mean_squared_error", cv=10)
         rmse_scores = np.sqrt(-scores)
-        print("Scores:", scores)
-        print("Mean:", scores.mean())
-        print("Standard deviation:", scores.std())
+        # print("Scores:", scores)
+        # print("Mean:", scores.mean())
+        # print("Standard deviation:", scores.std())
 
 if __name__ == "__main__":
     myml = ml()
-    myml.add_training_data(train_set, label)
+    myml.add_training_data()
     myml.train_model()
     myml.predict()

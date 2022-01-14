@@ -158,9 +158,10 @@ class braindata:
             # dataframe now filled with numeric data of each applied function in "brain_data_test"
             self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
            
+           
             # make csv file of all compiled data every 5 min
             # TEST RUN: OUTPUTS 15880 ROWS IN 5 MIN
-            if (int(time.time() - start_time) % 60 == 0.0) and (int(time.time() - start_time) != 0):
+            if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
 

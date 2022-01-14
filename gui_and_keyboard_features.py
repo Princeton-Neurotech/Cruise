@@ -4,10 +4,14 @@ import numpy as np
 import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
+
 from sys import exit
-import machine_learning
 import warnings
 warnings.filterwarnings('ignore')
+
+import machine_learning
+
+from tkinter.filedialog import asksaveasfile
 
 class gui():
     """
@@ -33,6 +37,7 @@ class gui():
         # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
         self.wordcount = 0
         # self.ml_object = machine_learning.ml()
+        self.start_time = time.time()
         self.time_last_change = time.time()
         self.PAGE_LENGTH = 4002
         self.roadblock = False
@@ -56,6 +61,12 @@ class gui():
         self.main_window = tk.Tk()
         self.main_window.title("Roadblocks Project")
         self.main_window.geometry("500x600")
+
+        """
+        # saving
+        self.save_root = Tk()
+        self.save_root.geometry('200x150')
+        """
 
         # Textbox for prompt
         promptLabel = tk.Label(self.main_window, text="Write prompt here")
@@ -87,6 +98,11 @@ class gui():
 
         standbyLabel = tk.Label(self.main_window, text="Standby")
         self.output_standby = tk.Text(self.main_window, width=20, height=1, font=("Helvetica", 12), wrap="word")
+
+        """
+        saveButton = tk.Button(self.save_root, text = 'Save', command = lambda : save())
+        saveButton.pack(side = TOP, pady = 20)
+        """
 
         promptLabel.pack()
         self.input_user_prompt.pack()
@@ -148,7 +164,6 @@ class gui():
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
         self.wordcount_list.append(self.wordcount)
-        # print("wordcount list:", self.wordcount_list)
 
         charcount = len(prompt.replace('\n', ''))
         pagecount = len(prompt) // self.PAGE_LENGTH
@@ -160,7 +175,6 @@ class gui():
             
             self.time_last_change = time.time()
             
-        #print('TLC:', self.time_last_change, 'subs:', time.time() - self.time_last_change)
         if (time.time() - self.time_last_change) > 10:
             
             standbyNotification = "You've entered a standby"
@@ -189,7 +203,6 @@ class gui():
         # for data collection
         self.history_word_count.append(self.wordcount)
         self.history_sentence_count.append(sentencecount)
-        data_time = time.time()
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
         self.history_dffeatures["time (s)"] = self.history_time_seconds
@@ -212,13 +225,18 @@ class gui():
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
         
         for col in self.history_dffeatures:
-            # each row takes at least 0.0008s, need every 5s, need every 625 rows
-            if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
-            elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
-            elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
+            if col == "wordcount" or col == "sentencecount" or col == "standby" or col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col]
+
+        if int(time.time() - self.start_time) > 10:
+            if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
+                    # each row takes at least 0.0008s, need every 5s, need every 625 rows
+                    if col == "wordcount" or col == "sentencecount":
+                        self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
+                    elif col == "standby":
+                        self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
+                    elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
+                        self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -228,22 +246,39 @@ class gui():
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
         # call realtime() every 1s
-        self.main_window.after(1000, self.realtime)
+        self.main_window.after(10000, self.realtime)
     
         return self.history_dffeatures
     
     def every_5_min(self):
         # features are past data collected every 5 min
-        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        print(self.keyboard_training_features)
+        print((int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0))
+        if int(time.time() - self.start_time) > 10:
+            if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
+                self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+                self.keyboard_training_features.drop(labels=None, axis=0, index=0)
+                self.keyboard_training_features.drop(labels=None, axis=0, index=1)
+                self.keyboard_training_features.drop(labels=None, axis=0, index=2)
+                print(self.keyboard_training_features)
 
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
         # call every_5_min() every 5 min
-        # TEST RUN: OUTPUTS 537 ROWS IN 5 MIN
-        self.main_window.after(300000, self.every_5_min)
+        self.main_window.after(5000, self.every_5_min)
+    
+    """
+    def save():
+        files = [('All Files', '*.*'), 
+                ('Python Files', '*.py'),
+                ('Text Document', '*.txt')]
+
+        text = e1.get() + "\n"+e2.get() + "\n"+e3.get() 
+        with open("test.txt", "w") as f:
+            f.writelines(text)
+        file = asksaveasfile(filetypes = files, defaultextension = files)
+    """
 
 if __name__ == '__main__':
     gui1 = gui()
