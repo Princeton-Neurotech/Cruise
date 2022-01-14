@@ -207,15 +207,19 @@ class gui():
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
         # print(self.history_dffeatures)
 
-        # features
-        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        print(self.keyboard_training_features)
+        # features are past data collected every 5 min
+        if (round(time.time() - self.time_for_features, 2)) < 300:
+            self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+            # print(keyboard_training_features)
 
         """
-        # label
+        # need to finish this
+        # label is sum of all future data
         training_label = sum(self.keyboard_training_features[:-300])
         print(training_label)
+        """
 
+        """
         ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
         if ml_label_predicted:
             if self.roadblock:
@@ -233,63 +237,6 @@ class gui():
 
         # call realtime() every 1s
         self.main_window.after(1000, self.realtime)
-
-        return self.wordcount_list
-
-    """
-    def lists_of_lists(self):
-        overlap = 2
-        window_length = 10 # 10s
-        split = window_length / overlap # 5s
-        batch_length = 60 # 60 batches every 5 min
-        retrain_delay = 300 # 5 min
-        num_batches = retrain_delay / batch_length # 300/10 * 2 (overlap)= 60
-
-        self.total_wordcount_list.append(self.wordcount_list)
-        self.wordcount_list = []
-        self.main_window.after(5000, self.lists_of_lists)
-        # print(self.total_wordcount_list)
-        return self.total_wordcount_list
-        
-                index = 0
-                beginning_intervals = 0
-                for beginning_intervals in range (0, retrain_delay + 1, 5): 
-                    beginning_intervals = beginning_intervals # beginning interval of each batch
-                    end_intervals = beginning_intervals + 10 # end interval of each batch
-                    for index in range (0, 1, 5):
-                        self.intervals_array.insert(0, beginning_intervals)
-                        self.intervals_array.insert(0, end_intervals)
-                self.intervals_array.pop(0) # extra 310
-                self.intervals_array.pop(1) # extra 305
-                self.intervals_array.reverse() # was in reverse order beforehand
-
-                # move across array in window fashion, printing each beginning and end interval pair
-                def moving_window(x, length, step=1):
-                    streams = it.tee(x, length)
-                    return zip(*[it.islice(stream, i, None, step*length) for stream, i in zip(streams, it.count(step=step))])
-                self.split_intervals_array = list(moving_window(self.intervals_array, 2))
-                # print(self.split_intervals_array)
-                self.np_split_intervals_array = np.array(self.split_intervals_array)
-                dataframe = pd.DataFrame(self.np_split_intervals_array)
-                dataframe["wordcount"] = ""
-                print(dataframe)
-        
-    def every_5_min(self):
-        # second list is 0-5, third is 5-10, fourth is 10-15, etc.
-        # first two inner lists are unused, first interval wanted is 0-10
-        keyboard_training_features = []
-        wordcount_index = 1
-        for i in range(2, len(self.total_wordcount_list), wordcount_index):
-            # access second element of each inner list, most updated wordcount every 5s
-            wordcount_in_interval = self.total_wordcount_list[i][1]
-            keyboard_training_features.append(wordcount_in_interval)
-            i += 1
-        # print(keyboard_training_features)
-        
-        curr_features = [sum(self.diff_wordcount_queue[301+i:300+5*i+5]) for i in range(5*60/5)]
-
-        self.main_window.after(300000, self.every_5_min) # run every 5 min
-        """
 
 if __name__ == '__main__':
     gui1 = gui()

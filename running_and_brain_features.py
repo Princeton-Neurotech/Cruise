@@ -19,9 +19,6 @@ class braindata:
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
         self.board = BoardShim(self.myBoardID, self.params)
-        self.total_brain_data = None
-        self.brain_training_features = None
-        self.mean = None
 
     def startStream(self):
         """
@@ -53,7 +50,7 @@ class braindata:
         """
         return self.board.get_current_board_data(num_samples)
 
-    def get_samplingRate(self):
+    def getSamplingRate(self):
         """
         Get the rate at which the board samples data
         (i.e.: The muse has an SR of about 256 Hz
@@ -142,47 +139,38 @@ class braindata:
         """
             Collect data, taking mean, every 5s, organize a sliding window queue in which the window 
             length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
-        """
-                    
+        """ 
         start_time = time.time()
         created_df = False
 
         while True:
-            self.total_brain_data = brain_data_test.calc_feature_vector(myBoard.getCurrentData(250))
-            # feature_list = training_features[-1].copy()
-            # print(len(brain_fv[0]),len(brain_fv[-1]))
-            # print(str(str(counter1) + '_' + str(round(time.time()-start_time,2))) * 1000)
+            total_brain_data = brain_data_test.calc_feature_vector(myBoard.getCurrentData(1))
 
-            # first 3s lengths of lists change (unknown why) but afterwards doesn't change
-            # if (time.time() - start_time) > 3: 
             if created_df is False:
-                self.brain_training_features = pd.DataFrame(columns=self.total_brain_data[-1])
+                # empty dataframe with correct column names
+                brain_df = pd.DataFrame(columns=total_brain_data[-1])
                 created_df = True
 
-            self.brain_training_features.loc[len(self.brain_training_features)] = self.total_brain_data[0] 
-            # print(self.brain_training_features)
-            
-            for col in self.brain_training_features:
-                self.brain_training_features[col] = self.brain_training_features[col].astype(float)
-                self.brain_training_features['5rSUMMARY ' + col] = self.brain_training_features[col].rolling(5).mean() 
+            for i in range (0, 300, 1):
+                brain_df.loc[len(brain_df*2)] = total_brain_data[0]  
+                    
+            for col in brain_df:
+                brain_df['5rSUMMARY ' + col] = brain_df[col].rolling(5).mean() 
+            # print(brain_df)
+     
+            # features are past data collected every 5 min
+            if (round(time.time() - start_time, 2)) < 300:
+                brain_training_features = brain_df.iloc[:, 63:136] # all summary columns
+            print(brain_training_features)
 
-            time.sleep(1)
-    
-        """
-        def repeatCollectData(self):
-            start_time = time.time()
-            interval = 1
-            for i in range(20):
-                time.sleep(start_time + i*interval - time.time())
-                collectData()
-        """
+            # current problem: prints wanted data once, but afterwards "cannot set a row with
+            # mismatched columns"
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
     # print(brainflow.__version__)
     myBoard.startStream()
-    sampling_rate = myBoard.get_samplingRate()
+    sampling_rate = myBoard.getSamplingRate()
     eeg_channels = myBoard.getEEGChannels()
     collect_data = myBoard.collectData()
-    # repeat_collect_data = myBoard.repeatCollectData()
     # myBoard.stopStream()
