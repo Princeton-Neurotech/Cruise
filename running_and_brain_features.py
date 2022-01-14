@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import pandas as pd
-import statistics
+# import csv
 
 import brain_data_test 
 
@@ -144,8 +144,8 @@ class braindata:
         """ 
         start_time = time.time()
         created_df = False
+        self.csv_index = 0
 
-        csv_index = 0
         while True:
             total_brain_data = brain_data_test.calc_feature_vector(myBoard.getCurrentData(1))
 
@@ -154,33 +154,30 @@ class braindata:
                 self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
                 created_df = True
                 
-            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
+            # dataframe now filled with numeric data of each applied function in "brain_data_test"
+            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0]  
+           
+            # make csv file of all compiled data every 5 min
+            if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
+                # convert into csv file so we can save every 5 min records
+                self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
-            # print(self.brain_df) 
+                # read csv file and make into pandas dataframe
+                every_5_min_df = pd.read_csv((str(self.csv_index) + ".csv"))
 
-            if int(time.time() - start_time) % 300 == 0.0:
-                self.brain_df.to_csv(str(csv_index))
-                csv_index += 1
-                # every_5_min_df = self.computeData(self.brain_df)
-                # print(every_5_min_df)
+                # drop extra column that was made through process
+                cols = every_5_min_df.columns[0]
+                every_5_min_df.drop(columns=cols, inplace = True)
 
-                # TO-DO:
-                # need to substract every 5 min
-                # compute mean of every column every 5s, compile into dataframe every 5 min
-    
-    """
-    def meanData(self, brain_df):
-        for col in self.brain_df:
-            self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(5).mean() 
-        brain_training_features = self.brain_df.iloc[:, 63:126]
-
-        return brain_training_features
-    """
-        
-    # features are past data collected every 5 min
-    # if (round(time.time() - start_time, 2)) % 300 == 0:
-        # all summary columns
-    # print(brain_training_features)
+                # get rolling mean every 5 rows for every column and compile into summary columns
+                for col in every_5_min_df:
+                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(5).mean() 
+            
+                # features are past data collected every 5 min, all summary columns
+                brain_training_features = every_5_min_df.iloc[:, 63:126]
+                print(brain_training_features)
+                
+                self.csv_index += 1
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
@@ -188,5 +185,4 @@ if __name__ == "__main__":
     sampling_rate = myBoard.getSamplingRate()
     eeg_channels = myBoard.getEEGChannels()
     collect_data = myBoard.collectData()
-    # compute_data = myBoard.computeData()
     myBoard.stopStream()
