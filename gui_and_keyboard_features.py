@@ -6,7 +6,8 @@ import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sys import exit
 import machine_learning
-import itertools as it
+import warnings
+warnings.filterwarnings('ignore')
 
 class gui():
     """
@@ -224,12 +225,9 @@ class gui():
         keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
         print(keyboard_training_features)
 
-        """
-        # need to finish this
         # label is sum of all future data
-        training_label = sum(self.keyboard_training_features[:-300])
-        print(training_label)
-        """
+        training_label = self.history_dffeatures["words produced"][-300:].sum()
+        # print(training_label)
 
         """
         ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
@@ -241,7 +239,7 @@ class gui():
         """
 
         # call every_5_min() every 5 min
-        self.main_window.after(300000, self.every_5_min)
+        self.main_window.after(10000, self.every_5_min)
 
 if __name__ == '__main__':
     gui1 = gui()

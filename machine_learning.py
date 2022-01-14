@@ -34,6 +34,9 @@ class ml():
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = running_and_brain_features.braindata()
 
+        # TO-DO:
+        # make sure rows of keyboard and brain data is same
+        # add columns to both dataframes that will match up and merge them based on this condition
         self.features = pd.DataFrame()
         self.features = ml_keyboard_data.keyboard_training_features.append() # add keyboard features
         self.features = ml_brain_data.brain_training_features.append() # add brain features

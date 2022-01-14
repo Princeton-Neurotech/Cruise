@@ -18,6 +18,8 @@ class braindata:
         BoardShim.enable_dev_board_logger()
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial
+        # self.params.other_info = 0
+        # self.params.file = 'C:/Users/hudso/Desktop/Princeton/NeuroTech/Our_Data/10.31.21 Colin/OpenBCISession_Colin Gamma/OpenBCI-RAW-2021-10-31_13-45-28'
         self.board = BoardShim(self.myBoardID, self.params)
 
     def startStream(self):
@@ -143,33 +145,48 @@ class braindata:
         start_time = time.time()
         created_df = False
 
+        csv_index = 0
         while True:
             total_brain_data = brain_data_test.calc_feature_vector(myBoard.getCurrentData(1))
 
             if created_df is False:
                 # empty dataframe with correct column names
-                brain_df = pd.DataFrame(columns=total_brain_data[-1])
+                self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
                 created_df = True
+                
+            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
 
-            for i in range (0, 300, 1):
-                brain_df.loc[len(brain_df*2)] = total_brain_data[0]  
-                    
-            for col in brain_df:
-                brain_df['5rSUMMARY ' + col] = brain_df[col].rolling(5).mean() 
-            # print(brain_df)
-     
-            # features are past data collected every 5 min
-            if (round(time.time() - start_time, 2)) % 300 == 0:
-                brain_training_features = brain_df.iloc[:, 63:136] # all summary columns
-                print(brain_training_features)
+            # print(self.brain_df) 
 
-            # current problem: "cannot set a row with mismatched columns"
+            if int(time.time() - start_time) % 300 == 0.0:
+                self.brain_df.to_csv(str(csv_index))
+                csv_index += 1
+                # every_5_min_df = self.computeData(self.brain_df)
+                # print(every_5_min_df)
+
+                # TO-DO:
+                # need to substract every 5 min
+                # compute mean of every column every 5s, compile into dataframe every 5 min
+    
+    """
+    def meanData(self, brain_df):
+        for col in self.brain_df:
+            self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(5).mean() 
+        brain_training_features = self.brain_df.iloc[:, 63:126]
+
+        return brain_training_features
+    """
+        
+    # features are past data collected every 5 min
+    # if (round(time.time() - start_time, 2)) % 300 == 0:
+        # all summary columns
+    # print(brain_training_features)
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
-    # print(brainflow.__version__)
     myBoard.startStream()
     sampling_rate = myBoard.getSamplingRate()
     eeg_channels = myBoard.getEEGChannels()
     collect_data = myBoard.collectData()
-    # myBoard.stopStream()
+    # compute_data = myBoard.computeData()
+    myBoard.stopStream()
