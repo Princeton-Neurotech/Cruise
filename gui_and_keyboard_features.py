@@ -207,10 +207,22 @@ class gui():
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
         # print(self.history_dffeatures)
 
+        # put values in interface
+        self.output_charcount.insert(tk.INSERT, charcount)
+        self.output_wordcount.insert(tk.INSERT, self.wordcount)
+        self.output_sentencecount.insert(tk.INSERT, sentencecount)
+        self.output_pagecount.insert(tk.INSERT, pagecount)
+        self.output_standby.insert(tk.INSERT, standbyNotification)
+
+        # call realtime() every 1s
+        self.main_window.after(1000, self.realtime)
+    
+        return self.history_dffeatures
+    
+    def every_5_min(self):
         # features are past data collected every 5 min
-        if (round(time.time() - self.time_for_features, 2)) < 300:
-            self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-            # print(keyboard_training_features)
+        keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        print(keyboard_training_features)
 
         """
         # need to finish this
@@ -228,22 +240,14 @@ class gui():
                 self.popup_close()
         """
 
-        # put values in interface
-        self.output_charcount.insert(tk.INSERT, charcount)
-        self.output_wordcount.insert(tk.INSERT, self.wordcount)
-        self.output_sentencecount.insert(tk.INSERT, sentencecount)
-        self.output_pagecount.insert(tk.INSERT, pagecount)
-        self.output_standby.insert(tk.INSERT, standbyNotification)
-
-        # call realtime() every 1s
-        self.main_window.after(1000, self.realtime)
+        # call every_5_min() every 5 min
+        self.main_window.after(300000, self.every_5_min)
 
 if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
-    # gui1.lists_of_lists()
-    # gui1.every_5_min()
+    gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line

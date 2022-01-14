@@ -159,12 +159,11 @@ class braindata:
             # print(brain_df)
      
             # features are past data collected every 5 min
-            if (round(time.time() - start_time, 2)) < 300:
+            if (round(time.time() - start_time, 2)) % 300 == 0:
                 brain_training_features = brain_df.iloc[:, 63:136] # all summary columns
-            print(brain_training_features)
+                print(brain_training_features)
 
-            # current problem: prints wanted data once, but afterwards "cannot set a row with
-            # mismatched columns"
+            # current problem: "cannot set a row with mismatched columns"
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
