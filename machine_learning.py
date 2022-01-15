@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 import gui_and_keyboard_features 
-import running_and_brain_features
+import brain_features
 
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
@@ -35,7 +35,7 @@ class ml():
 
     def __init__(self):
         ml_keyboard_data = gui_and_keyboard_features.gui()
-        ml_brain_data = running_and_brain_features.braindata()
+        ml_brain_data = brain_features.braindata()
 
         self.features = pd.DataFrame()
         self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
