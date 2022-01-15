@@ -8,7 +8,6 @@ import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
-
 class braindata:
 
     def __init__(self, boardID=-1, serial=''):
@@ -144,6 +143,8 @@ class braindata:
             Collect data, taking mean, every 5s, organize a sliding window queue in which the window 
             length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
         """ 
+        myBoard = braindata(-1, 'COM3')
+
         start_time = time.time()
         created_df = False
         self.csv_index = 0
@@ -160,7 +161,7 @@ class braindata:
             self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
            
             # make csv file of all compiled data every 5 min - take every 674th row
-            if (int(time.time() - start_time) % 300 == 0.0) and (int(time.time() - start_time) != 0):
+            if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
@@ -173,7 +174,6 @@ class braindata:
 
                 # get rolling mean every 5s for every column and compile into summary columns
                 for col in every_5_min_df:
-                    # each row takes at least 0.00099s, need every 5s, need every 555 rows
                     every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(5).mean() 
             
                 # features are past data collected every 5 min, all summary columns
@@ -182,14 +182,15 @@ class braindata:
                 self.csv_index += 1
             
                 for i in range (0, 61):
-                    self.compressed_brain_training_features = self.brain_training_features.iloc[[650*i],:] 
+                    # take every 650th row
+                    self.compressed_brain_training_features = self.brain_training_features.iloc[[21*i],:] 
                     self.compressed_brain_training_features.append(self.compressed_brain_training_features)
-                    print(self.compressed_brain_training_features)
+                    # print(self.compressed_brain_training_features)
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
-    myBoard.startStream()
-    myBoard.getSamplingRate()
-    myBoard.getEEGChannels()
-    myBoard.collectData()
-    myBoard.stopStream()
+    # myBoard.startStream()
+    # myBoard.getSamplingRate()
+    # myBoard.getEEGChannels()
+    # myBoard.collectData()
+    # myBoard.stopStream()

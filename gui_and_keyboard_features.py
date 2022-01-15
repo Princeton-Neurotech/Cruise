@@ -4,14 +4,13 @@ import numpy as np
 import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
+# from tkinter.filedialog import asksaveasfile
 
 from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
 import machine_learning
-
-from tkinter.filedialog import asksaveasfile
 
 class gui():
     """
@@ -258,6 +257,7 @@ class gui():
         self.main_window.after(300000, self.every_5_min)
     
     """
+    save as txt so user doesn't get mad if program does not respond and crashes!
     def save():
         files = [('All Files', '*.*'), 
                 ('Python Files', '*.py'),
@@ -269,12 +269,12 @@ class gui():
         file = asksaveasfile(filetypes = files, defaultextension = files)
     """
 
-if __name__ == '__main__':
-    gui1 = gui()
+# if __name__ == '__main__':
+    # gui1 = gui()
     # main processing function
-    gui1.realtime()
-    gui1.every_5_min()
+    # gui1.realtime()
+    # gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
-    gui1.main_window.mainloop()
+    # gui1.main_window.mainloop()

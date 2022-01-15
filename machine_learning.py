@@ -31,30 +31,39 @@ class ml():
     """
     
     # TO-DO:
+    # transpose rows into columns
     # add columns to both dataframes that will match up and merge them based on this condition
 
     def __init__(self):
+        start_time = time.time()
+        
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = brain_features.braindata()
 
-        self.features = pd.DataFrame()
-        self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
-        self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
-    
-        # transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
-        self.features_dict = {'features': self.features}
-        self.features_before_transposed = pd.DataFrame(data=self.features_dict)
-        self.features_after_transposed = self.features_before_transposed.T
-        print(self.features_after_transposed)
+        if (int(time.time() - start_time) < 7200) and (int(time.time() - start_time) != 0):
+            print(ml_keyboard_data.keyboard_training_features)
 
-        self.label = ml_keyboard_data.training_label # add label
+            self.features = pd.DataFrame()
+            self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
+            self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
+        
+            # transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
+            # self.features_dict = {'features': self.features}
+            # print(self.features_dict)
 
-        self.X_df = pd.DataFrame()
-        self.y_df = pd.DataFrame()
+            """
+            self.features_before_transposed = pd.DataFrame(data=self.features_dict)
+            self.features_after_transposed = self.features_before_transposed.T
+            print(self.features_after_transposed)
 
-        self.ml_model = None
+            self.label = ml_keyboard_data.training_label # add label
 
-        self.train_set = []
+            self.X_df = pd.DataFrame()
+            self.y_df = pd.DataFrame()
+
+            self.ml_model = None
+
+            self.train_set = []
 
     def add_training_data(self):
         # check if data is good
@@ -103,9 +112,10 @@ class ml():
         # print("Scores:", scores)
         # print("Mean:", scores.mean())
         # print("Standard deviation:", scores.std())
+    """
 
 if __name__ == "__main__":
     myml = ml()
-    myml.add_training_data()
-    myml.train_model()
-    myml.predict()
+    # myml.add_training_data()
+    # myml.train_model()
+    # myml.predict()
