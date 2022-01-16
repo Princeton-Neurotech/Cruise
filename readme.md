@@ -1,4 +1,4 @@
-# Roadblocks Project
+# Roadblocks
 Users complete a provided writing prompt and we measure keyboard input and brain data as they write. We develop a machine learning model that predicts when the user will approach a roadblock based on keyboard input and brain data. A roadblock is defined as if the user cannot hit a minimum goal before 5 minutes. If the user hits a roadblock we can offer helpful alternatives such as reading articles related to their keywords or taking a break.
  
 The general pipeline involved in this project is:
