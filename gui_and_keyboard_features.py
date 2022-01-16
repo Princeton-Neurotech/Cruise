@@ -254,7 +254,7 @@ class gui():
         # print(self.training_label)
 
         # call every_5_min() every 5 min
-        self.main_window.after(300000, self.every_5_min)
+        self.main_window.after(10000, self.every_5_min)
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!

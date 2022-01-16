@@ -1,4 +1,5 @@
 import time
+import sched
 import numpy as np
 import pandas as pd
 
@@ -145,6 +146,10 @@ class braindata:
         """ 
         myBoard = braindata(-1, 'COM3')
 
+        # run process every 10s
+        # event_schedule = sched.scheduler(time.time, time.sleep(10))
+        # event_schedule.run()
+
         start_time = time.time()
         created_df = False
         self.csv_index = 0
@@ -159,9 +164,9 @@ class braindata:
                 
             # previous empty dataframe now filled with numeric data of each applied function in "brain_data_test"
             self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
-           
-            # make csv file of all compiled data every 5 min - take every 674th row
+                    # make csv file of all compiled data every 5 min - take every 650th row
             if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
+                print("we are here")
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
@@ -172,25 +177,25 @@ class braindata:
                 cols = every_5_min_df.columns[0]
                 every_5_min_df.drop(columns=cols, inplace = True)
 
-                # get rolling mean every 5s for every column and compile into summary columns
+                # get rolling mean every 650 rows for every column and compile into summary columns
                 for col in every_5_min_df:
-                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(5).mean() 
+                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(21).mean() 
             
                 # features are past data collected every 5 min, all summary columns
                 self.brain_training_features = every_5_min_df.iloc[:, 63:126]
                 
                 self.csv_index += 1
-            
+                
                 for i in range (0, 61):
                     # take every 650th row
-                    self.compressed_brain_training_features = self.brain_training_features.iloc[[21*i],:] 
-                    self.compressed_brain_training_features.append(self.compressed_brain_training_features)
-                    # print(self.compressed_brain_training_features)
+                    # self.compressed_brain_training_features = self.brain_training_features.iloc[[21*i],:] 
+                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[21*i],:])
+                # print(self.compressed_brain_training_features) 
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
-    # myBoard.startStream()
-    # myBoard.getSamplingRate()
-    # myBoard.getEEGChannels()
-    # myBoard.collectData()
-    # myBoard.stopStream()
+    myBoard.startStream()
+    myBoard.getSamplingRate()
+    myBoard.getEEGChannels()
+    myBoard.collectData()
+    myBoard.stopStream()
