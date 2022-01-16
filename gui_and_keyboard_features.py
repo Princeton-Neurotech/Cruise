@@ -253,7 +253,7 @@ class gui():
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
-        # call every_5_min() every 5 min
+        # call every_5_min() every 5 min (first time: 1 hr)
         self.main_window.after(10000, self.every_5_min)
     
     """

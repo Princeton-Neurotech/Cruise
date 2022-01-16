@@ -35,47 +35,45 @@ class ml():
     # transpose rows into columns
     # add columns to both dataframes that will match up and merge them based on this condition
 
-    # def __init__(self):
-        
+    def __init__(self):
+        # keyboard functions to be run
+        # ml_keyboard_data.realtime()
+        # ml_keyboard_data.every_5_min()
+
+        # brain functions to be run
+        # ml_brain_data.startStream()
+        # ml_brain_data.collectData()
+
+        start_time = time.time()
+        print((int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0))
+        # if (int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0):
+        print(gui_and_keyboard_features.keyboard_training_features)
+        print(brain_features.compressed_brain_training_features)
+
     def add_raw_data(self):
-        ml_keyboard_data = gui_and_keyboard_features.gui()
-        ml_brain_data = brain_features.braindata()
-        while True:
-            # keyboard functions to be run
-            ml_keyboard_data.realtime()
-            ml_keyboard_data.every_5_min()
+        self.features = pd.DataFrame()
+        self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
+        self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
+        # print(self.features)
+        
+        # transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
+        # self.features_dict = {'features': self.features}
+        # print(self.features_dict)
 
-            # brain functions to be run
-            ml_brain_data.startStream()
-            ml_brain_data.collectData()
+        """
+        self.features_before_transposed = pd.DataFrame(data=self.features_dict)
+        self.features_after_transposed = self.features_before_transposed.T
+        print(self.features_after_transposed)
 
-            start_time = time.time()
-            while True:
-                if (int(time.time() - start_time) > 10) and (int(time.time() - start_time) != 0):
-                    print(ml_keyboard_data.keyboard_training_features)
-                    print(ml_brain_data.compressed_brain_training_features)
+        self.label = ml_keyboard_data.training_label # add label
 
-                    self.features = pd.DataFrame()
-                    self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
-                    self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
-                    print(self.features)
-                    
-                    # transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
-                    # self.features_dict = {'features': self.features}
-                    # print(self.features_dict)
+        self.X_df = pd.DataFrame()
+        self.y_df = pd.DataFrame()
 
-                    self.features_before_transposed = pd.DataFrame(data=self.features_dict)
-                    self.features_after_transposed = self.features_before_transposed.T
-                    print(self.features_after_transposed)
+        self.ml_model = None
 
-                    self.label = ml_keyboard_data.training_label # add label
-
-                    self.X_df = pd.DataFrame()
-                    self.y_df = pd.DataFrame()
-
-                    self.ml_model = None
-
-                    self.train_set = []
+        self.train_set = []
+        """
 
     """
     def add_training_data(self):
@@ -129,7 +127,9 @@ class ml():
 
 if __name__ == "__main__":
     myml = ml()
-    myml.add_raw_data()
+    ml_keyboard_data = gui_and_keyboard_features.gui()
+    ml_brain_data = brain_features.braindata()
+    # myml.add_raw_data()
     # myml.add_training_data()
     # myml.train_model()
     # myml.predict()
