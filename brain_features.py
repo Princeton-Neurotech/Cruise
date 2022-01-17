@@ -154,10 +154,10 @@ class braindata:
         created_df = False
         self.csv_index = 0
 
-        if (int(time.time() - start_time) != 0):
-            print("we are here")
+        # run every 1s
+        for i in range (0, 1000000):
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
-
+ 
             if created_df is False:
                 # empty dataframe with correct column names
                 self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
@@ -184,20 +184,20 @@ class braindata:
                 # get rolling mean every 650 rows for every column and compile into summary columns
                 # 7800th rows for 1 hr
                 for col in every_5_min_df:
-                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(21).mean() 
+                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(21).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
             
                 # features are past data collected every 5 min, all summary columns
                 self.brain_training_features = every_5_min_df.iloc[:, 63:126]
                 
                 for i in range (0, 60):
-                    # take every 650th row
+                # take every 650th row
                     self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[21*i],:])
-                    # print(self.compressed_brain_training_features)
+                # print(self.compressed_brain_training_features)
 
-if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
-    myBoard.startStream()
-    myBoard.getSamplingRate()
-    myBoard.getEEGChannels()
-    myBoard.collectData()
-    myBoard.stopStream()
+# if __name__ == "__main__":
+    # myBoard = braindata(-1, 'COM3')
+    # myBoard.startStream()
+    # myBoard.getSamplingRate()
+    # myBoard.getEEGChannels()
+    # myBoard.collectData()
+    # myBoard.stopStream()

@@ -237,10 +237,10 @@ class gui():
         self.output_sentencecount.insert(tk.INSERT, sentencecount)
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
-
+    
         # call realtime() every ~10s
         self.main_window.after(9500, self.realtime)
-    
+
         return self.history_dffeatures
     
     def every_5_min(self):

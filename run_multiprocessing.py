@@ -22,20 +22,25 @@ def second_file():
     # print(myBoard.compressed_brain_training_features)
  
 def third_file():
+    # machine learning related
     myml = machine_learning.ml()
     myml.add_raw_data()
+    # myml.add_training_data()
+    # myml.train_model()
+    # myml.predict()
+    # keyboard related
     ml_keyboard_data = gui_and_keyboard_features.gui()
     ml_keyboard_data.realtime()
     ml_keyboard_data.every_5_min()
     ml_keyboard_data.main_window.mainloop()
+    # brain related
     ml_brain_data = brain_features.braindata()
     ml_brain_data.startStream()
     ml_brain_data.collectData()
-    # myml.add_training_data()
-    # myml.train_model()
-    # myml.predict()
  
 if __name__ == "__main__":
+    # add ml file code here
+
     start_time = time.time()
 
     proc1 = mp.Process(target=first_file)
@@ -44,13 +49,15 @@ if __name__ == "__main__":
 
     proc1.start()
     proc2.start()
-    # proc3.start()
+
     proc1.join()
     proc2.join()
-    # proc3.join()
- 
-    if (int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0):
-        proc3.start()
-        proc3.join()
-    
+
+    print("we are here")
+
+    while True:
+        if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0.0):
+            proc3.start()
+            proc3.join()
+
     print("finished running")

@@ -36,21 +36,18 @@ class ml():
     # add columns to both dataframes that will match up and merge them based on this condition
 
     def __init__(self):
-        # keyboard functions to be run
-        # ml_keyboard_data.realtime()
-        # ml_keyboard_data.every_5_min()
-
-        # brain functions to be run
-        # ml_brain_data.startStream()
-        # ml_brain_data.collectData()
+        ml_keyboard_data = gui_and_keyboard_features.gui()
+        ml_brain_data = brain_features.braindata(-1, "COM3")
 
         start_time = time.time()
         print((int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0))
-        # if (int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0):
-        print(gui_and_keyboard_features.keyboard_training_features)
-        print(brain_features.compressed_brain_training_features)
+        print(ml_keyboard_data.keyboard_training_features)
+        print(ml_brain_data.compressed_brain_training_features)
 
     def add_raw_data(self):
+        print("we are here")
+        ml_keyboard_data = gui_and_keyboard_features.gui()
+        ml_brain_data = brain_features.braindata(-1, "COM3")
         self.features = pd.DataFrame()
         self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
         self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
@@ -75,61 +72,59 @@ class ml():
         self.train_set = []
         """
 
-    """
-    def add_training_data(self):
-        # check if data is good
-        if None in self.train_set or self.label == None:
-            return
-        
-        self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
-        
-        self.X_df = self.X_df.append(self.train_set)
-        self.X_df.columns = ['keyboard data', 'brain data']
+        """
+        def add_training_data(self):
+            # check if data is good
+            if None in self.train_set or self.label == None:
+                return
+            
+            self.train_set, self.test_set = train_test_split(self.features, test_size=0.2, random_state=42)
+            
+            self.X_df = self.X_df.append(self.train_set)
+            self.X_df.columns = ['keyboard data', 'brain data']
 
-        self.y_df = pd.DataFrame(self.label, columns = ['label']) # add label - only keyboard data
+            self.y_df = pd.DataFrame(self.label, columns = ['label']) # add label - only keyboard data
 
-        # find best combination of hyperparameter values (setup)
-        # param_grid = ['n_estimators': [], 'max_features': [] ]
+            # find best combination of hyperparameter values (setup)
+            # param_grid = ['n_estimators': [], 'max_features': [] ]
 
-    # if length % 120 call train model to train every 300s
-    def train_model(self):
-        # update ml model
-        self.ml_model = RandomForestRegressor()
-        self.ml_model.fit(self.X_df, self.y_df)
-        # ensemble learning through using random forest classifier?
-        self.ml_model = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, n_jobs=-1)
-        self.ml_model.fit(self.X_df, self.y_df)
+        # if length % 120 call train model to train every 300s
+        def train_model(self):
+            # update ml model
+            self.ml_model = RandomForestRegressor()
+            self.ml_model.fit(self.X_df, self.y_df)
+            # ensemble learning through using random forest classifier?
+            self.ml_model = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, n_jobs=-1)
+            self.ml_model.fit(self.X_df, self.y_df)
 
-        # or for feature importance: 
-        # self.ml_model.fit(iris["data", iris["target"]])
-        # for name, score in zip(iris["features_names"], self.ml_model.feature_importances_):
-            # print(name, score)
+            # or for feature importance: 
+            # self.ml_model.fit(iris["data", iris["target"]])
+            # for name, score in zip(iris["features_names"], self.ml_model.feature_importances_):
+                # print(name, score)
 
-        # search for best hyperparameters
-        # grid_search = GridSearchCV(self.ml_model, param_grid, cv=[], scoring='neg_mean_squared_error', return_train_score=True)
-        # grid_search.fit(self.X_df, self.y_df)
+            # search for best hyperparameters
+            # grid_search = GridSearchCV(self.ml_model, param_grid, cv=[], scoring='neg_mean_squared_error', return_train_score=True)
+            # grid_search.fit(self.X_df, self.y_df)
 
-    def predict(self):
-        # Return expected words per 5 minute
-        # if model hasn't be created yet due to insufficient data don't show popup
-        if not self.ml_model: return float('infinity')
-        # if model exists use aggregated latest 300s from queue to predict future words
-        training_predictions = self.ml_model.predict(self.X_df)
-        mse = mean_squared_error(self.y_df, self.X_df)
-        mse = np.sqrt(mse)
+        def predict(self):
+            # Return expected words per 5 minute
+            # if model hasn't be created yet due to insufficient data don't show popup
+            if not self.ml_model: return float('infinity')
+            # if model exists use aggregated latest 300s from queue to predict future words
+            training_predictions = self.ml_model.predict(self.X_df)
+            mse = mean_squared_error(self.y_df, self.X_df)
+            mse = np.sqrt(mse)
 
-        scores = cross_val_score(self.ml_model, self.X_df, self.y_df, scoring = "neg_mean_squared_error", cv=10)
-        rmse_scores = np.sqrt(-scores)
-        # print("Scores:", scores)
-        # print("Mean:", scores.mean())
-        # print("Standard deviation:", scores.std())
-    """
+            scores = cross_val_score(self.ml_model, self.X_df, self.y_df, scoring = "neg_mean_squared_error", cv=10)
+            rmse_scores = np.sqrt(-scores)
+            # print("Scores:", scores)
+            # print("Mean:", scores.mean())
+            # print("Standard deviation:", scores.std())
+        """
 
 if __name__ == "__main__":
     myml = ml()
-    ml_keyboard_data = gui_and_keyboard_features.gui()
-    ml_brain_data = brain_features.braindata()
-    # myml.add_raw_data()
+    myml.add_raw_data()
     # myml.add_training_data()
     # myml.train_model()
     # myml.predict()
