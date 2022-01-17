@@ -1,63 +1,42 @@
-import gui_and_keyboard_features
-import brain_features
-import machine_learning
-
-import multiprocessing as mp
+import multiprocessing
+from multiprocessing import Pool
+import workers
 import sys
 import time
 
 # increase recursion limit
 sys.setrecursionlimit(15000)
-
-def first_file():
-    gui1 = gui_and_keyboard_features.gui()
-    gui1.realtime()
-    gui1.every_5_min()
-    gui1.main_window.mainloop()
- 
-def second_file():
-    myBoard = brain_features.braindata(-1, 'COM3')
-    myBoard.startStream()
-    myBoard.collectData()
-    # print(myBoard.compressed_brain_training_features)
- 
-def third_file():
-    # machine learning related
-    myml = machine_learning.ml()
-    myml.add_raw_data()
-    # myml.add_training_data()
-    # myml.train_model()
-    # myml.predict()
-    # keyboard related
-    ml_keyboard_data = gui_and_keyboard_features.gui()
-    ml_keyboard_data.realtime()
-    ml_keyboard_data.every_5_min()
-    ml_keyboard_data.main_window.mainloop()
-    # brain related
-    ml_brain_data = brain_features.braindata()
-    ml_brain_data.startStream()
-    ml_brain_data.collectData()
  
 if __name__ == "__main__":
-    # add ml file code here
+    """
+    pool = Pool(processes = 3)
+    output1 = pool.map_async(workers.worker1, [() for _ in range(1)])
+    output2 = pool.map_async(workers.worker2, [() for _ in range(1)])
+    output3 = pool.map_async(workers.worker3, [() for _ in range(1)])
+    # print(output1)
+    # print(output2)
+    # print(output3)
+    """
 
     start_time = time.time()
 
-    proc1 = mp.Process(target=first_file)
-    proc2 = mp.Process(target=second_file)
-    proc3 = mp.Process(target=third_file)
+    # turns given process into a daemon which will run forever normally
+    # subprocess is automatically terminated after the parent process ends to prevent orphan processes
+    # aka kills all subprocesses
+    proc1 = multiprocessing.Process(target=workers.worker1)
+    # proc1.daemon = True
+    proc2 = multiprocessing.Process(target=workers.worker2)
+    # proc2.daemon = True
+    proc3 = multiprocessing.Process(target=workers.worker3)
 
-    proc1.start()
+    proc1.start() 
     proc2.start()
+    proc3.start()
 
-    proc1.join()
-    proc2.join()
-
-    print("we are here")
-
-    while True:
-        if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0.0):
-            proc3.start()
-            proc3.join()
-
-    print("finished running")
+    # while true creates problems
+    # for i in range (0, 1000000):
+        # if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0.0):
+    
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()

@@ -34,24 +34,29 @@ class ml():
     # TO-DO:
     # transpose rows into columns
     # add columns to both dataframes that will match up and merge them based on this condition
-
+    start_time = time.time()
     def __init__(self):
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = brain_features.braindata(-1, "COM3")
 
-        start_time = time.time()
-        print((int(time.time() - start_time) % 10 == 0) and (int(time.time() - start_time) != 0))
-        print(ml_keyboard_data.keyboard_training_features)
-        print(ml_brain_data.compressed_brain_training_features)
+        while (int(time.time() - self.start_time) % 10 == 0) and (int(time.time() - self.start_time) != 0):
+        # while True:
+            print("machine learning")
+            # print(ml_keyboard_data.keyboard_training_features)
+            # print(ml_brain_data.compressed_brain_training_features)
 
-    def add_raw_data(self):
-        print("machine learning")
-        ml_keyboard_data = gui_and_keyboard_features.gui()
-        ml_brain_data = brain_features.braindata(-1, "COM3")
-        self.features = pd.DataFrame()
-        self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
-        self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
-        # print(self.features)
+        """
+            def add_raw_data(self):
+                start_time = time.time()
+                while (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
+                    print("machine learning")
+                    ml_keyboard_data = gui_and_keyboard_features.gui()
+                    ml_brain_data = brain_features.braindata(-1, "COM3")
+                    self.features = pd.DataFrame()
+                    self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
+                    self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
+                    # print(self.features)
+        """
         
         # transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
         # self.features_dict = {'features': self.features}

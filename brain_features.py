@@ -154,7 +154,7 @@ class braindata:
         created_df = False
         self.csv_index = 0
 
-        # run every 1s
+        # while true creates problems
         for i in range (0, 1000000):
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
  
