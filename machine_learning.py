@@ -45,7 +45,7 @@ class ml():
         print(ml_brain_data.compressed_brain_training_features)
 
     def add_raw_data(self):
-        print("we are here")
+        print("machine learning")
         ml_keyboard_data = gui_and_keyboard_features.gui()
         ml_brain_data = brain_features.braindata(-1, "COM3")
         self.features = pd.DataFrame()

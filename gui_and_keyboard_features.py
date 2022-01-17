@@ -238,6 +238,7 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
     
+        print("every 10s keyboard features")
         # call realtime() every ~10s
         self.main_window.after(9500, self.realtime)
 
@@ -253,6 +254,7 @@ class gui():
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
+        print("every 5 min keyboard features")
         # call every_5_min() every 5 min (first time: 1 hr)
         self.main_window.after(10000, self.every_5_min)
     

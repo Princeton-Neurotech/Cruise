@@ -194,6 +194,8 @@ class braindata:
                     self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[21*i],:])
                 # print(self.compressed_brain_training_features)
 
+                print("brain features")
+
 # if __name__ == "__main__":
     # myBoard = braindata(-1, 'COM3')
     # myBoard.startStream()
