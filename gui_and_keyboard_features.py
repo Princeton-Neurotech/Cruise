@@ -52,6 +52,7 @@ class gui():
         self.history_dffeatures = []
         self.keyboard_training_features = []
         self.training_label = []
+        self.csv_index = 0
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -238,9 +239,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
     
-        print("every 10s keyboard features")
         # call realtime() every ~10s
-        self.main_window.after(9500, self.realtime)
+        self.main_window.after(4880, self.realtime)
 
         return self.history_dffeatures
     
@@ -250,13 +250,16 @@ class gui():
             self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
             # print(self.keyboard_training_features) # 60 rows that will be transposed into 60 columns
 
+            # convert into csv file so we can save every 5 min records
+            self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
+            self.csv_index += 1
+
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
-        print("every 5 min keyboard features")
         # call every_5_min() every 5 min (first time: 1 hr)
-        self.main_window.after(10000, self.every_5_min)
+        self.main_window.after(300000, self.every_5_min)
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!

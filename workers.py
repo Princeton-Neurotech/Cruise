@@ -15,20 +15,8 @@ def worker2():
     myBoard.collectData()
  
 def worker3():
-    # machine learning related
     myml = machine_learning.ml()
-    # myml.add_raw_data()
-    # needed every 5 min
-    time.sleep(10)
+    myml.read_csv()
     # myml.add_training_data()
     # myml.train_model()
     # myml.predict()
-    # keyboard related
-    # ml_keyboard_data = gui_and_keyboard_features.gui()
-    # ml_keyboard_data.realtime()
-    # ml_keyboard_data.every_5_min()
-    # ml_keyboard_data.main_window.mainloop()
-    # brain related
-    # ml_brain_data = brain_features.braindata()
-    # ml_brain_data.startStream()
-    # ml_brain_data.collectData()
