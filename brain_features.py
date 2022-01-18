@@ -188,7 +188,7 @@ class braindata:
                 
                 for i in range (0, 60):
                 # take every 650th row
-                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[400*i],:])
+                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[400*i],:]) 
                 # print(self.compressed_brain_training_features)
 
                 # convert into csv file so we can save every 5 min records
