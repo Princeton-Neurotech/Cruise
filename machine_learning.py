@@ -33,24 +33,27 @@ class ml():
 
     def __init__(self):
         self.csv_index = 0
-        print("machine learning")
         # ml_keyboard_data = gui_and_keyboard_features.gui()
         # ml_brain_data = brain_features.braindata(-1, "COM3")
-
-        # while (int(time.time() - self.start_time) % 10 == 0) and (int(time.time() - self.start_time) != 0):
-        # while True:
-        # print("machine learning")
 
     def read_csv(self):
         # read csv file and make into pandas dataframe
         every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
         every_5_min_brain = pd.read_csv(("brain " + str(self.csv_index) + ".csv"))
+
+        # drop extra column that was made through process
+        cols = every_5_min_keyboard.columns[0]
+        every_5_min_keyboard.drop(columns=cols, inplace = True)
+
+        cols = every_5_min_brain.columns[0]
+        every_5_min_brain.drop(columns=cols, inplace = True)
+        
         self.csv_index += 1
 
-        for self.i in range (0, 1000000):
+        # for self.i in range (0, 1000000):
             # choose 60 rows, after one iteration, choose 0 to the next 60 rows
-            every_5_min_keyboard = every_5_min_keyboard.iloc[0:60*self.i]
-            every_5_min_brain = every_5_min_brain.iloc[0:60*self.i]
+            # every_5_min_keyboard = every_5_min_keyboard.iloc[0:60*self.i]
+            # every_5_min_brain = every_5_min_brain.iloc[0:60*self.i]
 
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)

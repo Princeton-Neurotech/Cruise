@@ -5,6 +5,8 @@ import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 # from tkinter.filedialog import asksaveasfile
+# import pdfkit
+# import os
 
 from sys import exit
 import warnings
@@ -63,9 +65,22 @@ class gui():
         self.main_window.geometry("500x600")
 
         """
+        # pdf
+        self.pdf_root = Tk()
+
         # saving
         self.save_root = Tk()
         self.save_root.geometry('200x150')
+
+        label = tk.Label(root, text="CTRL + b to make a page (use also html)")
+        label.pack()
+        txbx = tk.Text(root)
+        txbx['font'] = "New Times Roman 12"
+        txbx['bg'] = "cyan"
+        txbx['borderwidth'] = 2
+        txbx.pack(fill=tk.BOTH, expand=1)
+        txbx.focus()
+        txbx.bind("<Control-b>", pdf)
         """
 
         # Textbox for prompt
@@ -272,6 +287,14 @@ class gui():
         with open("test.txt", "w") as f:
             f.writelines(text)
         file = asksaveasfile(filetypes = files, defaultextension = files)
+
+    # convert previous txt into pdf so all aspects of paper are preserved
+    def pdf(event):
+        x = "my.pdf"
+        content = txbx.get("0.0", tk.END)
+        pdfkit.from_string(content, x)
+        print("pdf created")
+        os.startfile("my.pdf")
     """
 
 # if __name__ == '__main__':
