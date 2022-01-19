@@ -1,5 +1,5 @@
 import gui_and_keyboard_features
-import brain_features
+import old_brain_features
 import machine_learning
 
 import multiprocessing
@@ -11,7 +11,7 @@ def worker1():
     gui1.main_window.mainloop()
  
 def worker2():
-    myBoard = brain_features.braindata(-1, 'COM3')
+    myBoard = old_brain_features.braindata(-1, 'COM3')
     myBoard.startStream()
     myBoard.collectData()
  

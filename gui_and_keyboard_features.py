@@ -242,11 +242,11 @@ class gui():
 
         for col in self.features_list:
             if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(1).mean() 
             elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
+                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(1).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(1).sum() 
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -254,18 +254,21 @@ class gui():
         self.output_sentencecount.insert(tk.INSERT, sentencecount)
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
-    
-        # call realtime() every ~5s
-        self.main_window.after(9500, self.realtime) # 4880
 
-        return self.history_dffeatures
+        # add one row of self.history_dffeature's summary columns every 5s
+        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        # print(self.keyboard_training_features) 
     
+        # call realtime() every 5s
+        self.main_window.after(5000, self.realtime)
+
+        # update and return every 5s - outputs 1 row every 5s
+        return self.keyboard_training_features
+
     def every_5_min(self):
-        # features are past data collected every 5 min
-        if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
-            self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-            print(self.keyboard_training_features) 
-
+        # don't create a csv at 0s
+        if (int(time.time() - self.start_time)) != 0:
+            self.realtime()
             # convert into csv file so we can save every 5 min records
             self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
             self.csv_index += 1
@@ -274,7 +277,7 @@ class gui():
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
-        # call every_5_min() every 5 min (first time: 1 hr)
+        # call every_5_min() every 5 min
         self.main_window.after(10000, self.every_5_min)
     
     """

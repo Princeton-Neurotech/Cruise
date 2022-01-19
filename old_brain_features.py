@@ -21,6 +21,21 @@ class braindata:
         # self.params.other_info = 0 # board id of headset used in file
         # self.params.file = 'OpenBCI-RAW-2021-10-31_13-45-28' # file name
         self.board = BoardShim(self.myBoardID, self.params)
+        self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
+        'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
+        'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
+        'std_d_h2h1_0', 'max_0', 'max_d_h2h1_0', 'max_q1_0', 'max_q2_0',
+        'max_q3_0', 'max_q4_0', 'max_d_q1q2_0', 'max_d_q1q3_0', 'max_d_q1q4_0',
+        'max_d_q2q3_0', 'max_d_q2q4_0', 'max_d_q3q4_0', 'min_0', 'min_d_h2h1_0',
+        'min_q1_0', 'min_q2_0', 'min_q3_0', 'min_q4_0', 'min_d_q1q2_0',
+        'min_d_q1q3_0', 'min_d_q1q4_0', 'min_d_q2q3_0', 'min_d_q2q4_0',
+        'min_d_q3q4_0', 'topFreq_1_0', 'topFreq_2_0', 'topFreq_3_0',
+        'topFreq_4_0', 'topFreq_5_0', 'topFreq_6_0', 'topFreq_7_0',
+        'topFreq_8_0', 'topFreq_9_0', 'topFreq_10_0', 'freq_011_0',
+        'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
+        'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
+        'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
+        self.brain_df = pd.DataFrame(columns=self.features_list)
         self.brain_training_features = pd.DataFrame()
         self.compressed_brain_training_features = pd.DataFrame()
 
@@ -154,7 +169,7 @@ class braindata:
         created_df = False
         self.csv_index = 0
 
-        # while true creates problems
+        # while true creates problems with multiprocessing
         for i in range (0, 1000000):
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
  
@@ -167,7 +182,7 @@ class braindata:
             self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
             
             # make csv file of all compiled data every 5 min - take every 650th row
-            if (int(time.time() - start_time) % 300 == 0.0) and (int(time.time() - start_time) != 0):
+            if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
@@ -178,17 +193,17 @@ class braindata:
                 cols = every_5_min_df.columns[0]
                 every_5_min_df.drop(columns=cols, inplace = True)
 
-                # get rolling mean every 650 rows for every column and compile into summary columns
+                # get rolling mean every 400 rows for every column and compile into summary columns
                 # 7800th rows for 1 hr
-                for col in every_5_min_df:
-                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(400).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
+                for col in self.features_list:
+                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(9).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
             
                 # features are past data collected every 5 min, all summary columns
                 self.brain_training_features = every_5_min_df.iloc[:, 63:126]
                 
                 for i in range (0, 60):
-                # take every 650th row
-                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[400*i],:]) 
+                # take every 400th row
+                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[9*i],:]) 
                 # print(self.compressed_brain_training_features)
 
                 # convert into csv file so we can save every 5 min records

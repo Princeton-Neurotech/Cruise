@@ -3,7 +3,6 @@ from multiprocessing import Pool
 import workers
 import sys
 import time
-# import schedule
 
 # increase recursion limit
 sys.setrecursionlimit(15000)

@@ -1,14 +1,16 @@
-# HAVE ONE DATAFRAME THAT APPENDS:  brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
+# HAVE ONE DATAFRAME THAT APPENDS: brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
 # CONSTANTLY
 # ROWS SYMBOLIZE 5 SEC
 # UNITED DATAFRAME HAS ONE ROW FOR EACH 5 SECONDS KEEPS GROWING
 # BRAIN DATA PART: FEATURE VECTOR FOR LAST 5 SECONDS
 # KEYBOARD DATA PART: LAST ROW OF KEYBOARD DATAFRAME (APPROX 5 SEC)
 
-
+# 1 keyboard row happens every 5s? 
+# brain data: very multiple of 5 of time, append set of rows and however many rows are appended
+# in that time take the mean and in all those meaned rows will be 60 rows
+# keyboard is lists, but can't we append the same way to a dataframe? not sure 
 
 import time
-import sched
 import numpy as np
 import pandas as pd
 
@@ -21,6 +23,9 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 class braindata:
 
     def __init__(self, boardID=-1, serial=''):
+        self.start_time = time.time()
+        self.created_df = False
+        self.check_5 = False
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
@@ -109,9 +114,7 @@ class braindata:
                 '5rSUMMARY freq_139_0',
                 '5rSUMMARY freq_149_0',
                 '5rSUMMARY freq_160_0']
-
         self.brain_df = pd.DataFrame(columns=self.features_list)
-
 
     def startStream(self):
         """
@@ -230,77 +233,68 @@ class braindata:
 
     def collectData(self):
         """
-            Collect data, taking mean, every 5s, organize a sliding window queue in which the window 
-            length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
+            Collect raw data, perform computations, add row every 5s that contains rolling mean, 
+            do this for 5 min so it results in 60 rows by 63 columns
         """ 
         myBoard = braindata(-1, 'COM3')
-
-        # run process every 10s
-        # event_schedule = sched.scheduler(time.time, time.sleep(10))
-        # event_schedule.run()
-
-        start_time = time.time()
-        created_df = False
         self.csv_index = 0
-        self.raw_brain_df = []
 
-        # while true creates problems
+        # while True:
         for i in range (0, 1000000):
-            total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
+            if (int(time.time() - self.start_time) % 5 == 0.0):
+                # self.check_5 = True
+            # elif (int(time.time() - self.start_time) % 5 == 0.0) and self.check_5 == True:
+                # perform computations contained in "brain_data_test"
+                # np array of values, list of column names
+                total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
+                # print(total_brain_data[0])
 
-
-            if len(total_brain_data[0]) == 63:
-                self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
-                
-
-    
-                #if created_df is False:
+                if self.created_df is False:
                     # empty dataframe with correct column names
-                    #self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
-                    #created_df = True
-                    
-                # previous empty dataframe now filled with numeric data of each applied function in "brain_data_test"
-                #self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
-                
-                # make csv file of all compiled data every 5 min - take every 650th row
-                if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
-                    # convert into csv file so we can save every 5 min records
-                    #every_5_min_df = pd.read_csv((str(self.csv_index) + ".csv"))
-                    self.every_5_min_df = pd.DataFrame({})
+                    self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
+                    self.created_df = True
+
+                # fill dataframe with numeric data of each applied function in "brain_data_test"
+                if len(total_brain_data[0]) == 63:
+                    self.brain_df.loc[len(self.brain_df)] = total_brain_data[0]
+                    # 1 by 63 dataframe - want 1 row every 5s so 60 by 63 after 5 min
+                # print(self.brain_df)
+
+                # convert into csv file so we can save every 5 min records
+                # self.brain_df.to_csv("brain " +str(self.csv_index) + ".csv")
+                # self.csv_index += 1
+
+                # self.check_5 = False
+
+                for i in range (0, 63):
                     for col in self.features_list:
-                        self.every_5_min_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(5).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
+                        # calculate number of rows we need to mean to get 60 rows each worth 5 min
+                        # need to multiply index so rows go down by calculated number, not just 1
+                        self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(10*i).mean()
                     
-
-                    #self.brain_df.to_csv(str(self.csv_index) + ".csv")
-
-                    # read csv file and make into pandas dataframe
-                    
-
-                    # drop extra column that was made through process
-                    #cols = every_5_min_df.columns[0]
-                    #every_5_min_df.drop(columns=cols, inplace = True)
-
-                    # get rolling mean every 650 rows for every column and compile into summary columns
-                    # 7800th rows for 1 hr
-                    #for col in self.features_list:
-                    #    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(21).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
+                    # features are past data collected every 5 min, choose only summary columns
+                    self.brain_training_features = self.brain_df.iloc[:, 63:126]
+                print(self.brain_training_features)
                 
-                    # features are past data collected every 5 min, all summary columns
-                    self.brain_training_features = self.every_5_min_df.iloc[:, 63:126]
-                    
+                """
+                # outputs total of 60 rows in 5 min, 1 row every 5s
+                if (int(time.time() - self.start_time) % 5 == 0.0):
                     for i in range (0, 60):
                         # take every 400th row
                         self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[10*i],:]) 
+                        # update and return every 5s - outputs 1 row every 5s
+                        # return self.compressed_brain_training_features
                     print(self.compressed_brain_training_features)
+                """
 
-                    # convert into csv file so we can save every 5 min records
-                    self.compressed_brain_training_features.to_csv("brain " + str(self.csv_index) + ".csv")
-                    self.csv_index += 1
-
-if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
-    myBoard.startStream()
+        # add one row of self.brain_df's summary columns every 5s
+        # self.brain_training_features = self.brain_df[[self.feature_summ_list]]
+        # print(self.brain_training_features)
+ 
+# if __name__ == "__main__":
+    # myBoard = braindata(-1, 'COM3')
+    # myBoard.startStream()
     # print(myBoard.getSamplingRate())
     # print(myBoard.getEEGChannels())
-    myBoard.collectData()
+    # myBoard.collectData()
     # myBoard.stopStream()
