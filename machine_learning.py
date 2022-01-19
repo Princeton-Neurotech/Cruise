@@ -33,8 +33,6 @@ class ml():
 
     def __init__(self):
         self.csv_index = 0
-        # ml_keyboard_data = gui_and_keyboard_features.gui()
-        # ml_brain_data = brain_features.braindata(-1, "COM3")
 
     def read_csv(self):
         # read csv file and make into pandas dataframe
@@ -72,28 +70,30 @@ class ml():
         # param_grid = ['n_estimators': [], 'max_features': [] ]
 
     def train_model(self):
-        # update ml model
+        # update ml model...
+        
         self.ml_model = RandomForestRegressor()
         self.ml_model.fit(self.x_train_set, self.y_train_set)
+
         # ensemble learning through using random forest classifier?
         # self.ml_model = RandomForestClassifier(n_estimators=500, max_leaf_nodes=16, n_jobs=-1)
         # self.ml_model.fit(self.x_train_set, self.y_train_set)
 
         # or for feature importance: 
-        # self.ml_model.fit(iris["data", iris["target"]])
-        # for name, score in zip(iris["features_names"], self.ml_model.feature_importances_):
+        # self.ml_model.fit(self.x_train_set["data"], self.x_train_set["target"]])
+        # for name, score in zip(self.x_train_set["features_names"], self.ml_model.feature_importances_):
             # print(name, score)
 
         # search for best hyperparameters
         # grid_search = GridSearchCV(self.ml_model, param_grid, cv=[], scoring='neg_mean_squared_error', return_train_score=True)
-        # grid_search.fit(self.X_df, self.y_df)
+        # grid_search.fit(self.x_train_set, self.y_train_set)
 
     def predict(self):
-        # return expected words per 5 minute
+        # return expected words produced every 5 minutes
         # if model hasn't be created yet due to insufficient data don't show popup
         if not self.ml_model: return float('infinity')
         
-        # if model exists use aggregated latest 300s from queue to predict future words
+        # if model exists use aggregated latest 300s from queue to predict future words produced
         training_predictions = self.ml_model.predict(self.x_test_set)
         mse = mean_squared_error(self.y_test_set, training_predictions)
         mse = np.sqrt(mse)
@@ -111,23 +111,4 @@ if __name__ == "__main__":
     # myml.add_training_data()
     # myml.train_model()
     # myml.predict()
-
-    def add_raw_data(self):
-        start_time = time.time()
-        while (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
-            print("machine learning")
-            ml_keyboard_data = gui_and_keyboard_features.gui()
-            ml_brain_data = brain_features.braindata(-1, "COM3")
-            self.features = pd.DataFrame()
-            self.features = self.features.append(ml_keyboard_data.keyboard_training_features) # add keyboard features
-            self.features = self.features.append(ml_brain_data.compressed_brain_training_features) # add brain features
-            # print(self.features)
-        
-    transpose dataframe so that 60 rows now become 60 columns - each containing 5s of data
-    self.features_dict = {'features': self.features}
-    print(self.features_dict)
-
-    self.features_before_transposed = pd.DataFrame(data=self.features_dict)
-    self.features_after_transposed = self.features_before_transposed.T
-    print(self.features_after_transposed)
 """

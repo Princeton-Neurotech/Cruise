@@ -9,15 +9,6 @@ import time
 sys.setrecursionlimit(15000)
  
 if __name__ == "__main__":
-    """"
-    schedule.every(.001).seconds.do(workers.process1, workers.worker1)
-    schedule.every(.001).seconds.do(workers.process2, workers.worker2)
-    schedule.every(310).seconds.do(workers.process3, workers.worker3)
-
-    while 1:
-        schedule.run_pending()
-    """
-
     # turns given process into a daemon which will run forever normally
     # subprocess is automatically terminated after the parent process ends to prevent orphan processes
     # aka kills all subprocesses
@@ -31,7 +22,7 @@ if __name__ == "__main__":
 
     while True:
         proc3 = multiprocessing.Process(target=workers.worker3)
-        time.sleep(310)
+        time.sleep(15)
         proc3.start()
         proc3.join()
         proc3.terminate()

@@ -44,6 +44,7 @@ class gui():
         self.roadblock = False
         self.nb_standby = 0
         self.wordcount_list = [0, ]
+        self.features_list = ["wordcount", "sentencecount", "standby", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
         
         self.time_for_features = time.time()
         self.history_time_seconds = []
@@ -239,7 +240,7 @@ class gui():
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
 
-        for col in self.history_dffeatures:
+        for col in self.features_list:
             if col == "wordcount" or col == "sentencecount":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
             elif col == "standby":
@@ -254,8 +255,8 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
     
-        # call realtime() every ~10s
-        self.main_window.after(4880, self.realtime)
+        # call realtime() every ~5s
+        self.main_window.after(9500, self.realtime) # 4880
 
         return self.history_dffeatures
     
@@ -263,7 +264,7 @@ class gui():
         # features are past data collected every 5 min
         if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
             self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-            # print(self.keyboard_training_features) # 60 rows that will be transposed into 60 columns
+            print(self.keyboard_training_features) 
 
             # convert into csv file so we can save every 5 min records
             self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
@@ -274,7 +275,7 @@ class gui():
         # print(self.training_label)
 
         # call every_5_min() every 5 min (first time: 1 hr)
-        self.main_window.after(300000, self.every_5_min)
+        self.main_window.after(10000, self.every_5_min)
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!
@@ -297,12 +298,12 @@ class gui():
         os.startfile("my.pdf")
     """
 
-# if __name__ == '__main__':
-    # gui1 = gui()
+if __name__ == '__main__':
+    gui1 = gui()
     # main processing function
-    # gui1.realtime()
-    # gui1.every_5_min()
+    gui1.realtime()
+    gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
-    # gui1.main_window.mainloop()
+    gui1.main_window.mainloop()

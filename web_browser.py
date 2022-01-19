@@ -6,6 +6,11 @@ from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 import re
 
+"""
+user makes a google doc for themselves, inputs link into gui, we obtain link 
+connect most updated user input from google docs into gui and collect keyboard data
+"""
+
 # setting structure of the browser window and variable declarations
 root = Tk()
 root.wm_title("CosmoNet web Browser ")
@@ -55,8 +60,7 @@ def getColor():
 
 # open the downloads folder under downloads tab
 def callback():
-    name= askopenfilename() 
-
+    name= askopenfilename()
 
 # clear display area and URL field when back button is clicked
 def clear_text():
