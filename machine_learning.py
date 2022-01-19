@@ -35,13 +35,18 @@ class ml():
         self.csv_index = 0
 
     def read_csv(self):
+        ml_keyboard = gui_and_keyboard_features.gui()
         # read csv file and make into pandas dataframe
-        every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
+        every_5_min_keyboard = ml_keyboard.realtime()
+        # should print a row every 5s but only does so once
+        print(every_5_min_keyboard)
+        # every_5_min_keyboard_df = pd.DataFrame(every_5_min_keyboard)
+        # every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
         every_5_min_brain = pd.read_csv(("brain " + str(self.csv_index) + ".csv"))
 
         # drop extra column that was made through process
-        cols = every_5_min_keyboard.columns[0]
-        every_5_min_keyboard.drop(columns=cols, inplace = True)
+        # cols = every_5_min_keyboard.columns[0]
+        # every_5_min_keyboard.drop(columns=cols, inplace = True)
         cols = every_5_min_brain.columns[0]
         every_5_min_brain.drop(columns=cols, inplace = True)
         
@@ -54,7 +59,7 @@ class ml():
 
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
-        print(self.every_5_min_combined)
+        # print(self.every_5_min_combined)
 
         # ml_keyboard_data = gui_and_keyboard_features.gui()
         # self.label = ml_keyboard_data.training_label # add label

@@ -54,6 +54,7 @@ class gui():
         self.history_features = []
         self.history_dffeatures = []
         self.keyboard_training_features = []
+        self.compressed_keyboard_training_features = pd.DataFrame()
         self.training_label = []
         self.csv_index = 0
 
@@ -242,11 +243,11 @@ class gui():
 
         for col in self.features_list:
             if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(1).mean() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
             elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(1).max()
+                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(1).sum() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
 
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
@@ -257,21 +258,24 @@ class gui():
 
         # add one row of self.history_dffeature's summary columns every 5s
         self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        # print(self.keyboard_training_features) 
+        # if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
+        for i in range (0, 60):
+            # take every 400th row
+            self.compressed_keyboard_training_features = self.compressed_keyboard_training_features.append(self.keyboard_training_features.iloc[[4*i],:]) 
+        print(self.compressed_keyboard_training_features)
     
         # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
+        self.main_window.after(1000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
         return self.keyboard_training_features
 
     def every_5_min(self):
         # don't create a csv at 0s
-        if (int(time.time() - self.start_time)) != 0:
-            self.realtime()
+        # if (int(time.time() - self.start_time)) != 0:
             # convert into csv file so we can save every 5 min records
-            self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
-            self.csv_index += 1
+            # self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
+            # self.csv_index += 1
 
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
