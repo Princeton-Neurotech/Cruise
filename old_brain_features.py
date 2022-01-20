@@ -100,6 +100,9 @@ class braindata:
         self.brain_df = pd.DataFrame(columns=self.features_list)
         self.brain_training_features = pd.DataFrame()
         self.compressed_brain_training_features = pd.DataFrame()
+        self.rolling_index = 0
+        self.csv_index = 0
+        self.start_time = time.time()
 
     def startStream(self):
         """
@@ -223,76 +226,77 @@ class braindata:
         """ 
         myBoard = braindata(-1, 'COM3')
 
-        start_time = time.time()
-        created_df = False
-        self.csv_index = 0
-
         # while true creates problems with multiprocessing
-        for i in range (0, 1000000):
+        for i in range (0, 1000):
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
- 
-            if created_df is False:
-                # empty dataframe with correct column names
-                self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
-                created_df = True
-                # np array of values, list of names
-                # print(total_brain_data)
+
+            # total_brain_data is np array of values, list of names, make dataframe of this
+            self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
+        
+            # dataframe filled with numeric data of each applied function in "brain_data_test", 63 cols
+            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
+            print(self.brain_df)
+        # print(len(self.brain_df.axes[0]))
+        # print(time.time() - self.start_time)
             
-                # previous empty dataframe now filled with numeric data of each applied function in "brain_data_test"
-                self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
-                # however many rows by 63 columns
-                # print(self.brain_df)
-            
+        for i in range (0, 1000):
             # want 5s worth of data, all columns meaned, 1 row outputted every 5s for a total of 5 min
-            if created_df is True:
-                self.brain_df.loc[len(self.brain_df)] = total_brain_data[0]
-                created_df = False 
-                # print(self.brain_df)
-                for col in self.features_list:
-                    self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(9).mean()
-                # print(self.brain_df)
-            # self.brain_training_features = self.brain_df[[self.feature_summ_list]]
-            # print(self.brain_training_features)
+           
+            # once we know the number of rows that are outputted every 5s, take rolling mean where 1st row 
+            # would be computations of that row, 2nd row would be 1st and 2nd, 3rd so on
+            
+            # if len(self.brain_df.axes[0]) == number of rows outputted every 5s:
+                # self.rolling_index = len(self.brain_df.axes[0])
+            for col in self.features_list:
+                # add another 63 cols for summary, in all 126 cols
+                self.brain_df['5rSUMMARY ' + col] = self.brain_df[col]
+
+            # collect data for 5s
+            time.sleep(5)
+            # take rolling mean of 5s worth of data and make 1 row
+            self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(self.rolling_index).mean()
+            # print(self.brain_df)
+            # self.brain_df = self.brain_df.append(self.brain_df)
 
             # collect one row every 5s
             # if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
                 # print(self.brain_df)
             
-            """
-            # make csv file of all compiled data every 5 min - take every 400th row
-            if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
-                # convert into csv file so we can save every 5 min records
-                self.brain_df.to_csv(str(self.csv_index) + ".csv")
+        """
+        # make csv file of all compiled data every 5 min - take every 400th row
+        if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
+            # convert into csv file so we can save every 5 min records
+            self.brain_df.to_csv(str(self.csv_index) + ".csv")
 
-                # read csv file and make into pandas dataframe
-                every_5_min_df = pd.read_csv((str(self.csv_index) + ".csv"))
+            # read csv file and make into pandas dataframe
+            every_5_min_df = pd.read_csv((str(self.csv_index) + ".csv"))
 
-                # drop extra column that was made through process
-                cols = every_5_min_df.columns[0]
-                every_5_min_df.drop(columns=cols, inplace = True)
+            # drop extra column that was made through process
+            cols = every_5_min_df.columns[0]
+            every_5_min_df.drop(columns=cols, inplace = True)
 
-                # get rolling mean every 400 rows for every column and compile into summary columns
-                # 7800th rows for 1 hr
-                for col in self.features_list:
-                    every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(9).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
+            # get rolling mean every 400 rows for every column and compile into summary columns
+            # 7800th rows for 1 hr
+            for col in self.features_list:
+                every_5_min_df['5rSUMMARY ' + col] = every_5_min_df[col].rolling(9).mean() # rolling mean is # of rows mean and then goes down by 1 and does so again
+        
+            # features are past data collected every 5 min, all summary columns
+            self.brain_training_features = every_5_min_df.iloc[:, 63:126]
             
-                # features are past data collected every 5 min, all summary columns
-                self.brain_training_features = every_5_min_df.iloc[:, 63:126]
-                
-                for i in range (0, 60):
-                # take every 400th row
-                    self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[9*i],:]) 
-                # print(self.compressed_brain_training_features)
+            for i in range (0, 60):
+            # take every 400th row
+                self.compressed_brain_training_features = self.compressed_brain_training_features.append(self.brain_training_features.iloc[[9*i],:]) 
+            # print(self.compressed_brain_training_features)
 
-                # convert into csv file so we can save every 5 min records
-                self.compressed_brain_training_features.to_csv("brain " + str(self.csv_index) + ".csv")
-                self.csv_index += 1
-            """
+            # convert into csv file so we can save every 5 min records
+            self.compressed_brain_training_features.to_csv("brain " + str(self.csv_index) + ".csv")
+            self.csv_index += 1
+        """
 
-# if __name__ == "__main__":
-    # myBoard = braindata(-1, 'COM3')
-    # myBoard.startStream()
+if __name__ == "__main__":
+    myBoard = braindata(-1, 'COM3')
+    myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
-    # myBoard.collectData()
+    myBoard.collectData()
     # myBoard.stopStream()

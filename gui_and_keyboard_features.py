@@ -60,6 +60,7 @@ class gui():
         self.rolling_index = 0
         self.summary_index0 = 0
         self.summary_index1 = 1
+        self.summary_keyboard_training_features = pd.DataFrame()
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -242,9 +243,8 @@ class gui():
         # SELF.HISTORY_DFFEATURES IS SECOND KEYBOARD TRAINING FEATURES
         # print(self.history_dffeatures)
 
-        # don't we want to take a rolling computation in such a way where the first row would be computations
-        # of that row, then second row would first and second, third so on until the last row, for example,
-        # is the mean of the last 60 rows? 
+        # take a rolling computation where 1st row would be computations of that row, 2nd row would be 1st and 
+        # 2nd, 3rd so on until the last row, for example, is  mean of the last 60 rows
         if self.rolling_index < 60:
             self.rolling_index += 1
 
@@ -258,15 +258,11 @@ class gui():
         
         # add one row of self.history_dffeature's summary columns every 5s
         self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        summary_keyboard_training_features = self.keyboard_training_features.tail(1)
-        if self.summary_index0 == 1:
-            summary_keyboard_training_features.loc[self.summary_index1] = summary_keyboard_training_features
-            print(summary_keyboard_training_features)
-        if self.summary_index0 < 60:
-            self.summary_index0 += 1
-        if self.summary_index1 < 60:
-            self.summary_index1 += 1
-        
+        self.summary_keyboard_training_features = self.keyboard_training_features.tail(1)
+        # need to grab this from keyboard file row by row and bring it into machine learning, 
+        # compiling it into one big dataframe that is 60 rows and is worth 5 min
+        print(self.summary_keyboard_training_features)
+
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
         self.output_wordcount.insert(tk.INSERT, self.wordcount)
@@ -282,8 +278,9 @@ class gui():
         # print(self.training_label)
 
         # update and return every 5s - outputs 1 row every 5s
-        # return self.keyboard_training_features # first training set - means, maxes, sums
+        return self.summary_keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
+        # test both types of keyboard features in ml model and determine which has less error
 
     """
         # don't create a csv at 0s

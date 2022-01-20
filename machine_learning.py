@@ -38,8 +38,10 @@ class ml():
         ml_keyboard = gui_and_keyboard_features.gui()
     
         # print one row of keyboard and brain data every 5s for 5 min
-        keyboard_training_features_df = pd.DataFrame(ml_keyboard.keyboard_training_features)
-        print(keyboard_training_features_df)
+        ml_keyboard.summary_keyboard_training_features = ml_keyboard.summary_keyboard_training_features.append(ml_keyboard.summary_keyboard_training_features)       
+        print(self.summary_keyboard_training_features)
+        self.brain_df_appended = self.brain_df.append(self.brain_df.tail(1))
+        print(self.brain_df_appended)
 
         # read csv file and make into pandas dataframe
         # every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
