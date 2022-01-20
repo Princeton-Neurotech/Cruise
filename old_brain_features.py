@@ -1,5 +1,4 @@
 import time
-import sched
 import numpy as np
 import pandas as pd
 
@@ -35,6 +34,69 @@ class braindata:
         'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
         'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
         'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
+        self.feature_summ_list = ['5rSUMMARY mean_0',
+                '5rSUMMARY mean_d_h2h1_0',
+                '5rSUMMARY mean_q1_0',
+                '5rSUMMARY mean_q2_0',
+                '5rSUMMARY mean_q3_0',
+                '5rSUMMARY mean_q4_0',
+                '5rSUMMARY mean_d_q1q2_0',
+                '5rSUMMARY mean_d_q1q3_0',
+                '5rSUMMARY mean_d_q1q4_0',
+                '5rSUMMARY mean_d_q2q3_0',
+                '5rSUMMARY mean_d_q2q4_0',
+                '5rSUMMARY mean_d_q3q4_0',
+                '5rSUMMARY std_0',
+                '5rSUMMARY std_d_h2h1_0',
+                '5rSUMMARY max_0',
+                '5rSUMMARY max_d_h2h1_0',
+                '5rSUMMARY max_q1_0',
+                '5rSUMMARY max_q2_0',
+                '5rSUMMARY max_q3_0',
+                '5rSUMMARY max_q4_0',
+                '5rSUMMARY max_d_q1q2_0',
+                '5rSUMMARY max_d_q1q3_0',
+                '5rSUMMARY max_d_q1q4_0',
+                '5rSUMMARY max_d_q2q3_0',
+                '5rSUMMARY max_d_q2q4_0',
+                '5rSUMMARY max_d_q3q4_0',
+                '5rSUMMARY min_0',
+                '5rSUMMARY min_d_h2h1_0',
+                '5rSUMMARY min_q1_0',
+                '5rSUMMARY min_q2_0',
+                '5rSUMMARY min_q3_0',
+                '5rSUMMARY min_q4_0',
+                '5rSUMMARY min_d_q1q2_0',
+                '5rSUMMARY min_d_q1q3_0',
+                '5rSUMMARY min_d_q1q4_0',
+                '5rSUMMARY min_d_q2q3_0',
+                '5rSUMMARY min_d_q2q4_0',
+                '5rSUMMARY min_d_q3q4_0',
+                '5rSUMMARY topFreq_1_0',
+                '5rSUMMARY topFreq_2_0',
+                '5rSUMMARY topFreq_3_0',
+                '5rSUMMARY topFreq_4_0',
+                '5rSUMMARY topFreq_5_0',
+                '5rSUMMARY topFreq_6_0',
+                '5rSUMMARY topFreq_7_0',
+                '5rSUMMARY topFreq_8_0',
+                '5rSUMMARY topFreq_9_0',
+                '5rSUMMARY topFreq_10_0',
+                '5rSUMMARY freq_011_0',
+                '5rSUMMARY freq_021_0',
+                '5rSUMMARY freq_032_0',
+                '5rSUMMARY freq_043_0',
+                '5rSUMMARY freq_053_0',
+                '5rSUMMARY freq_064_0',
+                '5rSUMMARY freq_075_0',
+                '5rSUMMARY freq_085_0',
+                '5rSUMMARY freq_096_0',
+                '5rSUMMARY freq_107_0',
+                '5rSUMMARY freq_117_0',
+                '5rSUMMARY freq_128_0',
+                '5rSUMMARY freq_139_0',
+                '5rSUMMARY freq_149_0',
+                '5rSUMMARY freq_160_0']
         self.brain_df = pd.DataFrame(columns=self.features_list)
         self.brain_training_features = pd.DataFrame()
         self.compressed_brain_training_features = pd.DataFrame()
@@ -161,10 +223,6 @@ class braindata:
         """ 
         myBoard = braindata(-1, 'COM3')
 
-        # run process every 10s
-        # event_schedule = sched.scheduler(time.time, time.sleep(10))
-        # event_schedule.run()
-
         start_time = time.time()
         created_df = False
         self.csv_index = 0
@@ -177,11 +235,31 @@ class braindata:
                 # empty dataframe with correct column names
                 self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
                 created_df = True
-                
-            # previous empty dataframe now filled with numeric data of each applied function in "brain_data_test"
-            self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
+                # np array of values, list of names
+                # print(total_brain_data)
             
-            # make csv file of all compiled data every 5 min - take every 650th row
+                # previous empty dataframe now filled with numeric data of each applied function in "brain_data_test"
+                self.brain_df.loc[len(self.brain_df)] = total_brain_data[0] 
+                # however many rows by 63 columns
+                # print(self.brain_df)
+            
+            # want 5s worth of data, all columns meaned, 1 row outputted every 5s for a total of 5 min
+            if created_df is True:
+                self.brain_df.loc[len(self.brain_df)] = total_brain_data[0]
+                created_df = False 
+                # print(self.brain_df)
+                for col in self.features_list:
+                    self.brain_df['5rSUMMARY ' + col] = self.brain_df[col].rolling(9).mean()
+                # print(self.brain_df)
+            # self.brain_training_features = self.brain_df[[self.feature_summ_list]]
+            # print(self.brain_training_features)
+
+            # collect one row every 5s
+            # if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
+                # print(self.brain_df)
+            
+            """
+            # make csv file of all compiled data every 5 min - take every 400th row
             if (int(time.time() - start_time) % 10 == 0.0) and (int(time.time() - start_time) != 0):
                 # convert into csv file so we can save every 5 min records
                 self.brain_df.to_csv(str(self.csv_index) + ".csv")
@@ -209,6 +287,7 @@ class braindata:
                 # convert into csv file so we can save every 5 min records
                 self.compressed_brain_training_features.to_csv("brain " + str(self.csv_index) + ".csv")
                 self.csv_index += 1
+            """
 
 # if __name__ == "__main__":
     # myBoard = braindata(-1, 'COM3')

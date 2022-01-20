@@ -57,6 +57,9 @@ class gui():
         self.compressed_keyboard_training_features = pd.DataFrame()
         self.training_label = []
         self.csv_index = 0
+        self.rolling_index = 0
+        self.summary_index0 = 0
+        self.summary_index1 = 1
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -98,8 +101,6 @@ class gui():
         pagecountThresholdLabel = tk.Label(self.main_window, text="Page count threshold")
         self.input_pagecount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12),
                                                  wrap="word")
-
-        begin = tk.Button(self.main_window, text="Begin", command=self.realtime)
 
         charcountLabel = tk.Label(self.main_window, text="Charcount")
         self.output_charcount = tk.Text(self.main_window, width=20, height=1, font=("Helvetica", 12), wrap="word")
@@ -144,8 +145,6 @@ class gui():
 
         pagecountThresholdLabel.pack()
         self.input_pagecount_threshold.pack()
-
-        begin.pack()
 
     def popup_display(self):
         # if no popup and should have popup, display it
@@ -193,7 +192,6 @@ class gui():
             self.time_last_change = time.time()
             
         if (time.time() - self.time_last_change) > 10:
-            
             standbyNotification = "You've entered a standby"
             self.history_standby.append(1)
         else:
@@ -205,6 +203,7 @@ class gui():
             wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
         except:
             pass
+        
         self.last_charcount = charcount
 
         """
@@ -221,10 +220,9 @@ class gui():
         self.history_word_count.append(self.wordcount)
         self.history_sentence_count.append(sentencecount)
         self.history_dffeatures = pd.DataFrame(self.history_features)
-        self.history_time_seconds.append(round(time.time() - self.time_for_features, 2))
+        self.history_time_seconds.append(round(time.time(), 2))
         self.history_dffeatures["time (s)"] = self.history_time_seconds
 
-        # self.history_dffeatures["time (s)"] = self.history_time_seconds
         self.history_dffeatures["wordcount"] = self.history_word_count
         self.history_dffeatures["sentencecount"] = self.history_sentence_count
         self.history_dffeatures["standby"] = self.history_standby
@@ -241,14 +239,34 @@ class gui():
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
 
+        # SELF.HISTORY_DFFEATURES IS SECOND KEYBOARD TRAINING FEATURES
+        # print(self.history_dffeatures)
+
+        # don't we want to take a rolling computation in such a way where the first row would be computations
+        # of that row, then second row would first and second, third so on until the last row, for example,
+        # is the mean of the last 60 rows? 
+        if self.rolling_index < 60:
+            self.rolling_index += 1
+
         for col in self.features_list:
             if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).mean() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(self.rolling_index).mean() 
             elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5).max()
+                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(self.rolling_index).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5).sum() 
-
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(self.rolling_index).sum() 
+        
+        # add one row of self.history_dffeature's summary columns every 5s
+        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        summary_keyboard_training_features = self.keyboard_training_features.tail(1)
+        if self.summary_index0 == 1:
+            summary_keyboard_training_features.loc[self.summary_index1] = summary_keyboard_training_features
+            print(summary_keyboard_training_features)
+        if self.summary_index0 < 60:
+            self.summary_index0 += 1
+        if self.summary_index1 < 60:
+            self.summary_index1 += 1
+        
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
         self.output_wordcount.insert(tk.INSERT, self.wordcount)
@@ -256,33 +274,27 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # add one row of self.history_dffeature's summary columns every 5s
-        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        # if (int(time.time() - start_time) % 5 == 0.0) and (int(time.time() - start_time) != 0):
-        for i in range (0, 60):
-            # take every 400th row
-            self.compressed_keyboard_training_features = self.compressed_keyboard_training_features.append(self.keyboard_training_features.iloc[[4*i],:]) 
-        print(self.compressed_keyboard_training_features)
-    
         # call realtime() every 5s
-        self.main_window.after(1000, self.realtime)
+        self.main_window.after(5000, self.realtime)
+
+        # label is sum of all future data
+        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
+        # print(self.training_label)
 
         # update and return every 5s - outputs 1 row every 5s
-        return self.keyboard_training_features
+        # return self.keyboard_training_features # first training set - means, maxes, sums
+        # return self.history_dffeatures # second training set - raw numbers
 
-    def every_5_min(self):
+    """
         # don't create a csv at 0s
         # if (int(time.time() - self.start_time)) != 0:
             # convert into csv file so we can save every 5 min records
             # self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
             # self.csv_index += 1
 
-        # label is sum of all future data
-        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
-        # print(self.training_label)
-
         # call every_5_min() every 5 min
-        self.main_window.after(10000, self.every_5_min)
+        self.main_window.after(300000, self.every_5_min)
+    """
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!
@@ -309,7 +321,6 @@ if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
-    gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line

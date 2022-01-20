@@ -36,30 +36,31 @@ class ml():
 
     def read_csv(self):
         ml_keyboard = gui_and_keyboard_features.gui()
+    
+        # print one row of keyboard and brain data every 5s for 5 min
+        keyboard_training_features_df = pd.DataFrame(ml_keyboard.keyboard_training_features)
+        print(keyboard_training_features_df)
+
         # read csv file and make into pandas dataframe
-        every_5_min_keyboard = ml_keyboard.realtime()
-        # should print a row every 5s but only does so once
-        print(every_5_min_keyboard)
-        # every_5_min_keyboard_df = pd.DataFrame(every_5_min_keyboard)
         # every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
-        every_5_min_brain = pd.read_csv(("brain " + str(self.csv_index) + ".csv"))
+        # every_5_min_brain = pd.read_csv(("brain " + str(self.csv_index) + ".csv"))
 
         # drop extra column that was made through process
         # cols = every_5_min_keyboard.columns[0]
         # every_5_min_keyboard.drop(columns=cols, inplace = True)
-        cols = every_5_min_brain.columns[0]
-        every_5_min_brain.drop(columns=cols, inplace = True)
+        # cols = every_5_min_brain.columns[0]
+        # every_5_min_brain.drop(columns=cols, inplace = True)
+
+        # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
+        # self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
+        # print(self.every_5_min_combined)
         
-        self.csv_index += 1
+        # self.csv_index += 1
 
         # for self.i in range (0, 1000000):
             # choose 60 rows, after one iteration, choose 0 to the next 60 rows
             # every_5_min_keyboard = every_5_min_keyboard.iloc[0:60*self.i]
             # every_5_min_brain = every_5_min_brain.iloc[0:60*self.i]
-
-        # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
-        self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
-        # print(self.every_5_min_combined)
 
         # ml_keyboard_data = gui_and_keyboard_features.gui()
         # self.label = ml_keyboard_data.training_label # add label
