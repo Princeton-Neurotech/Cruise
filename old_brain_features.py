@@ -10,7 +10,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 class braindata:
 
-    def __init__(self, boardID=-1, serial=''):
+    def __init__(self, boardID=-1, serial='', df_5sec=None, tk_object=None):
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
@@ -225,10 +225,11 @@ class braindata:
             length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
         """ 
         myBoard = braindata(-1, 'COM3')
+        self.start_time = time.time()
 
         # while true creates problems with multiprocessing
         for i in range (0, 1000):
-            total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
+            total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1250))
 
             # total_brain_data is np array of values, list of names, make dataframe of this
             self.brain_df = pd.DataFrame(columns=total_brain_data[-1])

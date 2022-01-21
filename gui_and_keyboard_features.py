@@ -66,6 +66,7 @@ class gui():
         self.popup_root = None
 
         # Main tk window
+        #self.main_window = tk_object 
         self.main_window = tk.Tk()
         self.main_window.title("Roadblocks Project")
         self.main_window.geometry("500x600")
@@ -156,7 +157,7 @@ class gui():
 
     def popup_close(self):
         if self.popup_root:
-            self.popup_root.destroy()  # destroys pop up window
+            self.popup_root.destroy() # destroys pop up window
             self.popup_root = None
 
     def realtime(self):
@@ -258,9 +259,13 @@ class gui():
         
         # add one row of self.history_dffeature's summary columns every 5s
         self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        self.summary_keyboard_training_features = self.keyboard_training_features.tail(1)
-        # need to grab this from keyboard file row by row and bring it into machine learning, 
-        # compiling it into one big dataframe that is 60 rows and is worth 5 min
+        # because of current rolling mean, all previous rows are NaN, need to take most current row
+        self.summary_keyboard_training_features = pd.DataFrame(self.keyboard_training_features.tail(1))
+        
+        # append all rows of self.summary_keyboard_training_features for 5 min!!!
+        if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
+            for i in range (0, 60):
+                self.summary_keyboard_training_features = self.summary_keyboard_training_features.iloc[i]
         print(self.summary_keyboard_training_features)
 
         # put values in interface
@@ -273,25 +278,26 @@ class gui():
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)
 
-        # label is sum of all future data
-        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
-        # print(self.training_label)
-
         # update and return every 5s - outputs 1 row every 5s
         return self.summary_keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
         # test both types of keyboard features in ml model and determine which has less error
+    
+    def every_5_min(self):
+        # print(self.summary_keyboard_training_features)
+        # features are past data collected every 5 min
+        # if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
+        final_keyboard_training_features = pd.concat([self.summary_keyboard_training_features, self.summary_keyboard_training_features], axis=0)
+        # self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        # print(self.keyboard_training_features)
+        # print(final_keyboard_training_features) 
+            
+        # label is sum of all future data
+        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
+        # print(self.training_label)
 
-    """
-        # don't create a csv at 0s
-        # if (int(time.time() - self.start_time)) != 0:
-            # convert into csv file so we can save every 5 min records
-            # self.keyboard_training_features.to_csv("keyboard " + str(self.csv_index) + ".csv")
-            # self.csv_index += 1
-
-        # call every_5_min() every 5 min
-        self.main_window.after(300000, self.every_5_min)
-    """
+        # call every_5_min() every 5 min (first time: 1 hr)
+        self.main_window.after(15000, self.every_5_min)
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!
@@ -318,6 +324,7 @@ if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
+    gui1.every_5_min()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line

@@ -43,21 +43,9 @@ class ml():
         self.brain_df_appended = self.brain_df.append(self.brain_df.tail(1))
         print(self.brain_df_appended)
 
-        # read csv file and make into pandas dataframe
-        # every_5_min_keyboard = pd.read_csv(("keyboard " + str(self.csv_index) + ".csv"))
-        # every_5_min_brain = pd.read_csv(("brain " + str(self.csv_index) + ".csv"))
-
-        # drop extra column that was made through process
-        # cols = every_5_min_keyboard.columns[0]
-        # every_5_min_keyboard.drop(columns=cols, inplace = True)
-        # cols = every_5_min_brain.columns[0]
-        # every_5_min_brain.drop(columns=cols, inplace = True)
-
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         # self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
         # print(self.every_5_min_combined)
-        
-        # self.csv_index += 1
 
         # for self.i in range (0, 1000000):
             # choose 60 rows, after one iteration, choose 0 to the next 60 rows

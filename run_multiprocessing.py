@@ -3,6 +3,7 @@ from multiprocessing import Pool
 import workers
 import sys
 import time
+import tkinter as tk
 
 # increase recursion limit
 sys.setrecursionlimit(15000)
@@ -11,9 +12,13 @@ if __name__ == "__main__":
     # turns given process into a daemon which will run forever normally
     # subprocess is automatically terminated after the parent process ends to prevent orphan processes
     # aka kills all subprocesses
-    proc1 = multiprocessing.Process(target=workers.worker1)
+    tk_object = tk.Tk()
+    tk_object.title("Roadblocks Project")
+    tk_object.geometry("500x600")
+    
+    proc1 = multiprocessing.Process(target=workers.worker1, args=(tk_object))
     proc1.daemon = True
-    proc2 = multiprocessing.Process(target=workers.worker2)
+    proc2 = multiprocessing.Process(target=workers.worker2, args=(tk_object))
     proc2.daemon = True 
 
     proc1.start() 
