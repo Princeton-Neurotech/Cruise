@@ -1,4 +1,5 @@
 import time
+from typing import final
 import pandas as pd
 import numpy as np
 import tkinter as tk
@@ -54,13 +55,13 @@ class gui():
         self.history_features = []
         self.history_dffeatures = []
         self.keyboard_training_features = []
-        self.compressed_keyboard_training_features = pd.DataFrame()
         self.training_label = []
         self.csv_index = 0
         self.rolling_index = 0
-        self.summary_index0 = 0
-        self.summary_index1 = 1
+        self.summary_index = 0
+        self.row_index = 0
         self.summary_keyboard_training_features = pd.DataFrame()
+        self.final_keyboard_training_features = pd.DataFrame()
 
         # Root of tk popup window when opened
         self.popup_root = None
@@ -223,7 +224,7 @@ class gui():
         self.history_sentence_count.append(sentencecount)
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time(), 2))
-        self.history_dffeatures["time (s)"] = self.history_time_seconds
+        # self.history_dffeatures["time (s)"] = self.history_time_seconds
 
         self.history_dffeatures["wordcount"] = self.history_word_count
         self.history_dffeatures["sentencecount"] = self.history_sentence_count
@@ -240,6 +241,8 @@ class gui():
         self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
+
+        # print(self.history_dffeatures["sentences deleted"])
 
         # SELF.HISTORY_DFFEATURES IS SECOND KEYBOARD TRAINING FEATURES
         # print(self.history_dffeatures)
@@ -258,16 +261,10 @@ class gui():
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(self.rolling_index).sum() 
         
         # add one row of self.history_dffeature's summary columns every 5s
-        self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
+        # self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
         # because of current rolling mean, all previous rows are NaN, need to take most current row
-        self.summary_keyboard_training_features = pd.DataFrame(self.keyboard_training_features.tail(1))
-        
-        # append all rows of self.summary_keyboard_training_features for 5 min!!!
-        if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
-            for i in range (0, 60):
-                self.summary_keyboard_training_features = self.summary_keyboard_training_features.iloc[i]
-        print(self.summary_keyboard_training_features)
-
+        self.history_dffeatures = self.history_dffeatures.tail(1)
+    
         # put values in interface
         self.output_charcount.insert(tk.INSERT, charcount)
         self.output_wordcount.insert(tk.INSERT, self.wordcount)
@@ -275,29 +272,25 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
-
-        # update and return every 5s - outputs 1 row every 5s
-        return self.summary_keyboard_training_features # first training set - means, maxes, sums
-        # return self.history_dffeatures # second training set - raw numbers
-        # test both types of keyboard features in ml model and determine which has less error
-    
-    def every_5_min(self):
-        # print(self.summary_keyboard_training_features)
-        # features are past data collected every 5 min
-        # if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
-        final_keyboard_training_features = pd.concat([self.summary_keyboard_training_features, self.summary_keyboard_training_features], axis=0)
-        # self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
-        # print(self.keyboard_training_features)
-        # print(final_keyboard_training_features) 
+        # need to do this for 5 min and repeat
+        # while (int(time.time() - self.start_time) % 10 == 0.0) and (int(time.time() - self.start_time) != 0):
+        if self.row_index < 60:
+            self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
+            # summary sentences deleted is NaN
+            print(self.keyboard_training_features[['5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted']])
+            self.row_index += 1
             
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
-        # call every_5_min() every 5 min (first time: 1 hr)
-        self.main_window.after(15000, self.every_5_min)
+        # call realtime() every 5s
+        self.main_window.after(5000, self.realtime)
+
+        # update and return every 5s - outputs 1 row every 5s
+        # return self.keyboard_training_features # first training set - means, maxes, sums
+        # return self.history_dffeatures # second training set - raw numbers
+        # test both types of keyboard features in ml model and determine which has less error
     
     """
     save as txt so user doesn't get mad if program does not respond and crashes!
@@ -324,7 +317,7 @@ if __name__ == '__main__':
     gui1 = gui()
     # main processing function
     gui1.realtime()
-    gui1.every_5_min()
+    # gui1.collect_data()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line

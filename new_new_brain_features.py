@@ -22,12 +22,12 @@ class braindata:
         # self.params.file = 'OpenBCI-RAW-2021-10-31_13-45-28' # file name
         self.board = BoardShim(self.myBoardID, self.params)
         self.start_time = time.time()
-        self.summation_index = 0
+        self.row_index = 0
         self.brain_df = pd.DataFrame()
         self.summary_brain_df = pd.DataFrame()
         self.appended_summary_brain_df = pd.DataFrame()
-        self.transposed_mean_appended_summary_brain_df = pd.DataFrame()
-        self.dropna_appended_summary_brain_df = pd.DataFrame()
+        self.transposed_mean_brain_df = pd.DataFrame()
+        self.brain_training_features = pd.DataFrame()
         self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
         'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
         'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
@@ -159,14 +159,10 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        """
-            Collect data, taking mean, every 5s, organize a sliding window queue in which the window 
-            length is 10s and there is an overlap of 2 ie. 0-10, 5-15, 10-20 etc. for every 300s (5 min). 
-        """ 
+        # collect data, taking mean every 5s
         myBoard = braindata(-1, 'COM3')
 
-        # while true creates problems
-        for i in range (0, 1000000):
+        while True:
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1))
 
             # empty dataframe with correct column names
@@ -176,28 +172,25 @@ class braindata:
 
             for col in self.features_list:
                 self.summary_brain_df['5rSUMMARY ' + col] = self.brain_df[col] 
-                self.appended_summary_brain_df = self.appended_summary_brain_df.append(self.summary_brain_df)
-            self.dropna_appended_summary_brain_df = self.appended_summary_brain_df.dropna()
-            # print(self.dropna_appended_summary_brain_df)
-    
-            # do this every 5s - for loop is preferable
-            if (int(time.time() - self.start_time) % 5 == 0.0) and (int(time.time() - self.start_time) != 0):
-                for col in self.features_list:
-                    # summary columns of means of each column
-                    mean_appended_summary_brain = self.dropna_appended_summary_brain_df.mean(axis=0)
+            self.appended_summary_brain_df = self.appended_summary_brain_df.append(self.summary_brain_df)
+            
+            # collect data for a duration of 5s
+            while (int(time.time() - self.start_time) % 5 != 0.0) and (int(time.time() - self.start_time) > 5):
+                # mean of each column based on number of rows outputted every 5s
+                mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
                 # mean returns a pandas series, convert back to dataframe
-                mean_appended_summary_brain_df = mean_appended_summary_brain.to_frame()
+                mean_brain_df = mean_brain.to_frame()
                 # opposite dimensions, transpose
-                self.transposed_mean_appended_summary_brain_df = mean_appended_summary_brain_df.T
-                # 5s of data
-                # print(self.transposed_mean_appended_summary_brain_df)
+                self.transposed_mean_brain_df = mean_brain_df.T 
 
-                # need every 5s of data for 5 min!!!
-                for self.summation_index in range (0, 60, self.summation_index):
-                    brain_training_features = self.transposed_mean_appended_summary_brain_df.append(self.transposed_mean_appended_summary_brain_df)
-                    print(brain_training_features)
-            self.summation_index += 1
-        
+            # every 5s
+            if (int(time.time() - self.start_time) % 5 == 0.0):
+                # append so dataframe continuously grows for 5 min
+                if self.row_index < 60:
+                    self.brain_training_features = pd.concat([self.brain_training_features, self.transposed_mean_brain_df], axis=0)
+                self.row_index += 1
+                if self.row_index % 60 == 0:
+                    return self.brain_training_features
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
@@ -205,7 +198,4 @@ if __name__ == "__main__":
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
     myBoard.collectData()
-    time.sleep(5)
-    myBoard.fiveSecData()
-    myBoard.fiveMinData()
     # myBoard.stopStream() 
