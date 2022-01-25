@@ -5,6 +5,7 @@ import numpy as np
 import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
+import csv
 # from tkinter.filedialog import asksaveasfile
 # import pdfkit
 # import os
@@ -245,23 +246,15 @@ class gui():
         # SELF.HISTORY_DFFEATURES IS SECOND KEYBOARD TRAINING FEATURES
         # print(self.history_dffeatures)
 
-        # increment for 5 min period
-        if self.rolling_index < 60:
-            self.rolling_index += 1
-        # reset every 5 min
-        if self.rolling_index % 60 == 0:
-            self.rolling_index = 0
-            self.row_index = 0
-
         # take a rolling computation where 1st row would be computations of that row, 2nd row would be 1st and 
         # 2nd, 3rd so on until the last row, for example, is  mean of the last 60 rows
         for col in self.features_list:
             if col == "wordcount" or col == "sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5, min_periods=1).mean() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).mean() 
             elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(5, min_periods=1).max()
+                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(60, min_periods=1).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
-                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(5, min_periods=1).sum() 
+                self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).sum() 
         
         # add one row of self.history_dffeature's summary columns every 5s
         # self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
@@ -275,20 +268,30 @@ class gui():
         self.output_pagecount.insert(tk.INSERT, pagecount)
         self.output_standby.insert(tk.INSERT, standbyNotification)
 
-        # every 5 min
-        if self.row_index < 60:
-            self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
-            # all change, produced, and deleted columns are NaN - early on
-            print(self.keyboard_training_features["5rSUMMARY words produced"])
-            self.row_index += 1
-            
+        # concatenate rows so dataframe is continuous
+        self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
+        print(self.keyboard_training_features)
+        
+        self.row_index += 1
+
+        # create initial csv file for records
+        if len(self.keyboard_training_features.index) == 1:
+            self.keyboard_training_features.to_csv('keyboard.csv')
+        
+        self.keyboard_training_features.loc[self.row_index -1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
+
+        """
+        # every 5 min remove dataframe and add to csv for records
+        if len(self.keyboard_training_features.index) % 4 == 0:
+            with open('keyboard.csv', 'w', newline='', encoding='UTF8') as f:
+                writer = csv.writer(f)
+                for i in range(self.row_index):
+                    writer.writerow(self.keyboard_training_features.loc[0:self.row_index])
+        """
+
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
-
-        # return dataframe every 5 min - this serves as our features and label
-        if self.row_index % 60 == 0:
-            return self.keyboard_training_features, self.training_label
 
         # call realtime() every 5s
         self.main_window.after(5000, self.realtime)

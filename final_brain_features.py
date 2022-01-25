@@ -171,8 +171,9 @@ class braindata:
 
             for col in self.features_list:
                 self.summary_brain_df['5rSUMMARY ' + col] = self.brain_df[col] 
-            self.appended_summary_brain_df = self.appended_summary_brain_df.append(self.summary_brain_df)
-            
+            # self.appended_summary_brain_df = self.appended_summary_brain_df.append(self.summary_brain_df)
+            self.appended_summary_brain_df = pd.concat([self.appended_summary_brain_df, self.summary_brain_df], axis=0)
+
             # collect data for a duration of 5s
             while (int(time.time() - self.start_time) % 5 != 0.0) and (int(time.time() - self.start_time) > 5):
                 # mean of each column based on number of rows outputted every 5s
@@ -181,15 +182,25 @@ class braindata:
                 mean_brain_df = mean_brain.to_frame()
                 # opposite dimensions, transpose
                 self.transposed_mean_brain_df = mean_brain_df.T 
+                print(self.transposed_mean_brain_df)
 
-            # every 5s
+            # every 5s collect one row of data
             if (int(time.time() - self.start_time) % 5 == 0.0):
                 # append so dataframe continuously grows for 5 min
                 if self.row_index < 60:
                     self.brain_training_features = pd.concat([self.brain_training_features, self.transposed_mean_brain_df], axis=0)
+                    print(self.brain_training_features.loc[:len(self.brain_training_features - 1)])
                 self.row_index += 1
+                # so it repeats every 5 min
                 if self.row_index % 60 == 0:
-                    return self.brain_training_features
+                    self.row_index = 0
+
+                # create initial csv file for records
+                # if len(self.brain_training_features.index) == 1:
+                    # self.brain_training_features.to_csv('brain.csv')
+                
+                # every 5s append one row to existing csv file to update records
+                # self.brain_training_features.loc[self.row_index -1:self.row_index].to_csv('brain.csv', mode='a', header=False)
 
 if __name__ == "__main__":
     myBoard = braindata(-1, 'COM3')
