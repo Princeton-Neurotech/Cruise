@@ -278,16 +278,8 @@ class gui():
         if len(self.keyboard_training_features.index) == 1:
             self.keyboard_training_features.to_csv('keyboard.csv')
         
-        self.keyboard_training_features.loc[self.row_index -1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
-
-        """
-        # every 5 min remove dataframe and add to csv for records
-        if len(self.keyboard_training_features.index) % 4 == 0:
-            with open('keyboard.csv', 'w', newline='', encoding='UTF8') as f:
-                writer = csv.writer(f)
-                for i in range(self.row_index):
-                    writer.writerow(self.keyboard_training_features.loc[0:self.row_index])
-        """
+        # every 5s append one row to existing csv file to update records
+        self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
 
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()

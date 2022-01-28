@@ -680,9 +680,9 @@ def calc_feature_vector(matrix):
 	var_names += v
 	var_values = np.hstack([var_values, x])
 	
-	# x, v = feature_moments(matrix)
-	# var_names += v
-	# var_values = np.hstack([var_values, x])
+	x, v = feature_moments(matrix)
+	var_names += v
+	var_values = np.hstack([var_values, x])
 	
 	x, v = feature_max(matrix)
 	var_names += v
@@ -707,26 +707,22 @@ def calc_feature_vector(matrix):
 	x, v = feature_min_q(q1, q2, q3, q4)
 	var_names += v
 	var_values = np.hstack([var_values, x])
-        
-    # x, v, covM = feature_covariance_matrix(matrix)
-    # var_names += v
-    # var_values = np.hstack([var_values, x])
 	
-	# x, v = feature_eigenvalues(covM)
-	# var_names += v
-	# var_values = np.hstack([var_values, x])
+	x, v, covM = feature_covariance_matrix(matrix)
+	var_names += v
+	var_values = np.hstack([var_values, x])
 	
-	# x, v, log_cov = feature_logcov(covM)
-	# var_names += v
-	# var_values = np.hstack([var_values, x])
+	x, v = feature_eigenvalues(covM)
+	var_names += v
+	var_values = np.hstack([var_values, x])
+	
+	x, v, log_cov = feature_logcov(covM)
+	var_names += v
+	var_values = np.hstack([var_values, x])
 	
 	x, v = feature_fft(matrix)
 	var_names += v
 	var_values = np.hstack([var_values, x])
-	
-	# if state != None:
-		# var_values = np.hstack([var_values, np.array([state])])
-		# var_names += ['Label']
 
 	return var_values, var_names
 

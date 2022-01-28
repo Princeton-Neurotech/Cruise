@@ -4,7 +4,7 @@ import numpy as np
 
 import brain_data_computations
 import gui_and_keyboard_features 
-import new_brain_features
+import final_brain_features
 
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
@@ -36,12 +36,16 @@ class ml():
 
     def read_csv(self):
         ml_keyboard = gui_and_keyboard_features.gui()
+        ml_brain = final_brain_features.braindata()
+
+        self.keyboard_training_features = pd.DataFrame()
+        self.brain_traning_features = pd.DataFrame()
     
         # print one row of keyboard and brain data every 5s for 5 min
-        ml_keyboard.summary_keyboard_training_features = ml_keyboard.summary_keyboard_training_features.append(ml_keyboard.summary_keyboard_training_features)       
-        print(self.summary_keyboard_training_features)
-        self.brain_df_appended = self.brain_df.append(self.brain_df.tail(1))
-        print(self.brain_df_appended)
+        self.keyboard_training_features = ml_keyboard.keyboard_training_features.append(ml_keyboard.keyboard_training_features)       
+        print(self.keyboard_training_features)
+        self.brain_training_features = ml_brain.brain_training_features.append(ml_brain.brain_training_features)
+        print(self.brain_training_features)
 
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         # self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
@@ -51,8 +55,7 @@ class ml():
             # choose 60 rows, after one iteration, choose 0 to the next 60 rows
             # every_5_min_keyboard = every_5_min_keyboard.iloc[0:60*self.i]
             # every_5_min_brain = every_5_min_brain.iloc[0:60*self.i]
-
-        # ml_keyboard_data = gui_and_keyboard_features.gui()
+            
         # self.label = ml_keyboard_data.training_label # add label
         # self.ml_model = None
 
