@@ -16,10 +16,11 @@ if __name__ == "__main__":
     proc2 = multiprocessing.Process(target=workers.worker2)
     proc2.daemon = True 
 
-    proc1.start() 
+    # proc1.start() 
     proc2.start()
 
-    if (int(time.time() - start_time)) % 15 == 0.0 and (int(time.time() - start_time)) != 0:
+    while True:
+        # if (int(time.time() - start_time)) % 15 == 0.0 and (int(time.time() - start_time)) != 0:
         proc3 = multiprocessing.Process(target=workers.worker3)
         # time.sleep(300) # do process only every 5 min
         proc3.start()
