@@ -124,12 +124,12 @@ class gui():
         # switch between red and white text box background colors, inducing flickering effect
         self.prompt = self.input_user_prompt.get(0.0, "end")
         if not self.is_white:
-            self.input_user_prompt.configure(bg="black")
+            self.input_user_prompt.configure(bg="#E2E2E2")
             self.is_white = True
-        if self.is_white:
-            self.input_user_prompt.configure(bg="white")
-            # self.is_white = False
-        self.main_window.after(100, self.flickering_screen)
+        else:
+            self.input_user_prompt.configure(bg="#FFFFFF")
+            self.is_white = False
+        self.main_window.after(1, self.flickering_screen)
 
     def popup_display(self):
         # if no popup and should have popup, display it
