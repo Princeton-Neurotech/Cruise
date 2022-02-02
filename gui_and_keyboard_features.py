@@ -36,75 +36,50 @@ class gui():
     1 label - 60 summed indexes for future - words typed in future 5 mins
     Can change intervals if want length of queue to be different, based on # of bins
     """
+    
     def __init__(self):
-        # 5 mins in future, 5 mins in past (length = 120, 60 and 60)
-        self.wordcount = 0
-        # self.ml_object = machine_learning.ml()
         self.start_time = time.time()
         self.time_last_change = time.time()
+        self.time_for_features = time.time()
+
         self.PAGE_LENGTH = 4002
+
         self.roadblock = False
+        self.is_white = False
+
         self.nb_standby = 0
         self.wordcount_list = [0, ]
         self.features_list = ["wordcount", "sentencecount", "standby", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
-        
-        self.time_for_features = time.time()
         self.history_time_seconds = []
         self.history_word_count = []
         self.history_sentence_count = []
         self.history_standby = []
         self.history_features = []
         self.history_dffeatures = []
+
+        self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
         self.training_label = []
-        self.csv_index = 0
-        self.rolling_index = 0
-        self.summary_index = 0
-        self.row_index = 0
-        self.summary_keyboard_training_features = pd.DataFrame()
-        self.final_keyboard_training_features = pd.DataFrame()
+        # self.ml_object = machine_learning.ml()
 
         # Root of tk popup window when opened
         self.popup_root = None
 
         # Main tk window
-        #self.main_window = tk_object 
         self.main_window = tk.Tk()
+        # self.main_window.configure(bg='blue')
         self.main_window.title("Roadblocks Project")
         self.main_window.geometry("500x600")
 
-        """
-        # pdf
-        self.pdf_root = Tk()
-
-        # saving
-        self.save_root = Tk()
-        self.save_root.geometry('200x150')
-
-        label = tk.Label(root, text="CTRL + b to make a page (use also html)")
-        label.pack()
-        txbx = tk.Text(root)
-        txbx['font'] = "New Times Roman 12"
-        txbx['bg'] = "cyan"
-        txbx['borderwidth'] = 2
-        txbx.pack(fill=tk.BOTH, expand=1)
-        txbx.focus()
-        txbx.bind("<Control-b>", pdf)
-        """
-
-        # Textbox for prompt
         promptLabel = tk.Label(self.main_window, text="Write prompt here")
-        self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12),
-                                         wrap="word")
+        self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
 
         # Textbox for wordcount threshold
         wordcountThresholdLabel = tk.Label(self.main_window, text="Wordcount threshold")
-        self.input_wordcount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12),
-                                                 wrap="word")
+        self.input_wordcount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
 
         pagecountThresholdLabel = tk.Label(self.main_window, text="Page count threshold")
-        self.input_pagecount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12),
-                                                 wrap="word")
+        self.input_pagecount_threshold = tk.Text(self.main_window, width=10, height=1, font=("Helvetica", 12), wrap="word")
 
         charcountLabel = tk.Label(self.main_window, text="Charcount")
         self.output_charcount = tk.Text(self.main_window, width=20, height=1, font=("Helvetica", 12), wrap="word")
@@ -121,14 +96,9 @@ class gui():
         standbyLabel = tk.Label(self.main_window, text="Standby")
         self.output_standby = tk.Text(self.main_window, width=20, height=1, font=("Helvetica", 12), wrap="word")
 
-        """
-        saveButton = tk.Button(self.save_root, text = 'Save', command = lambda : save())
-        saveButton.pack(side = TOP, pady = 20)
-        """
-
         promptLabel.pack()
         self.input_user_prompt.pack()
-
+        
         charcountLabel.pack()
         self.output_charcount.pack()
 
@@ -149,6 +119,17 @@ class gui():
 
         pagecountThresholdLabel.pack()
         self.input_pagecount_threshold.pack()
+    
+    def flickering_screen(self):
+        # switch between red and white text box background colors, inducing flickering effect
+        self.prompt = self.input_user_prompt.get(0.0, "end")
+        if not self.is_white:
+            self.input_user_prompt.configure(bg="black")
+            self.is_white = True
+        if self.is_white:
+            self.input_user_prompt.configure(bg="white")
+            # self.is_white = False
+        self.main_window.after(100, self.flickering_screen)
 
     def popup_display(self):
         # if no popup and should have popup, display it
@@ -169,10 +150,10 @@ class gui():
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
 
-        charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
+        """
+        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
-        prompt = self.input_user_prompt.get(0.0, "end")
-        completeSentences = sent_tokenize(prompt)  # produces array of sentences
+        completeSentences = sent_tokenize(self.prompt)  # produces array of sentences
         for sentence in completeSentences:
             sentencecount += 1
             words = word_tokenize(sentence)
@@ -183,10 +164,11 @@ class gui():
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
-        self.wordcount_list.append(self.wordcount)
+        self.wordcount_list.append(wordcount)
 
-        charcount = len(prompt.replace('\n', ''))
-        pagecount = len(prompt) // self.PAGE_LENGTH
+        charcount = len(self.prompt.replace('\n', ''))
+        pagecount = len(self.prompt) // self.PAGE_LENGTH
+        
         
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
@@ -210,15 +192,14 @@ class gui():
         
         self.last_charcount = charcount
 
-        """
-        WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
+
+        # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
         ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
         if ml_label_predicted:
             if self.roadblock:
                 self.popup_display()
             else:
                 self.popup_close()
-        """
 
         # for data collection
         self.history_word_count.append(self.wordcount)
@@ -284,38 +265,21 @@ class gui():
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
+        """
 
         # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
+        # self.main_window.after(5000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
         # return self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
         # test both types of keyboard features in ml model and determine which has less error
-    
-    """
-    save as txt so user doesn't get mad if program does not respond and crashes!
-    def save():
-        files = [('All Files', '*.*'), 
-                ('Python Files', '*.py'),
-                ('Text Document', '*.txt')]
-
-        text = e1.get() + "\n"+e2.get() + "\n"+e3.get() 
-        with open("test.txt", "w") as f:
-            f.writelines(text)
-        file = asksaveasfile(filetypes = files, defaultextension = files)
-
-    # convert previous txt into pdf so all aspects of paper are preserved
-    def pdf(event):
-        x = "my.pdf"
-        content = txbx.get("0.0", tk.END)
-        pdfkit.from_string(content, x)
-        print("pdf created")
-        os.startfile("my.pdf")
-    """
 
 if __name__ == '__main__':
     gui1 = gui()
+    gui1.flickering_screen()
+    gui1.popup_display()
+    gui1.popup_close()
     # main processing function
     gui1.realtime()
 

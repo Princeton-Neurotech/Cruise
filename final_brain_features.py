@@ -27,6 +27,7 @@ class braindata:
         self.start_time = time.time()
         self.brain_df = pd.DataFrame()
         self.row_index = 0
+        # self.all_data == 0
         self.is_5s = False
         self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
         'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
@@ -166,7 +167,7 @@ class braindata:
         for i in range (0, 10000):
             # if type(myBoard.getCurrentData(1)) != int and type(myBoard.getCurrentData(1250)):
                 # print(len(myBoard.getCurrentData(1)),len(myBoard.getCurrentData(1250)))
-            
+            # print(len(myBoard.getCurrentData(1)))
             total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1250).T)
             
             try:
@@ -179,6 +180,7 @@ class braindata:
             if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
                 self.is_5s = True
             elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
+                
                 """
                 # mean of each column based on number of rows outputted every 5s
                 mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
@@ -192,6 +194,15 @@ class braindata:
                 self.brain_training_features.loc[len(self.brain_training_features)] = total_brain_data[0]
                 self.is_5s = False
                 self.row_index += 1
+                print(self.brain_training_features)
+
+                # for every feature where there are 1250 columns, take mean of these and compress into 63 features
+                # 16 channels, 63 features, 1008 total columns
+                # for self.features_list in range (0, len(self.features_list)):
+                    # self.all_data = np.zeros((63, 1250))
+                # np_brain_training_features = self.brain_training_features.to_numpy
+                # np_brain_training_features.reshape()
+                # print(np_brain_training_features)
                 # print(self.brain_training_features)
                 
                 # create initial csv file for records
