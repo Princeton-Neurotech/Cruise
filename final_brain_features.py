@@ -14,7 +14,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 class braindata:
 
-    def __init__(self, boardID=-1, serial=''):
+    def __init__(self, boardID=0, serial='dev/cu.usbserial-DM03H3ZF'):
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
@@ -115,7 +115,7 @@ class braindata:
         CYTON = int(0)
         MUSE2 = int(22)
 
-        myCytonSerialPort = 'COM3'
+        myCytonSerialPort = 'dev/'
         noSerial = ''
 
         params.serial_port = noSerial
@@ -161,58 +161,62 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        myBoard = braindata(-1, 'COM3')
+        myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
 
         # alternative to while true loop since gets stuck when performing multiprocessing
-        for i in range (0, 10000):
-            # if type(myBoard.getCurrentData(1)) != int and type(myBoard.getCurrentData(1250)):
-                # print(len(myBoard.getCurrentData(1)),len(myBoard.getCurrentData(1250)))
-            # print(len(myBoard.getCurrentData(1)))
-            total_brain_data = brain_data_computations.calc_feature_vector(myBoard.getCurrentData(1250).T)
-            
-            try:
-                self.brain_training_features.columns = total_brain_data[-1]
-            except ValueError:
-                self.brain_training_features = pd.DataFrame(columns=total_brain_data[-1])
-            self.brain_df = pd.DataFrame(columns=total_brain_data[-1])
+        for i in range (0, 10000000):
+            total_brain_data = myBoard.getCurrentData(1250)
+            eeg_brain_data = total_brain_data[1:9]
+            # print(len(total_brain_data), len(total_brain_data[0]))
+            if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
+                # 8 channels of raw mV data
+                # print(len(eeg_brain_data.T))
+                eeg_computations = brain_data_computations.calc_feature_vector(eeg_brain_data.T)
+                # print(len(eeg_computations[-1]))
 
-            # every 5s collect one row of data
-            if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
-                self.is_5s = True
-            elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
-                
-                """
-                # mean of each column based on number of rows outputted every 5s
-                mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
-                # mean returns a pandas series, convert back to dataframe
-                mean_brain_df = mean_brain.to_frame()
-                # opposite dimensions, transpose
-                self.transposed_mean_brain_df = mean_brain_df.T 
-                """
+                try:
+                    self.brain_training_features.columns = eeg_computations[-1]
+                except ValueError:
+                    self.brain_training_features = pd.DataFrame(columns=eeg_computations[-1])
+                self.brain_df = pd.DataFrame(columns=eeg_computations[-1])
 
-                # append so dataframe continuously grows for 5 min
-                self.brain_training_features.loc[len(self.brain_training_features)] = total_brain_data[0]
-                self.is_5s = False
-                self.row_index += 1
-                print(self.brain_training_features)
+                # every 5s collect one row of data
+                if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
+                    self.is_5s = True
+                elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
+                    
+                    """
+                    # mean of each column based on number of rows outputted every 5s
+                    mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
+                    # mean returns a pandas series, convert back to dataframe
+                    mean_brain_df = mean_brain.to_frame()
+                    # opposite dimensions, transpose
+                    self.transposed_mean_brain_df = mean_brain_df.T 
+                    """
 
-                # for every feature where there are 1250 columns, take mean of these and compress into 63 features
-                # 16 channels, 63 features, 1008 total columns
-                # for self.features_list in range (0, len(self.features_list)):
-                    # self.all_data = np.zeros((63, 1250))
-                # np_brain_training_features = self.brain_training_features.to_numpy
-                # np_brain_training_features.reshape()
-                # print(np_brain_training_features)
-                # print(self.brain_training_features)
-                
-                # create initial csv file for records
-                self.brain_training_features.to_csv("brain.csv")
-                
-                # every 5s append one row to existing csv file to update records
-                self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
+                    # append so dataframe continuously grows for 5 min
+                    self.brain_training_features.loc[len(self.brain_training_features)] = eeg_computations[0]
+                    self.is_5s = False
+                    self.row_index += 1
+                    # print(self.brain_training_features)
+
+                    # for every feature where there are 1250 columns, take mean of these and compress into 63 features
+                    # 16 channels, 63 features, 1008 total columns
+                    # for self.features_list in range (0, len(self.features_list)):
+                        # self.all_data = np.zeros((63, 1250))
+                    # np_brain_training_features = self.brain_training_features.to_numpy
+                    # np_brain_training_features.reshape()
+                    # print(np_brain_training_features)
+                    # print(self.brain_training_features)
+                    
+                    # create initial csv file for records
+                    self.brain_training_features.to_csv("brain.csv")
+                    
+                    # every 5s append one row to existing csv file to update records
+                    self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
 
 if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
+    myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
     myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()

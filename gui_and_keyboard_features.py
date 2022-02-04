@@ -42,6 +42,7 @@ class gui():
         self.time_last_change = time.time()
         self.time_for_features = time.time()
 
+        self.wordcount = 0
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
@@ -122,14 +123,16 @@ class gui():
     
     def flickering_screen(self):
         # switch between red and white text box background colors, inducing flickering effect
-        self.prompt = self.input_user_prompt.get(0.0, "end")
+        # choose pixels in user input box
+        # self.input_user_prompt = tk.Text(self.main_window, width=1, height=1, font=("Times New Roman", 12), wrap="word")
         if not self.is_white:
             self.input_user_prompt.configure(bg="#E2E2E2")
             self.is_white = True
         else:
-            self.input_user_prompt.configure(bg="#FFFFFF")
+            self.input_user_prompt.configure(bg="#FF0000")
             self.is_white = False
-        self.main_window.after(1, self.flickering_screen)
+        # 40ms (25Hz) produces best response
+        self.main_window.after(40, self.flickering_screen)
 
     def popup_display(self):
         # if no popup and should have popup, display it
@@ -144,14 +147,14 @@ class gui():
             self.popup_root = None
 
     def realtime(self):
+        self.prompt = self.input_user_prompt.get(0.0, "end")
         self.output_charcount.delete(0.0, "end")
         self.output_wordcount.delete(0.0, "end")
         self.output_sentencecount.delete(0.0, "end")
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
 
-        """
-        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
+        charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
         completeSentences = sent_tokenize(self.prompt)  # produces array of sentences
         for sentence in completeSentences:
@@ -164,7 +167,7 @@ class gui():
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     self.wordcount += 1
-        self.wordcount_list.append(wordcount)
+        self.wordcount_list.append(self.wordcount)
 
         charcount = len(self.prompt.replace('\n', ''))
         pagecount = len(self.prompt) // self.PAGE_LENGTH
@@ -193,13 +196,15 @@ class gui():
         self.last_charcount = charcount
 
 
-        # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
-        ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
-        if ml_label_predicted:
-            if self.roadblock:
-                self.popup_display()
-            else:
-                self.popup_close()
+        """
+            # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
+            ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
+            if ml_label_predicted:
+                if self.roadblock:
+                    self.popup_display()
+                else:
+                    self.popup_close()
+        """
 
         # for data collection
         self.history_word_count.append(self.wordcount)
@@ -251,7 +256,7 @@ class gui():
 
         # concatenate rows so dataframe is continuous
         self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
-        print(self.keyboard_training_features)
+        # print(self.keyboard_training_features)
         
         self.row_index += 1
 
@@ -265,21 +270,20 @@ class gui():
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
-        """
 
         # call realtime() every 5s
-        # self.main_window.after(5000, self.realtime)
+        self.main_window.after(5000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
-        # return self.keyboard_training_features # first training set - means, maxes, sums
+        return self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
         # test both types of keyboard features in ml model and determine which has less error
 
 if __name__ == '__main__':
     gui1 = gui()
     gui1.flickering_screen()
-    gui1.popup_display()
-    gui1.popup_close()
+    # gui1.popup_display()
+    # gui1.popup_close()
     # main processing function
     gui1.realtime()
 

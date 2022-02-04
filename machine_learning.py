@@ -2,7 +2,6 @@ import time
 import pandas as pd
 import numpy as np
 
-import brain_data_computations
 import gui_and_keyboard_features 
 import final_brain_features
 
@@ -35,7 +34,10 @@ class ml():
         self.csv_index = 0
 
     def read_csv(self):
+        print("Julian")
         ml_keyboard = gui_and_keyboard_features.gui()
+        print("1")
+        print(ml_keyboard.keyboard_training_features)
         ml_brain = final_brain_features.braindata()
 
         self.keyboard_training_features = pd.DataFrame()
@@ -43,9 +45,9 @@ class ml():
     
         # print one row of keyboard and brain data every 5s for 5 min
         self.keyboard_training_features = ml_keyboard.keyboard_training_features.append(ml_keyboard.keyboard_training_features)       
-        print(self.keyboard_training_features)
+        # print(self.keyboard_training_features)
         self.brain_training_features = ml_brain.brain_training_features.append(ml_brain.brain_training_features)
-        print(self.brain_training_features)
+        # print(self.brain_training_features)
 
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         # self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)
