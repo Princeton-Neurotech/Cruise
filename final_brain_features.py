@@ -1,6 +1,8 @@
 import time
 import numpy as np
 import pandas as pd
+from scipy import signal
+# import mne
 
 from sys import exit
 import warnings
@@ -161,18 +163,48 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
+        myBoard = braindata(-1, 'COM3')
 
         # alternative to while true loop since gets stuck when performing multiprocessing
         for i in range (0, 10000000):
+            # get all columns of raw data for 5s time period
             total_brain_data = myBoard.getCurrentData(1250)
+            # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
-            # print(len(total_brain_data), len(total_brain_data[0]))
+
+            # main issue: how to apply scipy filters to numpy or pandas 
+            # mne has dataframe parameter but trouble importing it
+
+            # preprocessing parameters
+            fs = 250.0  # sample frequency (Hz)
+            f0 = 60.0  # frequency to be removed from signal (Hz)
+            Q = 30.0  # quality factor
+
+            # apply notch filter to remove power line interference 
+            # returns numerator (b) and denominator (a) polynomials of filter
+            b, a = signal.iirnotch(f0, Q, fs)
+
+            # compute magnitude response of designed filter
+            # returns frequencies at which h was computed and frequency response as a complex number
+            freq, h = signal.freqz(b, a, fs = 2 * np.pi)
+            mne.filter.notch_filter(eeg_brain_data, fs, f0)
+
+            # apply high pass filter to remove of high valued DC offsets naturally present in data
+            signal.butter(4, 0.5, btype='high')
+
+            # parameters for bandpass filter 
+            nyquist_freq = 0.5 * fs
+            low = 0.5 / nyquist_freq
+            high = 40 / nyquist_freq
+
+            # apply bandpass filter to allow frequency range to pass through, minimizing noise present in frequency range
+            b, a = signal.butter(4, [low, high], btype='band', analog=False)
+            y = signal.lfilter(b,a, eeg_brain_data)
+            signal.butter(4, 48, btype='bandpass')
+
             if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
-                # 8 channels of raw mV data
-                # print(len(eeg_brain_data.T))
+                # 5104 columns, 8 channels, 638 different data computations applied
                 eeg_computations = brain_data_computations.calc_feature_vector(eeg_brain_data.T)
-                # print(len(eeg_computations[-1]))
 
                 try:
                     self.brain_training_features.columns = eeg_computations[-1]
@@ -199,15 +231,6 @@ class braindata:
                     self.is_5s = False
                     self.row_index += 1
                     # print(self.brain_training_features)
-
-                    # for every feature where there are 1250 columns, take mean of these and compress into 63 features
-                    # 16 channels, 63 features, 1008 total columns
-                    # for self.features_list in range (0, len(self.features_list)):
-                        # self.all_data = np.zeros((63, 1250))
-                    # np_brain_training_features = self.brain_training_features.to_numpy
-                    # np_brain_training_features.reshape()
-                    # print(np_brain_training_features)
-                    # print(self.brain_training_features)
                     
                     # create initial csv file for records
                     self.brain_training_features.to_csv("brain.csv")
@@ -215,8 +238,9 @@ class braindata:
                     # every 5s append one row to existing csv file to update records
                     self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
 
+# macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
-    myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
+    myBoard = braindata(-1, 'COM3')
     myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
