@@ -187,7 +187,7 @@ class braindata:
             # compute magnitude response of designed filter
             # returns frequencies at which h was computed and frequency response as a complex number
             freq, h = signal.freqz(b, a, fs = 2 * np.pi)
-            mne.filter.notch_filter(eeg_brain_data, fs, f0)
+            # mne.filter.notch_filter(eeg_brain_data, fs, f0)
 
             # apply high pass filter to remove of high valued DC offsets naturally present in data
             signal.butter(4, 0.5, btype='high')

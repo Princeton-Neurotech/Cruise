@@ -5,10 +5,6 @@ import numpy as np
 import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
-import csv
-# from tkinter.filedialog import asksaveasfile
-# import pdfkit
-# import os
 
 from sys import exit
 import warnings
@@ -68,11 +64,12 @@ class gui():
 
         # Main tk window
         self.main_window = tk.Tk()
-        # self.main_window.configure(bg='blue')
         self.main_window.title("Roadblocks Project")
         self.main_window.geometry("500x600")
 
         promptLabel = tk.Label(self.main_window, text="Write prompt here")
+        # how to pass self into canvas without passing too many arguments?
+        # self.canvas = tk.Canvas(self.main_window, 450, 8)
         self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
 
         # Textbox for wordcount threshold
@@ -121,16 +118,29 @@ class gui():
         pagecountThresholdLabel.pack()
         self.input_pagecount_threshold.pack()
     
+    # can't access pixels or overlay with text widget object, so make a canvas (above) and make rectangles
+    # to overlay, changing these rectangles' colors randomly
     def flickering_screen(self):
-        # switch between red and white text box background colors, inducing flickering effect
-        # choose pixels in user input box
-        # self.input_user_prompt = tk.Text(self.main_window, width=1, height=1, font=("Times New Roman", 12), wrap="word")
-        if not self.is_white:
-            self.input_user_prompt.configure(bg="#E2E2E2")
-            self.is_white = True
-        else:
-            self.input_user_prompt.configure(bg="#FF0000")
-            self.is_white = False
+        # for every pixel in textbox, switch between red and white, inducing flickering effect
+        canvas = tk.Canvas(self.main_window, 450, 8)
+        # create a matrix of dimensions of textbox filled with random values between 0 and 1
+        random_pixels = np.random.rand(450, 8)
+        # for i in random_pixels.any() in range (0, len(random_pixels)):
+            # print(random_pixels)
+            # if it's less than 0.5 make pixels white
+        if random_pixels.any() > 0.5:
+            if not self.is_white:
+                self.Canvas.create_rectangle(1, 1, 450, 8, fill="white", outline="white")
+                # self.input_user_prompt.configure(bg="#E2E2E2")
+                self.is_white = True
+
+            # otherwise make pixels red
+            else:
+                # red produces best response 
+                self.Canvas.create_rectangle(1, 1, 450, 8, fill="red", outline="red")
+                # self.input_user_prompt.configure(bg="#FF0000")
+                self.is_white = False
+        
         # 40ms (25Hz) produces best response
         self.main_window.after(40, self.flickering_screen)
 
@@ -194,7 +204,6 @@ class gui():
             pass
         
         self.last_charcount = charcount
-
 
         """
             # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
@@ -282,8 +291,8 @@ class gui():
 if __name__ == '__main__':
     gui1 = gui()
     gui1.flickering_screen()
-    # gui1.popup_display()
-    # gui1.popup_close()
+    gui1.popup_display()
+    gui1.popup_close()
     # main processing function
     gui1.realtime()
 
