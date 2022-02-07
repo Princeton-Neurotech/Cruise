@@ -2,7 +2,7 @@ import time
 import numpy as np
 import pandas as pd
 from scipy import signal
-# import mne
+from sklearn import decomposition
 
 from sys import exit
 import warnings
@@ -11,8 +11,11 @@ warnings.filterwarnings('ignore')
 import brain_data_computations
 
 import brainflow
+from brainflow.data_filter import DataFilter
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 class braindata:
 
@@ -167,14 +170,29 @@ class braindata:
 
         # alternative to while true loop since gets stuck when performing multiprocessing
         for i in range (0, 10000000):
+            eeg_channels = braindata.getEEGChannels(self)
             # get all columns of raw data for 5s time period
             total_brain_data = myBoard.getCurrentData(1250)
+
+            for count, channel in enumerate(eeg_channels):
+                # get notch filter to work!
+                # DataFilter.remove_environmental_noise(np.asarray(total_brain_data[channel]), 250, 60)
+                # print(total_brain_data)
+                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 4, FilterTypes.BESSEL.value, 0)
+                # print(total_brain_data) 
             # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
+            
+            # standardize the data
+            eeg_brain_data_stand = eeg_brain_data.values
+            eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data_stand)
 
-            # main issue: how to apply scipy filters to numpy or pandas 
-            # mne has dataframe parameter but trouble importing it
+            # PCA to reduce dimensionality from 5104 to low hundreds features
+            pca = decomposition.PCA(n_components=100)
+            pca.fit(eeg_brain_data_stand)
+            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
 
+            """"
             # preprocessing parameters
             fs = 250.0  # sample frequency (Hz)
             f0 = 60.0  # frequency to be removed from signal (Hz)
@@ -182,6 +200,7 @@ class braindata:
 
             # apply notch filter to remove power line interference 
             # returns numerator (b) and denominator (a) polynomials of filter
+            DataFilter.remove_environmental_noise(eeg_brain_data, int sampling_rate, int noise_type)
             b, a = signal.iirnotch(f0, Q, fs)
 
             # compute magnitude response of designed filter
@@ -201,6 +220,7 @@ class braindata:
             b, a = signal.butter(4, [low, high], btype='band', analog=False)
             y = signal.lfilter(b,a, eeg_brain_data)
             signal.butter(4, 48, btype='bandpass')
+            """
 
             if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
                 # 5104 columns, 8 channels, 638 different data computations applied
@@ -217,14 +237,13 @@ class braindata:
                     self.is_5s = True
                 elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
                     
-                    """
+                
                     # mean of each column based on number of rows outputted every 5s
                     mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
                     # mean returns a pandas series, convert back to dataframe
                     mean_brain_df = mean_brain.to_frame()
                     # opposite dimensions, transpose
                     self.transposed_mean_brain_df = mean_brain_df.T 
-                    """
 
                     # append so dataframe continuously grows for 5 min
                     self.brain_training_features.loc[len(self.brain_training_features)] = eeg_computations[0]
@@ -237,6 +256,7 @@ class braindata:
                     
                     # every 5s append one row to existing csv file to update records
                     self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
+          
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":

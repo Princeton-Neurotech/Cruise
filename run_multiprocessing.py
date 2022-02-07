@@ -10,7 +10,6 @@ if __name__ == "__main__":
     # turns given process into a daemon which will run forever normally
     # subprocess is automatically terminated after the parent process ends to prevent orphan processes
     # aka kills all subprocesses
-    start_time = time.time()
     proc1 = multiprocessing.Process(target=workers.worker1)
     proc1.daemon = True
     proc2 = multiprocessing.Process(target=workers.worker2)
