@@ -236,7 +236,6 @@ class braindata:
                 if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
                     self.is_5s = True
                 elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
-                    
                 
                     # mean of each column based on number of rows outputted every 5s
                     mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)

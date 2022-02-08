@@ -120,30 +120,29 @@ class gui():
     
     # can't access pixels or overlay with text widget object, so make a canvas (above) and make rectangles
     # to overlay, changing these rectangles' colors randomly
-   #  def flickering_screen(self):
-        # # for every pixel in textbox, switch between red and white, inducing flickering effect
+    def flickering_screen(self):
+        # for every pixel in textbox, switch between red and white, inducing flickering effect
         # canvas = tk.Canvas(self.main_window, 450, 8)
-        # # create a matrix of dimensions of textbox filled with random values between 0 and 1
-        # random_pixels = np.random.rand(450, 8)
-        # # for i in random_pixels.any() in range (0, len(random_pixels)):
-        #     # print(random_pixels)
-        #     # if it's less than 0.5 make pixels white
-        # if random_pixels.any() > 0.5:
-        #     if not self.is_white:
-        #         self.Canvas.create_rectangle(1, 1, 450, 8, fill="white", outline="white")
-        #         # self.input_user_prompt.configure(bg="#E2E2E2")
-        #         self.is_white = True
+        # create a matrix of dimensions of textbox filled with random values between 0 and 1
+        random_pixels = np.random.rand(450, 8)
+        for i in random_pixels.any() in range (0, len(random_pixels)):
+            print(random_pixels)
+        # if it's less than 0.5 make pixels white
+        if random_pixels.any() > 0.5:
+            if not self.is_white:
+                self.Canvas.create_rectangle(1, 1, 450, 8, fill="white", outline="white")
+                # self.input_user_prompt.configure(bg="#E2E2E2")
+                self.is_white = True
 
-        #     # otherwise make pixels red
-        #     else:
-        #         # red produces best response 
-        #         self.Canvas.create_rectangle(1, 1, 450, 8, fill="red", outline="red")
-        #         # self.input_user_prompt.configure(bg="#FF0000")
-        #         self.is_white = False
+            # otherwise make pixels red
+            else:
+                # red produces best response 
+                self.Canvas.create_rectangle(1, 1, 450, 8, fill="red", outline="red")
+                # self.input_user_prompt.configure(bg="#FF0000")
+                self.is_white = False
         
-        # # 40ms (25Hz) produces best response
-        # self.main_window.after(40, self.flickering_screen)
-
+        # 40ms (25Hz) produces best response
+        self.main_window.after(40, self.flickering_screen)
 
     def popup_display(self):
         # if no popup and should have popup, display it
@@ -165,8 +164,7 @@ class gui():
         self.output_pagecount.delete(0.0, "end")
         self.output_standby.delete(0.0, "end")
 
-
-        tempcount, charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0, 0
+        charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
         completeSentences = sent_tokenize(self.prompt)  # produces array of sentences
         for sentence in completeSentences:
@@ -188,13 +186,6 @@ class gui():
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
         standbyNotification = ""
-        if charcount == 0 or self.last_charcount != charcount:
-            # canvas = tk.Canvas(main_window, 450, 8)
-            cursor = canvas.create_rectangle(5, 5, 450, 8, fill = "red", outline = "red")
-            canvas.pack()
-            last_charcount = charcount
-            self.time_last_change = time.time()
-            
         if (time.time() - self.time_last_change) > 10:
             standbyNotification = "You've entered a standby"
             self.history_standby.append(1)
@@ -209,6 +200,15 @@ class gui():
             pass
         
         self.last_charcount = charcount
+
+        """
+        if charcount == 0 or self.last_charcount != charcount:
+        # canvas = tk.Canvas(main_window, 450, 8)
+        cursor = canvas.create_rectangle(5, 5, 450, 8, fill = "red", outline = "red")
+        canvas.pack()
+        last_charcount = charcount
+        self.time_last_change = time.time()
+        """
 
         """
             # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
@@ -297,7 +297,7 @@ class gui():
 
 if __name__ == '__main__':
     gui1 = gui()
-    # gui1.flickering_screen()
+    gui1.flickering_screen()
     gui1.popup_display()
     gui1.popup_close()
     # main processing function
