@@ -124,10 +124,11 @@ class gui():
         # for every pixel in textbox, switch between red and white, inducing flickering effect
         # canvas = tk.Canvas(self.main_window, 450, 8)
         # create a matrix of dimensions of textbox filled with random values between 0 and 1
-        random_pixels = np.random.rand(450, 8)
-        for i in random_pixels.any() in range (0, len(random_pixels)):
-            print(random_pixels)
+        # random_pixels = np.random.rand(450, 8)
+        # for i in random_pixels.any() in range (0, len(random_pixels)):
+        #     print(random_pixels)
         # if it's less than 0.5 make pixels white
+        """
         if random_pixels.any() > 0.5:
             if not self.is_white:
                 self.Canvas.create_rectangle(1, 1, 450, 8, fill="white", outline="white")
@@ -140,6 +141,7 @@ class gui():
                 self.Canvas.create_rectangle(1, 1, 450, 8, fill="red", outline="red")
                 # self.input_user_prompt.configure(bg="#FF0000")
                 self.is_white = False
+        """
         
         # 40ms (25Hz) produces best response
         self.main_window.after(40, self.flickering_screen)

@@ -166,7 +166,7 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        myBoard = braindata(-1, 'COM3')
+        myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
 
         # alternative to while true loop since gets stuck when performing multiprocessing
         for i in range (0, 10000000):
@@ -259,7 +259,7 @@ class braindata:
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
-    myBoard = braindata(-1, 'COM3')
+    myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
     myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()

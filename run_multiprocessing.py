@@ -14,12 +14,15 @@ if __name__ == "__main__":
     proc1.daemon = True
     proc2 = multiprocessing.Process(target=workers.worker2)
     proc2.daemon = True 
+    proc3 = multiprocessing.Process(target=workers.worker3)
+    proc3.daemon = True 
 
     proc1.start() 
     proc2.start()
+    proc3.start()
 
     while True:
-        proc3 = multiprocessing.Process(target=workers.worker3)
-        proc3.start()
-        time.sleep(60) # do process only every 5 min
-        proc3.terminate()
+        proc4 = multiprocessing.Process(target=workers.worker4)
+        proc4.start()
+        time.sleep(300) # do process only every 5 min
+        proc4.terminate()
