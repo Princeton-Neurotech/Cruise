@@ -1,7 +1,7 @@
 import gui_and_keyboard_features
 import final_brain_features
 import machine_learning
-import webdriver
+import web_interface
 import pandas
 
 def worker1():
@@ -16,7 +16,7 @@ def worker2():
     myBoard.collectData()
 
 def worker3():
-    myselenium = webdriver.selenium()
+    myselenium = web_interface.selenium()
  
 def worker4():
     myml = machine_learning.ml()
