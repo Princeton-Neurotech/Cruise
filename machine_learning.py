@@ -34,9 +34,7 @@ class ml():
         self.csv_index = 0
 
     def read_csv(self):
-        print("Julian")
         ml_keyboard = gui_and_keyboard_features.gui()
-        print("1")
         print(ml_keyboard.keyboard_training_features)
         ml_brain = final_brain_features.braindata()
 

@@ -6,13 +6,17 @@ import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 
+import googleapiclient.discovery as discovery
+from httplib2 import Http
+from oauth2client import client, file, tools
+
 from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
 import machine_learning
 
-class gui():
+class keyboard():
     
     def __init__(self):
         self.start_time = time.time()
@@ -23,7 +27,6 @@ class gui():
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
-        self.is_white = False
 
         self.nb_standby = 0
         self.wordcount_list = [0, ]
@@ -46,14 +49,15 @@ class gui():
         # need to get equivalent of this in Google Docs
         self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
         self.input_user_prompt.pack()
-
+    
     def realtime(self):
-        # replace with user input in Google Docs
-        self.prompt = self.input_user_prompt.get(0.0, "end")
-
+        with open('extracted.txt', 'r') as f:
+            text = [line for line in f.readlines()]
+            keyboard_df = pd.DataFrame(text,columns=['text'])
         charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
-        completeSentences = sent_tokenize(self.prompt)  # produces array of sentences
+        print(type(self.elements))
+        completeSentences = sent_tokenize(keyboard_df)  # arg needs to be a string, produces array of sentences
         for sentence in completeSentences:
             sentencecount += 1
             words = word_tokenize(sentence)
@@ -66,8 +70,8 @@ class gui():
                     self.wordcount += 1
         self.wordcount_list.append(self.wordcount)
 
-        charcount = len(self.prompt.replace('\n', ''))
-        pagecount = len(self.prompt) // self.PAGE_LENGTH
+        charcount = len(keyboard_df.replace('\n', ''))
+        pagecount = len(keyboard_df) // self.PAGE_LENGTH
         
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
@@ -156,7 +160,8 @@ class gui():
         print(self.training_label)
 
         # call realtime() every 5s
-        self.main_window.after(5000, self.realtime)
+        # NEED TO CALL THIS EVERY 5S WITHOUT BEING CONNECTED TO GUI
+        # self.main_window.after(5000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
         return self.keyboard_training_features # first training set - means, maxes, sums
@@ -164,10 +169,10 @@ class gui():
         # test both types of keyboard features in ml model and determine which has less error
 
 if __name__ == '__main__':
-    gui1 = gui()
+    keyboard1 = keyboard()
     # main processing function
-    gui1.realtime()
+    keyboard1.realtime()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
-    gui1.main_window.mainloop()
+    keyboard1.main_window.mainloop()

@@ -175,10 +175,10 @@ class braindata:
             total_brain_data = myBoard.getCurrentData(1250)
 
             for count, channel in enumerate(eeg_channels):
-                # get notch filter to work!
+                # notch filter to remove 60 Hz from surrounding lights
                 # DataFilter.remove_environmental_noise(np.asarray(total_brain_data[channel]), 250, 60)
                 # print(total_brain_data)
-                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 4, FilterTypes.BESSEL.value, 0)
+                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 0.5, FilterTypes.BESSEL.value, 0)
                 # print(total_brain_data) 
             # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
@@ -255,7 +255,6 @@ class braindata:
                     
                     # every 5s append one row to existing csv file to update records
                     self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
-          
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
