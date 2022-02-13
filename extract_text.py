@@ -6,6 +6,10 @@ from __future__ import print_function
 import googleapiclient.discovery as discovery
 from httplib2 import Http
 from oauth2client import client,file,tools
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+import os 
 
 SCOPES = 'https://www.googleapis.com/auth/documents.readonly'
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
@@ -13,22 +17,32 @@ DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 DOCUMENT_ID = '18rDVSBn23-Es6pF_iEsSiNWIrGumdPARHlbpmjsQtN4/edit'
 
 def get_credentials():
-    """Gets valid user credentials from storage.
-
+    """Gets valid user credentials from storage.co
     If nothing has been stored, or if the stored credentials are invalid,
     the OAuth 2.0 flow is completed to obtain the new credentials.
 
     Returns:
         Credentials, the obtained credential.
     """
-    store = file.Storage('token.json')
-    credentials = store.get()
-    # oauthv2accesstoken.GenerateAccessToken.access_token  
 
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
-        credentials = tools.run_flow(flow, store)
-    return credentials
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.jsoxwn', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    else:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    return creds
 
 def read_paragraph_element(element):
     """Returns the text in the given ParagraphElement.
