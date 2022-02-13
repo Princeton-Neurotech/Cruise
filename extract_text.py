@@ -5,14 +5,12 @@ from __future__ import print_function
 
 import googleapiclient.discovery as discovery
 from httplib2 import Http
-from oauth2client import client
-from oauth2client import file
-from oauth2client import tools
+from oauth2client import client,file,tools
 
 SCOPES = 'https://www.googleapis.com/auth/documents.readonly'
-DISCOVERY_DOC = 'https://docs.google.com/document/d/'
-# 'https://docs.googleapis.com/$discovery/rest?version=v1'
-DOCUMENT_ID = '15HOSxwWeM1fLoxik2YX9AK60PGgspcP6qyVRWVydVD0/edit'
+DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
+# 'https://docs.google.com/document/d/'
+DOCUMENT_ID = '18rDVSBn23-Es6pF_iEsSiNWIrGumdPARHlbpmjsQtN4/edit'
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -25,6 +23,7 @@ def get_credentials():
     """
     store = file.Storage('token.json')
     credentials = store.get()
+    # oauthv2accesstoken.GenerateAccessToken.access_token  
 
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
@@ -67,18 +66,29 @@ def read_strucutural_elements(elements):
             # The text in the TOC is also in a Structural Element.
             toc = value.get('tableOfContents')
             text += read_strucutural_elements(toc.get('content'))
+            print(text)
     return text
 
 def main():
+    print(0)
     """Uses the Docs API to print out the text of a document."""
+    print(1)
     credentials = get_credentials()
+    print(2)
     http = credentials.authorize(Http())
+    print(3)
     docs_service = discovery.build('docs', 'v1', http=http, discoveryServiceUrl=DISCOVERY_DOC)
+    print(4)
     doc = docs_service.documents().get(documentId=DOCUMENT_ID).execute()
+    print(5)
     doc_content = doc.get('body').get('content')
+    print(6)
     text = read_strucutural_elements(doc_content)
+    print(text)
     with open("extracted.txt", "w") as text_file:
         text_file.write(text)
 
 if __name__ == '__main__':
+    print(33)
     main()
+    print(42)
