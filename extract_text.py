@@ -10,11 +10,14 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os 
+from flask import Flask
 
 SCOPES = 'https://www.googleapis.com/auth/documents.readonly'
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 # 'https://docs.google.com/document/d/'
-DOCUMENT_ID = '18rDVSBn23-Es6pF_iEsSiNWIrGumdPARHlbpmjsQtN4/edit'
+DOCUMENT_ID = '1w2yVo5Fs3purx6Kxa19soiZPOAhekUS0i8-KPWwvfs8'
+
+app = Flask(__name__)
 
 def get_credentials():
     """Gets valid user credentials from storage.co
@@ -30,7 +33,7 @@ def get_credentials():
     # created automatically when the authorization flow completes for the first
     # time.
     if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.jsoxwn', SCOPES)
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     else:
         if creds and creds.expired and creds.refresh_token:
@@ -83,26 +86,18 @@ def read_strucutural_elements(elements):
             print(text)
     return text
 
+@app.route("/")
 def main():
-    print(0)
     """Uses the Docs API to print out the text of a document."""
-    print(1)
     credentials = get_credentials()
-    print(2)
     http = credentials.authorize(Http())
-    print(3)
     docs_service = discovery.build('docs', 'v1', http=http, discoveryServiceUrl=DISCOVERY_DOC)
-    print(4)
     doc = docs_service.documents().get(documentId=DOCUMENT_ID).execute()
-    print(5)
     doc_content = doc.get('body').get('content')
-    print(6)
     text = read_strucutural_elements(doc_content)
     print(text)
     with open("extracted.txt", "w") as text_file:
         text_file.write(text)
 
 if __name__ == '__main__':
-    print(33)
-    main()
-    print(42)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
