@@ -1,3 +1,10 @@
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
+from brainflow.data_filter import DataFilter
+import brainflow
+import brain_data_computations
 import time
 import numpy as np
 import pandas as pd
@@ -8,14 +15,6 @@ from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
-import brain_data_computations
-
-import brainflow
-from brainflow.data_filter import DataFilter
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
 
 class braindata:
 
@@ -35,19 +34,19 @@ class braindata:
         # self.all_data == 0
         self.is_5s = False
         self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
-        'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
-        'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
-        'std_d_h2h1_0', 'max_0', 'max_d_h2h1_0', 'max_q1_0', 'max_q2_0',
-        'max_q3_0', 'max_q4_0', 'max_d_q1q2_0', 'max_d_q1q3_0', 'max_d_q1q4_0',
-        'max_d_q2q3_0', 'max_d_q2q4_0', 'max_d_q3q4_0', 'min_0', 'min_d_h2h1_0',
-        'min_q1_0', 'min_q2_0', 'min_q3_0', 'min_q4_0', 'min_d_q1q2_0',
-        'min_d_q1q3_0', 'min_d_q1q4_0', 'min_d_q2q3_0', 'min_d_q2q4_0',
-        'min_d_q3q4_0', 'topFreq_1_0', 'topFreq_2_0', 'topFreq_3_0',
-        'topFreq_4_0', 'topFreq_5_0', 'topFreq_6_0', 'topFreq_7_0',
-        'topFreq_8_0', 'topFreq_9_0', 'topFreq_10_0', 'freq_011_0',
-        'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
-        'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
-        'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
+                              'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
+                              'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
+                              'std_d_h2h1_0', 'max_0', 'max_d_h2h1_0', 'max_q1_0', 'max_q2_0',
+                              'max_q3_0', 'max_q4_0', 'max_d_q1q2_0', 'max_d_q1q3_0', 'max_d_q1q4_0',
+                              'max_d_q2q3_0', 'max_d_q2q4_0', 'max_d_q3q4_0', 'min_0', 'min_d_h2h1_0',
+                              'min_q1_0', 'min_q2_0', 'min_q3_0', 'min_q4_0', 'min_d_q1q2_0',
+                              'min_d_q1q3_0', 'min_d_q1q4_0', 'min_d_q2q3_0', 'min_d_q2q4_0',
+                              'min_d_q3q4_0', 'topFreq_1_0', 'topFreq_2_0', 'topFreq_3_0',
+                              'topFreq_4_0', 'topFreq_5_0', 'topFreq_6_0', 'topFreq_7_0',
+                              'topFreq_8_0', 'topFreq_9_0', 'topFreq_10_0', 'freq_011_0',
+                              'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
+                              'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
+                              'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
         self.brain_training_features = pd.DataFrame(columns=self.features_list)
 
     def startStream(self):
@@ -59,7 +58,8 @@ class braindata:
         # initiate stream
         self.board.start_stream(45000, '')
         self.isRunning = True
-        self.board.log_message(LogLevels.LEVEL_INFO, "Start sleeping in the main thread")
+        self.board.log_message(LogLevels.LEVEL_INFO,
+                               "Start sleeping in the main thread")
         # time.sleep(sleepTime)  # sleep 30 seconds
         # get the data
         self.data = self.board.get_board_data()
@@ -132,7 +132,8 @@ class braindata:
 
         # initiate stream
         board.start_stream(45000, '')
-        board.log_message(LogLevels.LEVEL_INFO, "Start sleeping in the main thread")
+        board.log_message(LogLevels.LEVEL_INFO,
+                          "Start sleeping in the main thread")
         time.sleep(streamTime)  # sleep 30 seconds
 
         # get the data
@@ -166,10 +167,10 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
+        myBoard = braindata(-1, '/dev/cu.usbserial-DM03H3ZF')
 
         # alternative to while true loop since gets stuck when performing multiprocessing
-        for i in range (0, 10000000):
+        for i in range(0, 10000000):
             eeg_channels = braindata.getEEGChannels(self)
             # get all columns of raw data for 5s time period
             total_brain_data = myBoard.getCurrentData(1250)
@@ -178,11 +179,12 @@ class braindata:
                 # notch filter to remove 60 Hz from surrounding lights
                 # DataFilter.remove_environmental_noise(np.asarray(total_brain_data[channel]), 250, 60)
                 # print(total_brain_data)
-                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 0.5, FilterTypes.BESSEL.value, 0)
-                # print(total_brain_data) 
+                DataFilter.perform_bandpass(
+                    total_brain_data[channel], 250, 22, 45, 0.5, FilterTypes.BESSEL.value, 0)
+                # print(total_brain_data)
             # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
-            
+
             # standardize the data
             eeg_brain_data_stand = eeg_brain_data.values
             eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data_stand)
@@ -191,6 +193,20 @@ class braindata:
             pca = decomposition.PCA(n_components=100)
             pca.fit(eeg_brain_data_stand)
             pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
+
+            print("Number of features: " + str(pca.n_features_))
+            print("Number of samples: " + str(pca.n_samples_))
+
+            # correlations between a component each feature (each component is a linear combination of given features)
+            print("Correlations between each feature and each component")
+            print(pd.DataFrame(pca.components_, columns=eeg_brain_data.columns))
+
+            # number of components
+            print("Number of components selected: " +
+                  str(pca.components_.shape[0]))
+
+            # percent of variance explained by each component (descending order)
+            print(pca.explained_variance_ratio_)
 
             """"
             # preprocessing parameters
@@ -224,43 +240,49 @@ class braindata:
 
             if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
                 # 5104 columns, 8 channels, 638 different data computations applied
-                eeg_computations = brain_data_computations.calc_feature_vector(eeg_brain_data.T)
+                eeg_computations = brain_data_computations.calc_feature_vector(
+                    eeg_brain_data.T)
 
                 try:
                     self.brain_training_features.columns = eeg_computations[-1]
                 except ValueError:
-                    self.brain_training_features = pd.DataFrame(columns=eeg_computations[-1])
+                    self.brain_training_features = pd.DataFrame(
+                        columns=eeg_computations[-1])
                 self.brain_df = pd.DataFrame(columns=eeg_computations[-1])
 
                 # every 5s collect one row of data
                 if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
                     self.is_5s = True
                 elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
-                
+
                     # mean of each column based on number of rows outputted every 5s
-                    mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
+                    mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(
+                        axis=0)
                     # mean returns a pandas series, convert back to dataframe
                     mean_brain_df = mean_brain.to_frame()
                     # opposite dimensions, transpose
-                    self.transposed_mean_brain_df = mean_brain_df.T 
+                    self.transposed_mean_brain_df = mean_brain_df.T
 
                     # append so dataframe continuously grows for 5 min
-                    self.brain_training_features.loc[len(self.brain_training_features)] = eeg_computations[0]
+                    self.brain_training_features.loc[len(
+                        self.brain_training_features)] = eeg_computations[0]
                     self.is_5s = False
                     self.row_index += 1
                     # print(self.brain_training_features)
-                    
+
                     # create initial csv file for records
                     self.brain_training_features.to_csv("brain.csv")
-                    
+
                     # every 5s append one row to existing csv file to update records
-                    self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv("brain.csv", mode="a", header=False)
+                    self.brain_training_features.loc[self.row_index - 1:self.row_index].to_csv(
+                        "brain.csv", mode="a", header=False)
+
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
-    myBoard = braindata(0, '/dev/cu.usbserial-DM03H3ZF')
+    myBoard = braindata(-1, '/dev/cu.usbserial-DM03H3ZF')
     myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
     myBoard.collectData()
-    # myBoard.stopStream() 
+    # myBoard.stopStream()
