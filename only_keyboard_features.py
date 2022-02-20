@@ -2,7 +2,7 @@ import time
 from typing import final
 import pandas as pd
 import numpy as np
-import tkinter as tk
+#import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 
@@ -23,7 +23,6 @@ class keyboard():
         self.time_last_change = time.time()
         self.time_for_features = time.time()
 
-        self.wordcount = 0
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
@@ -43,21 +42,27 @@ class keyboard():
         self.training_label = []
         # self.ml_object = machine_learning.ml()
 
-        self.main_window = tk.Tk()
-        self.main_window.title("Roadblocks Project")
-        self.main_window.geometry("500x600")
+        # self.main_window = tk.Tk()
+        # self.main_window.title("Roadblocks Project")
+        # self.main_window.geometry("500x600")
         # need to get equivalent of this in Google Docs
-        self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
-        self.input_user_prompt.pack()
+        # self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
+        # self.input_user_prompt.pack()
     
-    def realtime(self):
-        with open('extracted.txt', 'r') as f:
-            text = [line for line in f.readlines()]
-            keyboard_df = pd.DataFrame(text,columns=['text'])
-        charcount, self.wordcount, sentencecount, pagecount = 0, 0, 0, 0
+    def getData(self):
+        return self.keyboard_training_features
+
+    def realtime(self, text):
+        #with open('extracted.txt', 'r') as f:
+        #    text = [line for line in f.readlines()]
+        #    keyboard_df = pd.DataFrame(text,columns=['text'])
+        charcount, sentencecount, pagecount = 0, 0, 0
+        wordcount = 0
+
         dictionary = enchant.Dict("en_US")
-        print(type(self.elements))
-        completeSentences = sent_tokenize(keyboard_df)  # arg needs to be a string, produces array of sentences
+        
+        completeSentences = sent_tokenize(text)  # arg needs to be a string, produces array of sentences
+
         for sentence in completeSentences:
             sentencecount += 1
             words = word_tokenize(sentence)
@@ -67,27 +72,27 @@ class keyboard():
                         sentencecount -=1
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
-                    self.wordcount += 1
-        self.wordcount_list.append(self.wordcount)
+                    wordcount += 1
+        self.wordcount_list.append(wordcount)
 
-        charcount = len(keyboard_df.replace('\n', ''))
-        pagecount = len(keyboard_df) // self.PAGE_LENGTH
+        charcount = len(text.replace('\n', ''))
+        pagecount = len(text) // self.PAGE_LENGTH
         
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
-        standbyNotification = ""
-        if (time.time() - self.time_last_change) > 10:
-            standbyNotification = "You've entered a standby"
+        # standbyNotification = ""
+        if (time.time() - self.time_last_change) > 60:
+            #standbyNotification = "You've entered a standby"
             self.history_standby.append(1)
         else:
             self.history_standby.append(0)
 
         # set Thresholds to -1 unless a number exists
-        wordcountThresholdInt, pagecountThresholdInt = -1, -1
-        try:
-            wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
-        except:
-            pass
+        # wordcountThresholdInt, pagecountThresholdInt = -1, -1
+        # try:
+        #    wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
+        # except:
+        #    pass
         
         self.last_charcount = charcount
 
@@ -102,7 +107,7 @@ class keyboard():
         """
 
         # for data collection
-        self.history_word_count.append(self.wordcount)
+        self.history_word_count.append(wordcount)
         self.history_sentence_count.append(sentencecount)
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time(), 2))
@@ -149,8 +154,8 @@ class keyboard():
         self.row_index += 1
 
         # create initial csv file for records
-        if len(self.keyboard_training_features.index) == 1:
-            self.keyboard_training_features.to_csv('keyboard.csv')
+        # if len(self.keyboard_training_features.index) == 1:
+        #    self.keyboard_training_features.to_csv('keyboard.csv')
         
         # every 5s append one row to existing csv file to update records
         self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
@@ -164,15 +169,16 @@ class keyboard():
         # self.main_window.after(5000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
-        return self.keyboard_training_features # first training set - means, maxes, sums
+        return True #self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
         # test both types of keyboard features in ml model and determine which has less error
 
-if __name__ == '__main__':
-    keyboard1 = keyboard()
+
+#if __name__ == '__main__':
+#    keyboard1 = keyboard()
     # main processing function
-    keyboard1.realtime()
+#    keyboard1.realtime()
 
     # main loop blocks code from continuing past this line
     # ie code in class runs and doesn't finish until exit using interface or command line
-    keyboard1.main_window.mainloop()
+    #keyboard1.main_window.mainloop()

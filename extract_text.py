@@ -2,6 +2,8 @@
 Recursively extracts the text from a Google Doc.
 """
 from __future__ import print_function
+from encodings import utf_8
+from time import sleep
 
 import googleapiclient.discovery as discovery
 from httplib2 import Http
@@ -12,10 +14,12 @@ from google.auth.transport.requests import Request
 import os 
 from flask import Flask
 
+import only_keyboard_features
+
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 # 'https://docs.google.com/document/d/'
-DOCUMENT_ID = '1dNJ_XICU8l4iOOu1-nJ0Ti9zCfySjHlX'
+DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
 
 app = Flask(__name__)
 
@@ -90,16 +94,24 @@ def read_strucutural_elements(elements):
 def main():
     """Uses the Docs API to print out the text of a document."""
     credentials = get_credentials()
+    ## build(serviceName, version, http=None, discoveryServiceUrl=DISCOVERY_URI, developerKey=None, model=None, requestBuilder=HttpRequest, credentials=None, cache_discovery=True, cache=None, client_options=None, adc_cert_path=None, adc_key_path=None, num_retries=1)
     docs_service = discovery.build('docs', 'v1', credentials=credentials, discoveryServiceUrl=DISCOVERY_DOC)
-    doc = docs_service.documents()
-    print(doc)
-    doc = doc.get(documentId=DOCUMENT_ID)
-    print(doc)
-    doc = doc.execute()
-    doc_content = doc.get('body').get('content')
-    text = read_strucutural_elements(doc_content)
-    with open("extracted.txt", "w") as text_file:
-        text_file.write(text)
+    
+    kb = only_keyboard_features.keyboard()
 
+    for i in range(1000):
+        doc = docs_service.documents().get(documentId=DOCUMENT_ID).execute()
+        doc_content = doc.get('body').get('content')
+    
+        # Outputs: String 
+        text = read_strucutural_elements(doc_content)
+        print("Text:" + text)
+        kb.realtime(text)
+        kb.getData()
+        sleep(5)
+    
+
+    return text
+    
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
