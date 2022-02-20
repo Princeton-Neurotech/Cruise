@@ -12,10 +12,10 @@ from google.auth.transport.requests import Request
 import os 
 from flask import Flask
 
-SCOPES = 'https://www.googleapis.com/auth/documents.readonly'
+SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 # 'https://docs.google.com/document/d/'
-DOCUMENT_ID = '1w2yVo5Fs3purx6Kxa19soiZPOAhekUS0i8-KPWwvfs8'
+DOCUMENT_ID = '1dNJ_XICU8l4iOOu1-nJ0Ti9zCfySjHlX'
 
 app = Flask(__name__)
 
@@ -90,12 +90,14 @@ def read_strucutural_elements(elements):
 def main():
     """Uses the Docs API to print out the text of a document."""
     credentials = get_credentials()
-    http = credentials.authorize(Http())
-    docs_service = discovery.build('docs', 'v1', http=http, discoveryServiceUrl=DISCOVERY_DOC)
-    doc = docs_service.documents().get(documentId=DOCUMENT_ID).execute()
+    docs_service = discovery.build('docs', 'v1', credentials=credentials, discoveryServiceUrl=DISCOVERY_DOC)
+    doc = docs_service.documents()
+    print(doc)
+    doc = doc.get(documentId=DOCUMENT_ID)
+    print(doc)
+    doc = doc.execute()
     doc_content = doc.get('body').get('content')
     text = read_strucutural_elements(doc_content)
-    print(text)
     with open("extracted.txt", "w") as text_file:
         text_file.write(text)
 
