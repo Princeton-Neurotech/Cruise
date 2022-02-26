@@ -1,2 +1,2 @@
-# Roadblocks
+# Cruise
 Users begin a work session, writing whatever they would like. We measure keyboard input and brain data as they write. We develop a machine learning model that predicts when the user will approach a roadblock. A roadblock is defined as when the user does not write a customly defined number of words in a predefined time interval. If the user is predicted to hit a roadblock, or hits a roadblock, we offer helpful alternatives such as recommending research articles based on the content they wrote or essay questions.
