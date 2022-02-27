@@ -175,24 +175,23 @@ class braindata:
             # get all columns of raw data for 5s time period
             total_brain_data = myBoard.getCurrentData(1250)
 
-            for count, channel in enumerate(eeg_channels):
+            # for count, channel in enumerate(eeg_channels):
                 # notch filter to remove 60 Hz from surrounding lights
                 # DataFilter.remove_environmental_noise(np.asarray(total_brain_data[channel]), 250, 60)
                 # print(total_brain_data)
-                DataFilter.perform_bandpass(
-                    total_brain_data[channel], 250, 22, 45, 0.5, FilterTypes.BESSEL.value, 0)
+                # DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 0.5, FilterTypes.BESSEL.value, 0)
                 # print(total_brain_data)
             # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
 
             # standardize the data
-            eeg_brain_data_stand = eeg_brain_data.values
-            eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data_stand)
+            # eeg_brain_data_stand = eeg_brain_data.values
+            # eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data_stand)
 
             # PCA to reduce dimensionality from 5104 to low hundreds features
-            pca = decomposition.PCA(n_components=100)
-            pca.fit(eeg_brain_data_stand)
-            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
+            pca = decomposition.PCA(n_components=8, svd_solver='full')
+            pca.fit(eeg_brain_data)
+            pca_eeg_brain_data = pca.transform(eeg_brain_data)
 
             print("Number of features: " + str(pca.n_features_))
             print("Number of samples: " + str(pca.n_samples_))
