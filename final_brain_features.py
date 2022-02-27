@@ -191,11 +191,11 @@ class braindata:
 
             # PCA to reduce dimensionality from 5104 to low hundreds features
             pca = decomposition.PCA(n_components=100)
+            print(eeg_brain_data_stand.shape)
             pca.fit(eeg_brain_data_stand)
-            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
-
             print("Number of features: " + str(pca.n_features_))
             print("Number of samples: " + str(pca.n_samples_))
+            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
 
             # correlations between a component each feature (each component is a linear combination of given features)
             print("Correlations between each feature and each component")
