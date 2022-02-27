@@ -11,7 +11,7 @@ Cruise utilizes user keyboard text input and EEG brain data to increase writing 
 - Number of breaks, their duration, and their frequency are measured in order to develop an individualized model for the user, maximizing their productivity
  
 **Pipeline**:
-- Web Interface: sets flickering in a GoogleDocs document and initiates running data processes for text and brain data collection.
+- Web Interface: sets flickering in a Google Docs document and initiates running data processes for text and brain data collection.
 - Extract Text: completes access of user text input data from Google Docs API in real time.
 - Realtime Function: keeps track of number of characters, words, sentences, and user standby times (time without typing) in real time from a text input and within a custom time interval. Inserts newly manipulated text data to cloud database.
 - Final Brain Features: completes access to user brain (EEG) data and preprocesses data in real time.
