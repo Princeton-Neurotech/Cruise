@@ -179,13 +179,14 @@ class braindata:
                 # notch filter to remove 60 Hz from surrounding lights
                 # DataFilter.remove_environmental_noise(np.asarray(total_brain_data[channel]), 250, 60)
                 # print(total_brain_data)
-                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22.0, 45.0, 2, FilterTypes.BESSEL.value, 0.0)
+                DataFilter.perform_bandpass(total_brain_data[channel], 
+                250, 22.0, 45.0, 2, FilterTypes.BESSEL.value, 0.0)
                 # print(total_brain_data)
             # only choose the 8 eeg channel columns
             eeg_brain_data = total_brain_data[1:9]
 
             # standardize the data
-            eeg_brain_data_stand = eeg_brain_data.values
+            eeg_brain_data_stand = eeg_brain_data
             eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data_stand)
 
             # PCA to reduce dimensionality from 5104 to low hundreds features
