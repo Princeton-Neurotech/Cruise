@@ -24,5 +24,6 @@ if __name__ == "__main__":
     while True:
         proc4 = multiprocessing.Process(target=workers.worker4)
         proc4.start()
+        print(self.global_muse_brain_data)
         time.sleep(300) # do process only every 5 min
         proc4.terminate()

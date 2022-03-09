@@ -2,9 +2,10 @@ import time
 import pandas as pd
 import numpy as np
 
-import gui_and_keyboard_features 
-import final_brain_features
+import only_keyboard_features 
+import brain_data_collection
 
+from sklearn import decomposition
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -33,19 +34,87 @@ class ml():
     def __init__(self):
         self.csv_index = 0
 
+    def process_data(self):
+            self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
+                              'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
+                              'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
+                              'std_d_h2h1_0', 'max_0', 'max_d_h2h1_0', 'max_q1_0', 'max_q2_0',
+                              'max_q3_0', 'max_q4_0', 'max_d_q1q2_0', 'max_d_q1q3_0', 'max_d_q1q4_0',
+                              'max_d_q2q3_0', 'max_d_q2q4_0', 'max_d_q3q4_0', 'min_0', 'min_d_h2h1_0',
+                              'min_q1_0', 'min_q2_0', 'min_q3_0', 'min_q4_0', 'min_d_q1q2_0',
+                              'min_d_q1q3_0', 'min_d_q1q4_0', 'min_d_q2q3_0', 'min_d_q2q4_0',
+                              'min_d_q3q4_0', 'topFreq_1_0', 'topFreq_2_0', 'topFreq_3_0',
+                              'topFreq_4_0', 'topFreq_5_0', 'topFreq_6_0', 'topFreq_7_0',
+                              'topFreq_8_0', 'topFreq_9_0', 'topFreq_10_0', 'freq_011_0',
+                              'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
+                              'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
+                              'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
+            self.brain_training_features = pd.DataFrame(columns=self.features_list)
+            # standardize the data
+            eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data)
+            print(eeg_brain_data_stand)
+
+            ml_brain = brain_data_collection.braindata()
+            # PCA to reduce dimensionality from 5104 to low hundreds features
+            pca = decomposition.PCA(n_components=8, svd_solver='full')
+            pca.fit(ml_brain.eeg_brain_data)
+            pca_eeg_brain_data = pca.transform(ml_brain.eeg_brain_data)
+
+            print("Number of features: " + str(pca.n_features_))
+            print("Number of samples: " + str(pca.n_samples_))
+            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
+
+            # correlations between a component each feature (each component is a linear combination of given features)
+            print("Correlations between each feature and each component")
+            print(pd.DataFrame(pca.components_, columns=eeg_brain_data.columns))
+
+            # number of components
+            print("Number of components selected: " + str(pca.components_.shape[0]))
+
+            # percent of variance explained by each component (descending order)
+            print(pca.explained_variance_ratio_)
+
+            if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
+                # 5104 columns, 8 channels, 638 different data computations applied
+                eeg_computations = brain_data_computations.calc_feature_vector(total_brain_data.T)
+                print(eeg_computations)
+
+                try:
+                    self.brain_training_features.columns = eeg_computations[-1]
+                except ValueError:
+                    self.brain_training_features = pd.DataFrame(columns=eeg_computations[-1])
+                self.brain_df = pd.DataFrame(columns=eeg_computations[-1])
+
+                # every 5s collect one row of data
+                if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
+                    self.is_5s = True
+                elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
+
+                    # mean of each column based on number of rows outputted every 5s
+                    mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(
+                        axis=0)
+                    # mean returns a pandas series, convert back to dataframe
+                    mean_brain_df = mean_brain.to_frame()
+                    # opposite dimensions, transpose
+                    self.transposed_mean_brain_df = mean_brain_df.T
+
+                    # append so dataframe continuously grows for 5 min
+                    self.brain_training_features.loc[len(
+                        self.brain_training_features)] = eeg_computations[0]
+                    self.is_5s = False
+                    self.row_index += 1
+                    print(self.brain_training_features)
+
     def read_csv(self):
         ml_keyboard = gui_and_keyboard_features.gui()
-        print(ml_keyboard.keyboard_training_features)
-        ml_brain = final_brain_features.braindata()
-
         self.keyboard_training_features = pd.DataFrame()
         self.brain_traning_features = pd.DataFrame()
     
         # print one row of keyboard and brain data every 5s for 5 min
-        self.keyboard_training_features = ml_keyboard.keyboard_training_features.append(ml_keyboard.keyboard_training_features)       
-        # print(self.keyboard_training_features)
-        self.brain_training_features = ml_brain.brain_training_features.append(ml_brain.brain_training_features)
-        # print(self.brain_training_features)
+        self.keyboard_training_features = ml_keyboard.only_keyboard_features.append(ml_keyboard.only_keyboard_features)       
+        print(self.keyboard_training_features)
+        self.brain_training_features = ml_brain.brain_data_collection.append(ml_brain.brain_data_collection)
+        print(self.brain_training_features)
 
         # should be 60 rows (each worth 5s) by 70 columns (7 for keyboard + 63 for brain data)
         # self.every_5_min_combined = pd.concat([every_5_min_keyboard, every_5_min_brain], axis=1)

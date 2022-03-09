@@ -14,8 +14,6 @@ from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
-import machine_learning
-
 class keyboard():
     
     def __init__(self):
@@ -40,22 +38,11 @@ class keyboard():
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
         self.training_label = []
-        # self.ml_object = machine_learning.ml()
-
-        # self.main_window = tk.Tk()
-        # self.main_window.title("Roadblocks Project")
-        # self.main_window.geometry("500x600")
-        # need to get equivalent of this in Google Docs
-        # self.input_user_prompt = tk.Text(self.main_window, width=450, height=8, font=("Times New Roman", 12), wrap="word")
-        # self.input_user_prompt.pack()
     
     def getData(self):
         return self.keyboard_training_features
 
     def realtime(self, text):
-        #with open('extracted.txt', 'r') as f:
-        #    text = [line for line in f.readlines()]
-        #    keyboard_df = pd.DataFrame(text,columns=['text'])
         charcount, sentencecount, pagecount = 0, 0, 0
         wordcount = 0
 
@@ -169,7 +156,8 @@ class keyboard():
         # self.main_window.after(5000, self.realtime)
 
         # update and return every 5s - outputs 1 row every 5s
-        return True #self.keyboard_training_features # first training set - means, maxes, sums
+        return True 
+        # self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
         # test both types of keyboard features in ml model and determine which has less error
 
