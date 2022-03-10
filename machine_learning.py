@@ -2,8 +2,9 @@ import time
 import pandas as pd
 import numpy as np
 
-import only_keyboard_features 
+# import only_keyboard_features 
 import brain_data_collection
+import brain_data_computations
 
 from sklearn import decomposition
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
@@ -13,29 +14,9 @@ from sklearn.datasets import load_iris
 
 class ml():
 
-    """
-    Initial set of 30 mins / 1 hr of training data: start out ML classifier on that 
-    Length of feature vector input: need to calculate number of rows in each dataframe
-    Append keyboard and brain data together, making sure timeframe is same so rows are equal 
-    5 mins - > input that to algorithm to predict next 5 mins 
-    @ 6 mins -> predict next 5 mins of productivity - are we retraining and predicting every 1 or 5 min?
-    Get a guesstimate for produtivity in each minute, multiply by 5 
-            
-    TRAINING:
-    Want to make predictions every 5 min
-    Use data @ time stamp x to predict word count @ x + 1
-    As one is actively working (typing), every 5 minutes, want to retrain algorithm 
-    using the batches of wordcount/brain data collected over those 5 mins 
-    slice creatively so we get lots of different feature vectors (double amount)
-
-    Our prediction is wordcount in the future (label)
-    """
-
     def __init__(self):
         self.csv_index = 0
-
-    def process_data(self):
-            self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
+        self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',
                               'mean_q4_0', 'mean_d_q1q2_0', 'mean_d_q1q3_0', 'mean_d_q1q4_0',
                               'mean_d_q2q3_0', 'mean_d_q2q4_0', 'mean_d_q3q4_0', 'std_0',
                               'std_d_h2h1_0', 'max_0', 'max_d_h2h1_0', 'max_q1_0', 'max_q2_0',
@@ -49,64 +30,64 @@ class ml():
                               'freq_021_0', 'freq_032_0', 'freq_043_0', 'freq_053_0', 'freq_064_0',
                               'freq_075_0', 'freq_085_0', 'freq_096_0', 'freq_107_0', 'freq_117_0',
                               'freq_128_0', 'freq_139_0', 'freq_149_0', 'freq_160_0']
-            self.brain_training_features = pd.DataFrame(columns=self.features_list)
+        self.brain_training_features = pd.DataFrame(columns=self.features_list)
+
+    def process_data(self):
+        ml_brain = brain_data_collection.braindata()
+
+        eeg_computations = brain_data_computations.calc_feature_vector(ml_brain.global_muse_brain_data)
+        print(eeg_computations)
+
+        """
+        try:
+            self.brain_training_features.columns = eeg_computations[-1]
+        except ValueError:
+            self.brain_training_features = pd.DataFrame(columns=eeg_computations[-1])
+        self.brain_df = pd.DataFrame(columns=eeg_computations[-1])
+
+        # every 5s collect one row of data
+        if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
+            self.is_5s = True
+        elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
+            # mean of each column based on number of rows outputted every 5s
+            mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(axis=0)
+            # mean returns a pandas series, convert back to dataframe
+            mean_brain_df = mean_brain.to_frame()
+            # opposite dimensions, transpose
+            self.transposed_mean_brain_df = mean_brain_df.T
+
+            # append so dataframe continuously grows for 5 min
+            self.brain_training_features.loc[len(self.brain_training_features)] = eeg_computations[0]
+            self.is_5s = False
+            self.row_index += 1
+            print(self.brain_training_features)
+
             # standardize the data
-            eeg_brain_data_stand = StandardScaler().fit_transform(eeg_brain_data)
+            eeg_brain_data_stand = StandardScaler().fit_transform(ml_brain.global_muse_brain_data)
             print(eeg_brain_data_stand)
 
-            ml_brain = brain_data_collection.braindata()
-            # PCA to reduce dimensionality from 5104 to low hundreds features
+            # pca to reduce dimensionality from 5104 to low hundreds features
             pca = decomposition.PCA(n_components=8, svd_solver='full')
-            pca.fit(ml_brain.eeg_brain_data)
-            pca_eeg_brain_data = pca.transform(ml_brain.eeg_brain_data)
+            pca.fit(eeg_brain_data_stand)
+            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
 
             print("Number of features: " + str(pca.n_features_))
             print("Number of samples: " + str(pca.n_samples_))
-            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
 
             # correlations between a component each feature (each component is a linear combination of given features)
             print("Correlations between each feature and each component")
-            print(pd.DataFrame(pca.components_, columns=eeg_brain_data.columns))
+            print(pd.DataFrame(pca.components_, columns=eeg_brain_data_stand.columns))
 
             # number of components
             print("Number of components selected: " + str(pca.components_.shape[0]))
 
             # percent of variance explained by each component (descending order)
             print(pca.explained_variance_ratio_)
+            """
 
-            if len(total_brain_data) != 0 and len(total_brain_data[0]) > 5:
-                # 5104 columns, 8 channels, 638 different data computations applied
-                eeg_computations = brain_data_computations.calc_feature_vector(total_brain_data.T)
-                print(eeg_computations)
-
-                try:
-                    self.brain_training_features.columns = eeg_computations[-1]
-                except ValueError:
-                    self.brain_training_features = pd.DataFrame(columns=eeg_computations[-1])
-                self.brain_df = pd.DataFrame(columns=eeg_computations[-1])
-
-                # every 5s collect one row of data
-                if (int(time.time() - self.start_time)) % 5 == 1.0 and (int(time.time() - self.start_time)) != 0:
-                    self.is_5s = True
-                elif (int(time.time() - self.start_time)) % 5 == 0.0 and (int(time.time() - self.start_time)) != 0 and self.is_5s == True:
-
-                    # mean of each column based on number of rows outputted every 5s
-                    mean_brain = self.appended_summary_brain_df.iloc[:self.appended_summary_brain_df.shape[0]].mean(
-                        axis=0)
-                    # mean returns a pandas series, convert back to dataframe
-                    mean_brain_df = mean_brain.to_frame()
-                    # opposite dimensions, transpose
-                    self.transposed_mean_brain_df = mean_brain_df.T
-
-                    # append so dataframe continuously grows for 5 min
-                    self.brain_training_features.loc[len(
-                        self.brain_training_features)] = eeg_computations[0]
-                    self.is_5s = False
-                    self.row_index += 1
-                    print(self.brain_training_features)
-
+    """
     def read_csv(self):
-        ml_keyboard = gui_and_keyboard_features.gui()
+        ml_keyboard = only_keyboard_features.gui()
         self.keyboard_training_features = pd.DataFrame()
         self.brain_traning_features = pd.DataFrame()
     
@@ -170,6 +151,7 @@ class ml():
         # print("Scores:", scores)
         # print("Mean:", scores.mean())
         # print("Standard deviation:", scores.std())
+    """
         
 """
 if __name__ == "__main__":

@@ -157,6 +157,7 @@ class braindata:
             # only choose columns 1-9 for openbci data
             openbci_brain_data = total_brain_data[1:9]
             # only choose columns 1-4 for muse data
+            # ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']
             muse_brain_data = total_brain_data[1:5]
 
             # create initial csv file for records 
@@ -167,7 +168,6 @@ class braindata:
                 DataFilter.perform_bandpass(muse_brain_data[count], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
 
             muse_brain_data_df = pd.DataFrame(muse_brain_data)
-            # print(muse_brain_data_df.T)
             self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
             print(self.global_muse_data)
 

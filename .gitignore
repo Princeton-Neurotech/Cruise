@@ -2,3 +2,5 @@ node_modules
 
 # Ignore .DS_Store files (user-specific folder attributes for macs)
 .*\.DS_Store
+node_modules
+node_modules

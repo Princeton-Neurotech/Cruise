@@ -57,6 +57,5 @@ class selenium():
                             kb.getData()
                             sleep(5)
 
-
         driver.close()
 

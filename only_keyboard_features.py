@@ -2,7 +2,6 @@ import time
 from typing import final
 import pandas as pd
 import numpy as np
-#import tkinter as tk
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 
@@ -151,22 +150,12 @@ class keyboard():
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         print(self.training_label)
 
-        # call realtime() every 5s
-        # NEED TO CALL THIS EVERY 5S WITHOUT BEING CONNECTED TO GUI
-        # self.main_window.after(5000, self.realtime)
-
-        # update and return every 5s - outputs 1 row every 5s
         return True 
+        # test both types of keyboard features in ml model and determine which has less error
         # self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
-        # test both types of keyboard features in ml model and determine which has less error
 
-
-#if __name__ == '__main__':
-#    keyboard1 = keyboard()
-    # main processing function
-#    keyboard1.realtime()
-
-    # main loop blocks code from continuing past this line
-    # ie code in class runs and doesn't finish until exit using interface or command line
-    #keyboard1.main_window.mainloop()
+# if __name__ == '__main__':
+    # keyboard1 = keyboard()
+    # keyboard1.getData()
+    # keyboard1.realtime()

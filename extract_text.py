@@ -9,7 +9,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os 
-# import only_keyboard_features
+import only_keyboard_features
 
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'

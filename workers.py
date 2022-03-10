@@ -1,4 +1,4 @@
-import gui_and_keyboard_features
+import only_keyboard_features
 import brain_data_collection
 import machine_learning
 import web_interface
@@ -19,7 +19,8 @@ def worker3():
  
 def worker4():
     myml = machine_learning.ml()
-    myml.read_csv()
+    myml.process_data()
+    # myml.read_csv()
     # myml.add_training_data()
     # myml.train_model()
     # myml.predict()
