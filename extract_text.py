@@ -14,7 +14,7 @@ import only_keyboard_features
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 
-#DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
+# DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
 
 class textExtractor():
     
@@ -95,6 +95,5 @@ class textExtractor():
         text = self.read_strucutural_elements(doc_content)
                
         return text
-        
 
     #    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

@@ -37,6 +37,8 @@ class keyboard():
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
         self.training_label = []
+
+        self.text = ''
     
     def getData(self):
         return self.keyboard_training_features

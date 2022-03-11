@@ -17,6 +17,7 @@ warnings.filterwarnings('ignore')
 class braindata:
 
     def __init__(self, boardID=38, serial='dev/cu.usbserial-DM03H3ZF'):
+        self.global_muse_data = pd.DataFrame()
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
@@ -26,7 +27,9 @@ class braindata:
         # self.params.other_info = 0 # board id of headset used in file
         # self.params.file = 'OpenBCI-RAW-2021-10-31_13-45-28' # file name
         self.board = BoardShim(self.myBoardID, self.params)
-        self.global_muse_data = pd.DataFrame()
+
+    def define_global_muse_data(self):
+        return self.global_muse_data
 
     def startStream(self):
         """

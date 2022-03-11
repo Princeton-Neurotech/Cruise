@@ -34,9 +34,11 @@ class ml():
 
     def process_data(self):
         ml_brain = brain_data_collection.braindata()
+        ml_brain.collectData()
+        print(ml_brain.global_muse_data)
 
-        eeg_computations = brain_data_computations.calc_feature_vector(ml_brain.global_muse_brain_data)
-        print(eeg_computations)
+        # eeg_computations = brain_data_computations.calc_feature_vector(ml_brain.global_muse_brain_data)
+        # print(eeg_computations)
 
         """
         try:
