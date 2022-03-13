@@ -14,6 +14,6 @@ Cruise utilizes user keyboard text input and EEG brain data to increase writing 
 - Web Interface: sets flickering in a Google Docs document and initiates running data processes for text and brain data collection.
 - Extract Text: completes access of user text input data from Google Docs API in real time.
 - Realtime Function: keeps track of number of characters, words, sentences, and user standby times (time without typing) in real time from a text input and within a custom time interval. Inserts newly manipulated text data to cloud database.
-- Final Brain Features: completes access to user brain (EEG) data and preprocesses data in real time.
+- Brain Data Collection: completes access to user EEG brain data and preprocesses data in real time, applying filters to remove artifacts
 - Brain Data Computations: calculates summary statistics for each channel, from an EEG data matrix with a custom number of samples. Examples include: mean, standard deviation, skewness, kurtosis, maximum, minimum, covariance matrix, eigenvalues of covariance matrix, and fft. Inserts newly manipulated EEG data to cloud database.
 - Machine Learning: constantly predicts if the user will hit customly predefined definition of roadblock. Recurrently fits machine learning model using joined keyboard text and EEG data. 
