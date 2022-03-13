@@ -3,12 +3,10 @@ from sklearn.preprocessing import StandardScaler
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels
 from brainflow.data_filter import DataFilter
-import brainflow
-import brain_data_computations
 import time
 import numpy as np
 import pandas as pd
-from scipy import signal
+import argparse
 
 from sys import exit
 import warnings
@@ -17,19 +15,51 @@ warnings.filterwarnings('ignore')
 class braindata:
 
     def __init__(self, boardID=38, serial='dev/cu.usbserial-DM03H3ZF'):
+        self.global_total_brain_data = pd.DataFrame()
         self.global_muse_data = pd.DataFrame()
+
         self.isRunning = False
         self.myBoardID = boardID
         BoardShim.enable_dev_board_logger()
-        self.params = BrainFlowInputParams()
-        self.params.serial_port = serial
+        parser = argparse.ArgumentParser()
+        # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+        parser.add_argument('--timeout', type=int, help='timeout for device discovery or connection', required=False,
+                            default=0)
+        parser.add_argument('--ip-port', type=int, help='ip port', required=False, default=0)
+        parser.add_argument('--ip-protocol', type=int, help='ip protocol, check IpProtocolType enum', required=False,
+                            default=0)
+        parser.add_argument('--ip-address', type=str, help='ip address', required=False, default='')
+        parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='COM3')
+        parser.add_argument('--mac-address', type=str, help='mac address', required=False, default='')
+        parser.add_argument('--other-info', type=str, help='other info', required=False, default='')
+        parser.add_argument('--streamer-params', type=str, help='streamer params', required=False, default='')
+        parser.add_argument('--serial-number', type=str, help='serial number', required=False, default='')
+        # parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
+                            # required=False, default=boardID.MUSE2)
+        parser.add_argument('--file', type=str, help='file', required=False, default='')
+        args = parser.parse_args()
+        params = BrainFlowInputParams()
+        params.ip_port = args.ip_port
+        params.serial_port = args.serial_port
+        params.mac_address = args.mac_address
+        params.other_info = args.other_info
+        params.serial_number = args.serial_number
+        params.ip_address = args.ip_address
+        params.ip_protocol = args.ip_protocol
+        params.timeout = args.timeout
+        params.file = args.file
+        # self.params = BrainFlowInputParams()
+        # self.params.serial_port = serial
         # parameters for playing back a file
         # self.params.other_info = 0 # board id of headset used in file
         # self.params.file = 'OpenBCI-RAW-2021-10-31_13-45-28' # file name
-        self.board = BoardShim(self.myBoardID, self.params)
+        self.board = BoardShim(self.myBoardID, params)
 
     def define_global_muse_data(self):
         return self.global_muse_data
+    
+    def define_global_total_brain_data(self):
+        return self.global_total_brain_data
 
     def startStream(self):
         """
@@ -149,7 +179,7 @@ class braindata:
         self.myBoardID = boardID
 
     def collectData(self):
-        myBoard = braindata(38, 'dev/cu.usbserial-DM03H3ZF')
+        myBoard = braindata(-1)
 
         for i in range (0, 10000000):
             eeg_channels = braindata.getEEGChannels(self)
@@ -168,15 +198,19 @@ class braindata:
 
             for count, channel in enumerate(eeg_channels):
                 # bandpass filter to remove any other existing artifacts
-                DataFilter.perform_bandpass(muse_brain_data[count], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
+                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
 
-            muse_brain_data_df = pd.DataFrame(muse_brain_data)
-            self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
-            print(self.global_muse_data)
+            total_brain_data_df = pd.DataFrame(total_brain_data)
+            self.global_total_brain_data = pd.concat([self.global_total_brain_data, total_brain_data_df.T])
+            print(self.global_total_brain_data)
+
+            # muse_brain_data_df = pd.DataFrame(muse_brain_data)
+            # self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
+            # print(self.global_muse_data)
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
-    myBoard = braindata(38, 'dev/cu.usbserial-DM03H3ZF')
+    myBoard = braindata(-1)
     myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
