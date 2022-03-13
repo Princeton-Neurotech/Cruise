@@ -33,11 +33,9 @@ class ml():
         self.brain_training_features = pd.DataFrame(columns=self.features_list)
 
     def process_data(self):
-        ml_brain = brain_data_collection.braindata()
-        ml_brain.collectData()
-        print(ml_brain.global_muse_data)
+        print(brain_data_collection.global_muse_data)
 
-        # eeg_computations = brain_data_computations.calc_feature_vector(ml_brain.global_muse_brain_data)
+        # eeg_computations = brain_data_computations.calc_feature_vector(brain_data_collection.global_muse_data)
         # print(eeg_computations)
 
         """

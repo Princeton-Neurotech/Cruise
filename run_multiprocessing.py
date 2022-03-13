@@ -1,38 +1,37 @@
 import multiprocessing
-import workers
+from workers import *
 import sys
 import time
 import brain_data_collection
+import machine_learning
 import brainflow
 
 # increase recursion limit
-sys.setrecursionlimit(15000)
+# sys.setrecursionlimit(15000)
  
 if __name__ == "__main__":
-    multiprocessing_brain = brain_data_collection.braindata(-1)
-    process2 = True
-    # daemon process will run forever normally
-    # subprocess is automatically terminated after the parent process ends to prevent orphan processes
-    # aka kills all subprocesses
-
-    # keyboard - run at all times
-    proc1 = multiprocessing.Process(target=workers.worker1)
-    proc1.daemon = True
-    # brain - only run once w issues w muse port
-    if process2:
-        proc2 = multiprocessing.Process(target=workers.worker2)
-        process2 = False
-    # google docs - run at all times
+    myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+    multiprocessing_ml  = machine_learning.ml()
+    """
+        proc1 = multiprocessing.Process(target=workers.worker1)
+        proc1.start() 
+        proc1.terminate()
+        
+    """
     # proc3 = multiprocessing.Process(target=workers.worker3)
     # proc3.daemon = True 
-
-    proc1.start() 
-    proc2.start()
     # proc3.start()
 
-    while True:
-        proc4 = multiprocessing.Process(target=workers.worker4)
-        proc4.start()
-        print(multiprocessing_brain.define_global_total_brain_data())
-        time.sleep(10) # do process only every 5 min
-        proc4.terminate()
+    proc2 = multiprocessing.Process(target=worker2(myBoard))
+    proc2.start()
+    time.sleep(5)
+    # myBoard.collectData(myBoard)
+    # myBoard.define_global_muse_data()
+
+    # ml process
+    proc4 = multiprocessing.Process(target=worker4)
+    proc4.start()
+    multiprocessing_ml.process_data()
+    
+    proc2.terminate()
+    proc4.terminate()

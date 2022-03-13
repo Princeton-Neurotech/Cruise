@@ -57,9 +57,6 @@ class braindata:
 
     def define_global_muse_data(self):
         return self.global_muse_data
-    
-    def define_global_total_brain_data(self):
-        return self.global_total_brain_data
 
     def startStream(self):
         """
@@ -178,8 +175,8 @@ class braindata:
         """
         self.myBoardID = boardID
 
-    def collectData(self):
-        myBoard = braindata(-1)
+    def collectData(self, myBoard):
+        # myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
 
         for i in range (0, 10000000):
             eeg_channels = braindata.getEEGChannels(self)
@@ -194,25 +191,21 @@ class braindata:
             muse_brain_data = total_brain_data[1:5]
 
             # create initial csv file for records 
-            np.savetxt('brain.csv', muse_brain_data.T, delimiter=",")
+            # np.savetxt('brain.csv', muse_brain_data.T, delimiter=",")
 
             for count, channel in enumerate(eeg_channels):
                 # bandpass filter to remove any other existing artifacts
-                DataFilter.perform_bandpass(total_brain_data[channel], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
+                DataFilter.perform_bandpass(muse_brain_data[count], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
 
-            total_brain_data_df = pd.DataFrame(total_brain_data)
-            self.global_total_brain_data = pd.concat([self.global_total_brain_data, total_brain_data_df.T])
-            print(self.global_total_brain_data)
-
-            # muse_brain_data_df = pd.DataFrame(muse_brain_data)
-            # self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
+            muse_brain_data_df = pd.DataFrame(muse_brain_data)
+            self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
             # print(self.global_muse_data)
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
-if __name__ == "__main__":
-    myBoard = braindata(-1)
-    myBoard.startStream()
+# if __name__ == "__main__":
+    # myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+    # myBoard.startStream()
     # myBoard.getSamplingRate()
     # myBoard.getEEGChannels()
-    myBoard.collectData()
+    # myBoard.collectData(myBoard)
     # myBoard.stopStream()
