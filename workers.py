@@ -12,8 +12,9 @@ def worker1():
 def worker2(myBoard):
     # myBoard = brain_data_collection.braindata(38, '/dev/cu.usbserial-DM03H3ZF')
     myBoard.startStream()
-    myBoard.collectData(myBoard)
-    myBoard.define_global_muse_data()
+    while(True):
+        myBoard.collectData(myBoard)
+        print(myBoard.define_global_muse_data())
 
 # def worker3():
     # myselenium = web_interface.selenium()

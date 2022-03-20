@@ -174,38 +174,36 @@ class braindata:
         :param boardID: -1 for Synth, 0 for Cyton, 22 for MUSE2
         """
         self.myBoardID = boardID
-
+ 
     def collectData(self, myBoard):
         # myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+        eeg_channels = braindata.getEEGChannels(self)
 
-        for i in range (0, 10000000):
-            eeg_channels = braindata.getEEGChannels(self)
+        # get all columns of raw data for 5s time period
+        total_brain_data = myBoard.getCurrentData(1)
 
-            # get all columns of raw data for 5s time period
-            total_brain_data = myBoard.getCurrentData(1)
+        # only choose columns 1-9 for openbci data
+        openbci_brain_data = total_brain_data[1:9]
+        # only choose columns 1-4 for muse data
+        # ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']
+        muse_brain_data = total_brain_data[1:5]
 
-            # only choose columns 1-9 for openbci data
-            openbci_brain_data = total_brain_data[1:9]
-            # only choose columns 1-4 for muse data
-            # ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']
-            muse_brain_data = total_brain_data[1:5]
+        # create initial csv file for records 
+        # np.savetxt('brain.csv', muse_brain_data.T, delimiter=",")
 
-            # create initial csv file for records 
-            # np.savetxt('brain.csv', muse_brain_data.T, delimiter=",")
+        for count, channel in enumerate(eeg_channels):
+            # bandpass filter to remove any other existing artifacts
+            DataFilter.perform_bandpass(muse_brain_data[count], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
 
-            for count, channel in enumerate(eeg_channels):
-                # bandpass filter to remove any other existing artifacts
-                DataFilter.perform_bandpass(muse_brain_data[count], 250, 22, 45, 2, FilterTypes.BESSEL.value, 0)
-
-            muse_brain_data_df = pd.DataFrame(muse_brain_data)
-            self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
-            # print(self.global_muse_data)
+        muse_brain_data_df = pd.DataFrame(muse_brain_data)
+        self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
+            #print(self.global_muse_data)
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
-# if __name__ == "__main__":
-    # myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
-    # myBoard.startStream()
-    # myBoard.getSamplingRate()
-    # myBoard.getEEGChannels()
-    # myBoard.collectData(myBoard)
-    # myBoard.stopStream()
+#if __name__ == "__main__":
+#    myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+#    myBoard.startStream()
+#    myBoard.getSamplingRate()
+#    myBoard.getEEGChannels()
+#    myBoard.collectData(myBoard)
+#    myBoard.stopStream()
