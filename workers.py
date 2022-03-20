@@ -9,12 +9,13 @@ def worker1():
     keyboard1.getData()
     keyboard1.realtime(keyboard1.text)
  
-def worker2(myBoard):
+def worker2(myBoard, dataframe):
     # myBoard = brain_data_collection.braindata(38, '/dev/cu.usbserial-DM03H3ZF')
     myBoard.startStream()
     while(True):
         myBoard.collectData(myBoard)
-        print(myBoard.define_global_muse_data())
+        dataframe = myBoard.define_global_muse_data()
+        print(dataframe)
 
 # def worker3():
     # myselenium = web_interface.selenium()
