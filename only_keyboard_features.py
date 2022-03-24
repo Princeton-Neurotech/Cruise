@@ -39,9 +39,6 @@ class keyboard():
         self.training_label = []
 
         self.text = ''
-    
-    def getData(self):
-        return self.keyboard_training_features
 
     def realtime(self, text):
         charcount, sentencecount, pagecount = 0, 0, 0
@@ -137,7 +134,7 @@ class keyboard():
 
         # concatenate rows so dataframe is continuous
         self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
-        print(self.keyboard_training_features)
+        # print(self.keyboard_training_features)
         
         self.row_index += 1
 
@@ -150,9 +147,9 @@ class keyboard():
 
         # label is sum of all future data
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
-        print(self.training_label)
+        # print(self.training_label)
 
-        return True 
+        return self.keyboard_training_features
         # test both types of keyboard features in ml model and determine which has less error
         # self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
