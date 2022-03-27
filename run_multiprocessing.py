@@ -60,5 +60,5 @@ def getBrainDf() :
     
     proc1.terminate()
     proc2.terminate()
-    return(mean_brain_df)
+    return mean_brain_df
     #proc4.terminate()
