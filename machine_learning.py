@@ -5,8 +5,10 @@ import numpy as np
 # import only_keyboard_features 
 import brain_data_collection
 import brain_data_computations
+import run_multiprocessing
 
 from sklearn import decomposition
+from sklearn import preprocessing
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -33,11 +35,10 @@ class ml():
         self.brain_training_features = pd.DataFrame(columns=self.features_list)
 
     def process_data(self):
-        print(brain_data_collection.global_muse_data)
 
-        eeg_computations = brain_data_computations.calc_feature_vector(brain_data_collection.global_muse_data)
-        # print(eeg_computations)
+        eeg_data = brain_data_computations.calc_feature_vector(run_multiprocessing.getBrainDf)
 
+        # not relevant anymore
         """
         try:
             self.brain_training_features.columns = eeg_computations[-1]
@@ -61,29 +62,29 @@ class ml():
             self.is_5s = False
             self.row_index += 1
             print(self.brain_training_features)
+        """
+        # standardize the data
+        eeg_brain_data_stand = preprocessing.StandardScaler().fit_transform(eeg_data)
+        print(eeg_brain_data_stand)
 
-            # standardize the data
-            eeg_brain_data_stand = StandardScaler().fit_transform(ml_brain.global_muse_brain_data)
-            print(eeg_brain_data_stand)
+        # pca to reduce dimensionality from 5104 to low hundreds features
+        pca = decomposition.PCA(n_components=8, svd_solver='full')
+        pca.fit(eeg_brain_data_stand)
+        pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
 
-            # pca to reduce dimensionality from 5104 to low hundreds features
-            pca = decomposition.PCA(n_components=8, svd_solver='full')
-            pca.fit(eeg_brain_data_stand)
-            pca_eeg_brain_data = pca.transform(eeg_brain_data_stand)
+        print("Number of features: " + str(pca.n_features_))
+        print("Number of samples: " + str(pca.n_samples_))
 
-            print("Number of features: " + str(pca.n_features_))
-            print("Number of samples: " + str(pca.n_samples_))
+        # correlations between a component each feature (each component is a linear combination of given features)
+        print("Correlations between each feature and each component")
+        print(pd.DataFrame(pca.components_, columns=eeg_brain_data_stand.columns))
 
-            # correlations between a component each feature (each component is a linear combination of given features)
-            print("Correlations between each feature and each component")
-            print(pd.DataFrame(pca.components_, columns=eeg_brain_data_stand.columns))
+        # number of components
+        print("Number of components selected: " + str(pca.components_.shape[0]))
 
-            # number of components
-            print("Number of components selected: " + str(pca.components_.shape[0]))
-
-            # percent of variance explained by each component (descending order)
-            print(pca.explained_variance_ratio_)
-            """
+        # percent of variance explained by each component (descending order)
+        print(pca.explained_variance_ratio_)
+            
 
     """
     def read_csv(self):
@@ -151,9 +152,9 @@ class ml():
         # print("Scores:", scores)
         # print("Mean:", scores.mean())
         # print("Standard deviation:", scores.std())
-    """
+
         
-"""
+
 if __name__ == "__main__":
     myml = ml()
     # myml.add_raw_data()
