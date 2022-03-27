@@ -11,7 +11,7 @@ from multiprocessing import Manager
 # increase recursion limit
 # sys.setrecursionlimit(15000)
  
-if __name__ == "__main__":
+def getBrainDf() :
     myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
     keyboard1 = keyboard()
     #multiprocessing_ml  = machine_learning.ml()
@@ -60,4 +60,5 @@ if __name__ == "__main__":
     
     proc1.terminate()
     proc2.terminate()
+    return(mean_brain_df)
     #proc4.terminate()
