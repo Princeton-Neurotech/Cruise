@@ -2,17 +2,14 @@ import time
 import pandas as pd
 import numpy as np
 
-# import only_keyboard_features 
-import brain_data_collection
-import brain_data_computations
-import run_multiprocessing
-
 from sklearn import decomposition
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.datasets import load_iris
+
+import brain_data_computations
 
 class ml():
 
@@ -154,8 +151,6 @@ class ml():
         # print("Scores:", scores)
         # print("Mean:", scores.mean())
         # print("Standard deviation:", scores.std())
-
-        
 
 if __name__ == "__main__":
     myml = ml()
