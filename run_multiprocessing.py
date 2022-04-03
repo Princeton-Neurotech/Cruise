@@ -12,16 +12,16 @@ from scipy.stats import linregress
 # increase recursion limit
 # sys.setrecursionlimit(15000)
  
-if __name__ == "__main__":
-    myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
-    keyboard1 = keyboard()
+
+myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+keyboard1 = keyboard()
     #multiprocessing_ml  = machine_learning.ml()
     
-    mgr = Manager()
-    ns = mgr.Namespace()
+mgr = Manager()
+ns = mgr.Namespace()
     
-    proc1 = multiprocessing.Process(target=worker1, args=(keyboard1, ns))
-    proc1.start() 
+proc1 = multiprocessing.Process(target=worker1, args=(keyboard1, ns))
+proc1.start() 
     # for i in range(30):
     #    time.sleep(5)
     #    print(ns.keyboard_df)
@@ -65,11 +65,11 @@ if __name__ == "__main__":
     # opposite dimensions, transpose
     # transposed_mean_brain_df = mean_brain_df.T
 
-    # ml process
-    # proc4 = multiprocessing.Process(target=worker4)
-    # proc4.start()
-    #multiprocessing_ml.process_data()
+# ml process
+# proc4 = multiprocessing.Process(target=worker4)
+# proc4.start()
+#multiprocessing_ml.process_data()
     
-    proc1.terminate()
-    proc2.terminate()
-    #proc4.terminate()
+proc1.terminate()
+proc2.terminate()
+#proc4.terminate()
