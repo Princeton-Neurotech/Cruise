@@ -9,15 +9,14 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os 
-import only_keyboard_features
 
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 
 # DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
 
-class textExtractor():
-    
+class textExtractor:
+
     def get_credentials(self):
         """Gets valid user credentials from storage.co
         If nothing has been stored, or if the stored credentials are invalid,
@@ -43,7 +42,7 @@ class textExtractor():
             # Save the credentials for the next run
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
-        return creds
+            return creds
 
     def read_paragraph_element(self, element):
         """Returns the text in the given ParagraphElement.
@@ -87,13 +86,13 @@ class textExtractor():
         """Uses the Docs API to print out the text of a document."""
         credentials = self.get_credentials()
         docs_service = discovery.build('docs', 'v1', credentials=credentials, discoveryServiceUrl=DISCOVERY_DOC)
-        
+            
         doc = docs_service.documents().get(documentId=documentID).execute()
         doc_content = doc.get('body').get('content')
-        
+            
         # Outputs: String 
         text = self.read_strucutural_elements(doc_content)
-               
+                
         return text
 
-    #    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

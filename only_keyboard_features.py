@@ -13,6 +13,8 @@ from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
+from extract_text import *
+
 class keyboard():
     
     def __init__(self):
@@ -33,7 +35,7 @@ class keyboard():
         self.history_standby = []
         self.history_features = []
         self.history_dffeatures = []
-
+        
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
         self.training_label = []
@@ -154,7 +156,7 @@ class keyboard():
         # self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
 
-# if __name__ == '__main__':
-    # keyboard1 = keyboard()
-    # keyboard1.getData()
-    # keyboard1.realtime()
+if __name__ == '__main__':
+    keyboard1 = keyboard()
+    textExtractor1 = textExtractor()
+    keyboard1.realtime(textExtractor1.retrieveText("1uq8Q5iMNyO8zXoCpHj1CQ0b-D48kYQmNNVYA8ywXEVc"))

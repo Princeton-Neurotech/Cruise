@@ -197,13 +197,14 @@ class braindata:
 
         muse_brain_data_df = pd.DataFrame(muse_brain_data)
         self.global_muse_data = pd.concat([self.global_muse_data, muse_brain_data_df.T])
-            #print(self.global_muse_data)
+        # print(self.global_muse_data)
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
-#if __name__ == "__main__":
-#    myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
-#    myBoard.startStream()
-#    myBoard.getSamplingRate()
-#    myBoard.getEEGChannels()
-#    myBoard.collectData(myBoard)
-#    myBoard.stopStream()
+if __name__ == "__main__":
+    myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+    myBoard.startStream()
+    myBoard.getSamplingRate()
+    myBoard.getEEGChannels()
+    myBoard.collectData(myBoard)
+    myBoard.define_global_muse_data()
+    # myBoard.stopStream()

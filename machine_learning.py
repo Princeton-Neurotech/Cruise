@@ -33,10 +33,10 @@ class ml():
         self.brain_training_features = pd.DataFrame(columns=self.features_list)
 
     def process_data(self):
-        print(brain_data_collection.global_muse_data)
+        # print(brain_data_collection.global_muse_data)
 
         eeg_computations = brain_data_computations.calc_feature_vector(brain_data_collection.global_muse_data)
-        # print(eeg_computations)
+        print(eeg_computations)
 
         """
         try:
