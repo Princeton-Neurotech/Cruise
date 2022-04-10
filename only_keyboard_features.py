@@ -122,10 +122,10 @@ class keyboard():
         # take a rolling computation where 1st row would be computations of that row, 2nd row would be 1st and 
         # 2nd, 3rd so on until the last row, for example, is  mean of the last 60 rows
         for col in self.features_list:
-            if col == "wordcount" or col == "sentencecount":
+            if col == "wordcount" or col == "sentencecount" or "standby":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).mean() 
-            elif col == "standby":
-                self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(60, min_periods=1).max()
+            # elif col == "standby":
+            #     self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(60, min_periods=1).max()
             elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).sum() 
         
@@ -159,4 +159,5 @@ class keyboard():
 if __name__ == '__main__':
     keyboard1 = keyboard()
     textExtractor1 = textExtractor()
+    # testing for web interface
     keyboard1.realtime(textExtractor1.retrieveText("1uq8Q5iMNyO8zXoCpHj1CQ0b-D48kYQmNNVYA8ywXEVc"))

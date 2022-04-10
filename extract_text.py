@@ -8,6 +8,7 @@ from oauth2client import client,file,tools
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from googleapiclient.errors import HttpError
 import os 
 
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
@@ -32,7 +33,7 @@ class textExtractor:
         if os.path.exists('token.json'):
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
         # If there are no (valid) credentials available, let the user log in.
-        else:
+        if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
@@ -42,7 +43,13 @@ class textExtractor:
             # Save the credentials for the next run
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
-            return creds
+        try:
+            docs_service = discovery.build('docs', 'v1', credentials=creds, discoveryServiceUrl=DISCOVERY_DOC)
+        except HttpError as err:
+            print(err)
+        
+        return docs_service
+        
 
     def read_paragraph_element(self, element):
         """Returns the text in the given ParagraphElement.
@@ -77,22 +84,17 @@ class textExtractor:
                     for cell in cells:
                         text += self.read_strucutural_elements(cell.get('content'))
             elif 'tableOfContents' in value:
-                # The text in the TOC is also in a Structural Element.
+               # The text in the TOC is also in a Structural Element.
                 toc = value.get('tableOfContents')
                 text += self.read_strucutural_elements(toc.get('content'))
         return text
 
-    def retrieveText(self, documentID):
-        """Uses the Docs API to print out the text of a document."""
-        credentials = self.get_credentials()
-        docs_service = discovery.build('docs', 'v1', credentials=credentials, discoveryServiceUrl=DISCOVERY_DOC)
-            
+    def retrieveText(self, documentID, docs_service):
+        """Uses the Docs API to print out the text of a document."""    
         doc = docs_service.documents().get(documentId=documentID).execute()
         doc_content = doc.get('body').get('content')
-            
         # Outputs: String 
         text = self.read_strucutural_elements(doc_content)
-                
         return text
 
     # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

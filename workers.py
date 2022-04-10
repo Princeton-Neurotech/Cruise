@@ -1,18 +1,35 @@
 from only_keyboard_features import *
 from brain_data_collection import *
-# import web_interface
-import pandas
+import only_keyboard_features
+import web_interface
+import pandas as pd
 
-def worker1(keyboard1):
+# keyboard functions
+def worker1(keyboard1, namespace):
+    print("starting keyboard data collection")
+    keyboard1 = keyboard()
     while True:
-        keyboard1.realtime(keyboard1.text) 
+        namespace.keyboard = keyboard1.realtime(keyboard1.text) 
+        print(namespace.keyboard)
  
-def worker2(myBoard):
+ # brain data functions
+def worker2(board, namespace):
+    print("starting brain data collection")
     # myBoard = brain_data_collection.braindata(38, '/dev/cu.usbserial-DM03H3ZF')
-    myBoard.startStream()
-    while(True):
-        myBoard.collectData(myBoard)
-        myBoard.define_global_muse_data()
-
-# def worker3():
- #    myselenium = web_interface.selenium()
+    try:
+        board.startStream()
+    except:
+        print("Stream not started")
+         
+    for i in range(10):
+        board.collectData(board)        
+        namespace.brain = board.define_global_muse_data()
+        # print(namespace.brain)
+    
+# web interface functions
+def worker3(mySelenium, myUID):
+    while True:
+        text = mySelenium.processSelenium(myUID)
+        time.sleep(5)
+        pd.options.display.max_columns = None
+        print(text.tail())

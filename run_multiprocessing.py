@@ -5,43 +5,22 @@ import matplotlib.pyplot as plt
 import sys
 import time
 import brain_data_collection
-# import machine_learning
 import brainflow
 import pandas
-# from multiprocessing import Manager
+from multiprocessing import Manager
 # from scipy.stats import linregress
 # increase recursion limit
 # sys.setrecursionlimit(15000)
  
-# if __name__ == "__main__":
-#   freeze_support
+# def keyboard_process():
+#  proc1 = multiprocessing.Process(target=worker1)
+#  proc1.start() 
 
-myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
-# keyboard1 = keyboard()
-# multiprocessing_ml  = machine_learning.ml()
-    
-# mgr = Manager()
-# ns = mgr.Namespace()
-    
-# proc1 = multiprocessing.Process(target=worker1)
-# proc1.start() 
-# for i in range(30):
-#  time.sleep(5)
-#  print(ns.keyboard_df)
-
-"""     
-proc3 = multiprocessing.Process(target=worker3)
-# proc3.daemon = True 
-proc3.start()
-for i in range(30):
-  time.sleep(5)
-  print(ns.keyboard_training_feaures)
+# def brain_data_process(board,ns):
+#  proc2 = multiprocessing.Process(target=worker2, args=(board,ns))
+#  proc2.start()
 """
- 
-proc2 = multiprocessing.Process(target=worker2)
-proc2.start()
-print(myBoard.global_muse_data)
-"""
+to determine timing to concatenate dataframes
 brain_points = []
 keyboard_points = []
 timescale = []
@@ -63,6 +42,30 @@ plt.show()
 # plt.legend()
 """
 
+def interface_process():    
+  proc3 = multiprocessing.Process(target=worker3, args=[mySelenium, myUID])
+  proc3.start()
+
+if __name__ == "__main__":
+  mySelenium = web_interface.selenium()
+  myList = mySelenium.connectSelenium()
+  myUID = myList[0]
+  myDriver = myList[1]
+  interface_process()
+  mySelenium.closeSelenium(myDriver)
+  
+# freeze_support()
+# myBoard = brain_data_collection.braindata(38, "/dev/cu.usbserial-DM03H3ZF")
+# mgr = Manager()
+# ns = mgr.Namespace()
+# need to have filled dataframe that we will later replace its values 
+# ns.brain = pd.DataFrame(np.zeros((1,4)))
+# print(ns.brain)
+# brain_data_process(myBoard, ns)
+# while True:
+#   print(ns.brain)
+
+# to decrease number of rows of brain data since # points of brain data > # points keyboard data
 # rolling mean of 256 rows because sampling rate is 256 and getting keyboard data every 1s
 # mean_brain = myBoard.brain_df.rolling(256, min_periods=1).mean() 
 # mean returns a pandas series, convert back to dataframe
@@ -70,12 +73,3 @@ plt.show()
 # print(mean_brain_df)
 # opposite dimensions, transpose
 # transposed_mean_brain_df = mean_brain_df.T
-
-# ml process
-# proc4 = multiprocessing.Process(target=worker4)
-# proc4.start()
-#multiprocessing_ml.process_data()
-    
-# proc1.terminate()
-proc2.terminate()
-#proc4.terminate()

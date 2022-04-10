@@ -203,8 +203,8 @@ class braindata:
 if __name__ == "__main__":
     myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
     myBoard.startStream()
-    myBoard.getSamplingRate()
-    myBoard.getEEGChannels()
+    # myBoard.getSamplingRate()
+    # myBoard.getEEGChannels()
     myBoard.collectData(myBoard)
     myBoard.define_global_muse_data()
     # myBoard.stopStream()

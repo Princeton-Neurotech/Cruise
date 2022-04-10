@@ -9,6 +9,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.datasets import load_iris
 
+import brain_data_collection
 import brain_data_computations
 
 class ml():
@@ -63,7 +64,7 @@ class ml():
             print(self.brain_training_features)
         """
         # standardize the data
-        eeg_brain_data_stand = preprocessing.StandardScaler().fit_transform(eeg_data)
+        eeg_brain_data_stand = preprocessing.StandardScaler().fit_transform(eeg_computations)
         print(eeg_brain_data_stand)
 
         # pca to reduce dimensionality from 5104 to low hundreds features
