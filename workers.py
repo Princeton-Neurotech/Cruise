@@ -33,3 +33,13 @@ def worker3(mySelenium, myUID):
         time.sleep(5)
         pd.options.display.max_columns = None
         print(text.tail())
+
+def worker4():
+    tm = 5400 # 5400, 9000
+    while(tm <= 5400):
+        mint = tm / 60
+        hrs = mint/60
+        sec = tm % 60
+        print("time left --> {}:{}:{}".format(hrs,mint,sec))
+        tm+=1
+        time.sleep(1)
