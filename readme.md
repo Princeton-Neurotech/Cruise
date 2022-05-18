@@ -13,5 +13,5 @@ Cruise utilizes user keyboard text input and pupil dilation data to increase wri
 - Web Interface: initiates Chrome web browser for text data collection from a Google Docs.
 - Extract Text: completes access of user text input data from Google Docs API in real time.
 - Realtime Function: calculates number of characters, words, sentences, and user standby times (time without typing) in real time from a text input and within a custom time interval. Inserts newly manipulated text data to cloud database.
-- Brain Data Collection: accesses user pupil dilation data and preprocesses data in real time
+- Pupil Dilation Data Collection: accesses user pupil dilation data and preprocesses data in real time
 - Machine Learning: applies Principal Component Analysis to reduce dimensionality of features. Uses an existent generalized model developed from a set of baseline users and regularly improves upon this model through fitting it with user keyboard text and pupil dilation data using one-shot learning, making the model more user-specific overtime. Periodically predicts if the user will hit customly predefined definition of roadblock. 
