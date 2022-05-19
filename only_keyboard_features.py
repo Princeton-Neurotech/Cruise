@@ -136,7 +136,7 @@ class keyboard():
 
         # concatenate rows so dataframe is continuous
         self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
-        # print(self.keyboard_training_features)
+        print(self.keyboard_training_features)
         
         self.row_index += 1
 
