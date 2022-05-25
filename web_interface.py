@@ -11,6 +11,7 @@ class selenium():
     kb = only_keyboard_features.keyboard()
     extractor = extract_text.textExtractor()
     docs_service = extractor.get_credentials()
+    print(docs_service)
         
     def connectSelenium(self):
         s=Service(ChromeDriverManager().install())
@@ -47,4 +48,3 @@ class selenium():
 
     def closeSelenium(self, driver):
         driver.close()
-

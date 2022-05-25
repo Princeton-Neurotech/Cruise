@@ -14,9 +14,9 @@ from sklearn import preprocessing
 # increase recursion limit
 # sys.setrecursionlimit(15000)
  
-# def keyboard_process():
-#  proc1 = multiprocessing.Process(target=worker1)
-#  proc1.start() 
+def keyboard_process():
+  proc1 = multiprocessing.Process(target=worker1)
+  proc1.start() 
 
 # def brain_data_process(board,ns):
 #  proc2 = multiprocessing.Process(target=worker2, args=(board,ns))
