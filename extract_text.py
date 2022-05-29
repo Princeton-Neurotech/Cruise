@@ -11,7 +11,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.errors import HttpError
 import os 
 
-SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
+SCOPES = ['https://www.googleapis.com/auth/documents']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 
 # DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
