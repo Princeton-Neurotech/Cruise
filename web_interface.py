@@ -11,7 +11,6 @@ class selenium():
     kb = only_keyboard_features.keyboard()
     extractor = extract_text.textExtractor()
     docs_service = extractor.get_credentials()
-    print(docs_service)
         
     def connectSelenium(self):
         s=Service(ChromeDriverManager().install())
@@ -22,15 +21,15 @@ class selenium():
         in_docs = False
         while not in_docs:
             if driver.current_url:
-                #print("0:" + driver.current_url)
                 if driver.current_url.startswith("https://docs.google.com/document/d/"):
-                    #print("1: " + driver.current_url)
                     print("found document")
                     # Inject JS 
                     if not in_docs:
+                        entire_url = driver.current_url
                         UID = driver.current_url[35:-5]
-                        #sleep(1)
+                        sleep(1)
                         """
+                            flickering screen
                             driver.execute_script("var bgl1;") 
                             driver.execute_script("parents = document.getElementsByClassName('kix-canvas-tile-content');")
                             driver.execute_script("window.fRed = function flashRed(){Array.from(parents).forEach(function(element,index,array){if(element.children.length == 1){element.children[0].style='border: 5px solid #ffcfcf;';}});setTimeout(window.fGrey,20);return "red";}") 

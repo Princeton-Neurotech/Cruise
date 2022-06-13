@@ -1,13 +1,12 @@
-from only_keyboard_features import *
-from brain_data_collection import *
 import only_keyboard_features
-import web_interface
+import only_keyboard_features
 import pandas as pd
+import time
 
 # keyboard functions
 def worker1(keyboard1, namespace):
     print("starting keyboard data collection")
-    keyboard1 = keyboard()
+    keyboard1 = only_keyboard_features.keyboard()
     while True:
         namespace.keyboard = keyboard1.realtime(keyboard1.text) 
         print(namespace.keyboard)

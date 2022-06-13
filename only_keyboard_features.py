@@ -13,7 +13,8 @@ from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
-from extract_text import *
+# from web_interface import entire_url
+# from extract_text import *
 
 class keyboard():
     
@@ -22,6 +23,7 @@ class keyboard():
         self.time_last_change = time.time()
         self.time_for_features = time.time()
 
+        self.previous_charcount = 0
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
@@ -30,6 +32,7 @@ class keyboard():
         self.wordcount_list = [0, ]
         self.features_list = ["wordcount", "sentencecount", "standby", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
         self.history_time_seconds = []
+        self.history_char_count = []
         self.history_word_count = []
         self.history_sentence_count = []
         self.history_standby = []
@@ -60,15 +63,21 @@ class keyboard():
                 # this dictionary counts . as words, but not ! or ?
                 if dictionary.check(word) and word != ".":
                     wordcount += 1
+                    # self.time_last_change = time.time()
         self.wordcount_list.append(wordcount)
 
+        # add these to csv?
         charcount = len(text.replace('\n', ''))
+        if self.previous_charcount != charcount:
+            self.time_last_change = time.time()
+        self.previous_charcount = charcount
+
         pagecount = len(text) // self.PAGE_LENGTH
         
         # case: user wrote or deleted nothing for 60s
         # if nothing has changed from last loop and the last change was over 60s ago --> standby
         # standbyNotification = ""
-        if (time.time() - self.time_last_change) > 60:
+        if (time.time() - self.time_last_change) > 10:
             #standbyNotification = "You've entered a standby"
             self.history_standby.append(1)
         else:
@@ -94,21 +103,29 @@ class keyboard():
         """
 
         # for data collection
+        self.history_char_count.append(charcount)
         self.history_word_count.append(wordcount)
         self.history_sentence_count.append(sentencecount)
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time(), 2))
         # self.history_dffeatures["time (s)"] = self.history_time_seconds
 
+        self.history_dffeatures["charcount"] = self.history_char_count
         self.history_dffeatures["wordcount"] = self.history_word_count
         self.history_dffeatures["sentencecount"] = self.history_sentence_count
         self.history_dffeatures["standby"] = self.history_standby
+        self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
         self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
         self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
+        self.history_dffeatures["chars produced"] = self.history_dffeatures["change in charcount"].copy()
+        self.history_dffeatures["chars produced"][self.history_dffeatures["chars produced"] < 0] = 0
         self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
         self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
         self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy()
         self.history_dffeatures["sentences produced"][self.history_dffeatures["sentences produced"] < 0] = 0
+        self.history_dffeatures["chars deleted"] = -1*self.history_dffeatures["change in charcount"].copy()
+        self.history_dffeatures["chars deleted"][self.history_dffeatures["chars deleted"] < 0] = 0
+        self.history_dffeatures["chars deleted"] = self.history_dffeatures["chars deleted"].abs()
         self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
         self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
         self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
@@ -158,6 +175,7 @@ class keyboard():
 
 if __name__ == '__main__':
     keyboard1 = keyboard()
-    textExtractor1 = textExtractor()
+    # textExtractor1 = textExtractor()
     # testing for web interface
-    keyboard1.realtime(textExtractor1.retrieveText("13l3tMuNn0ZVx-hGkhyakX6tYxlnkHuXrXJkYCIiivIY"))
+    # automate with Javascript variable 
+    # keyboard1.realtime(textExtractor1.retrieveText(entire_url))

@@ -1,21 +1,17 @@
 import multiprocessing
-from multiprocessing.dummy import freeze_support
-from workers import *
+import workers
+import web_interface
 import matplotlib.pyplot as plt
-import sys
-import time
-import brain_data_collection
-import brainflow
-import pandas
 from multiprocessing import Manager
 from sklearn import decomposition
 from sklearn import preprocessing
+import pandas as pd
 # from scipy.stats import linregress
 # increase recursion limit
 # sys.setrecursionlimit(15000)
  
 def keyboard_process():
-  proc1 = multiprocessing.Process(target=worker1)
+  proc1 = multiprocessing.Process(target=workers.worker1)
   proc1.start() 
 
 # def brain_data_process(board,ns):
@@ -47,7 +43,7 @@ def keyboard_process():
 """
 
 def interface_process(namespace, hrs):    
-  proc3 = multiprocessing.Process(target=worker3, args=[mySelenium, myUID])
+  proc3 = multiprocessing.Process(target=workers.worker3, args=[mySelenium, myUID])
   proc3.start()
   if hrs == 1.5:
     namespace.keyboard.to_csv('keyboard.csv', mode='a', header=False)
@@ -77,7 +73,7 @@ def ml_analysis(namespace):
   print(standardized_keyboard)
 
 def timing_process():
-  proc4 = multiprocessing.Process(target=worker4)
+  proc4 = multiprocessing.Process(target=workers.worker4)
   proc4.start()
 
 # run keyboard and interface concurrently to collect ml data
