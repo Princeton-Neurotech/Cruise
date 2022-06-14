@@ -168,6 +168,33 @@ class keyboard():
         self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
+        # ml logic
+        """
+        notification of roadblock is prompted if roadblocks repeatedly occur for 1/6 of the inputted time
+        obtain total_time variable from js like we did for doc url
+        if (time.time() - self.start_time) % 300 == 0:
+            saved_charcount = charcount
+            saved_wordcount = wordcount
+            saved_sentence_count = sentence_count
+
+        if charcount/total_time < saved_charcount/total_time:
+            take note that there could be a roadblock
+        if wordcount/total_time < saved_wordcount/total_time:
+            take note that there could be a roadblock
+        if sentence_count/total_time < saved_sentence_count/total_time:
+            take note that there could be a roadblock
+        
+        if standby == True:
+            take note that there could be a roadblock
+
+        if roadblock == True and (time.time() - self.start_time) > total_time/6:
+            prompt notification of roadblock
+        
+        inputted_wordcount and inputted_pagecount taken from js
+        if (wordcount == inputted_wordcount) and (pagecount = inputted_pagecount):
+            prompt notification of completion of assignment
+        """
+
         return self.keyboard_training_features
         # test both types of keyboard features in ml model and determine which has less error
         # self.keyboard_training_features # first training set - means, maxes, sums
@@ -176,6 +203,4 @@ class keyboard():
 if __name__ == '__main__':
     keyboard1 = keyboard()
     # textExtractor1 = textExtractor()
-    # testing for web interface
-    # automate with Javascript variable 
     # keyboard1.realtime(textExtractor1.retrieveText(entire_url))
