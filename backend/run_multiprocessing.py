@@ -15,7 +15,7 @@ def keyboard_process():
   proc1.start() 
 
 def brain_data_process(board,ns):
-  proc2 = multiprocessing.Process(target=worker2, args=(board,ns))
+  proc2 = multiprocessing.Process(target=workers.worker2, args=(board,ns))
   proc2.start()
 
 # def timing():
@@ -86,7 +86,7 @@ if __name__ == "__main__":
   myList = mySelenium.connectSelenium()
   myUID = myList[0]
   myDriver = myList[1]
-  interface_process(ns, hrs)
+  interface_process(ns)
   mySelenium.closeSelenium(myDriver)
   
 # freeze_support()
