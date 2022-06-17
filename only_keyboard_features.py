@@ -27,6 +27,13 @@ class keyboard():
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
+        self.total_time = 10
+        self.inputted_wordcount = 2000
+        self.inputted_pagecount = 2
+        self.previous_saved_charcount = 0
+        self.saved_charcount = 0
+        self.previous_saved_wordcount = 0
+        self.saved_wordcount = 0
 
         self.nb_standby = 0
         self.wordcount_list = [0, ]
@@ -46,9 +53,7 @@ class keyboard():
         self.text = ''
 
     def realtime(self, text):
-        charcount, sentencecount, pagecount = 0, 0, 0
-        wordcount = 0
-
+        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
         dictionary = enchant.Dict("en_US")
         
         completeSentences = sent_tokenize(text)  # arg needs to be a string, produces array of sentences
@@ -169,31 +174,37 @@ class keyboard():
         # print(self.training_label)
 
         # ml logic
-        """
-        notification of roadblock is prompted if roadblocks repeatedly occur for 1/6 of the inputted time
-        obtain total_time variable from js like we did for doc url
+        # notification of roadblock is prompted if roadblocks repeatedly occur for 1/6 of the inputted time
+        # obtain total_time variable from js like we did for doc url
         if (time.time() - self.start_time) % 300 == 0:
-            saved_charcount = charcount
-            saved_wordcount = wordcount
-            saved_sentence_count = sentence_count
+            # at time 0: previous_saved_charcount
+            # at time 5: saved_charcount
+            # at time 10: charcount
+            # at time 15 and beyond: new charcount
 
-        if charcount/total_time < saved_charcount/total_time:
-            take note that there could be a roadblock
-        if wordcount/total_time < saved_wordcount/total_time:
-            take note that there could be a roadblock
-        if sentence_count/total_time < saved_sentence_count/total_time:
-            take note that there could be a roadblock
-        
-        if standby == True:
-            take note that there could be a roadblock
+            if (((charcount - self.saved_charcount)/300 < (self.saved_charcount - self.previous_saved_charcount)/300) or 
+                ((wordcount - self.saved_wordcount)/300 < (self.saved_wordcount - self.previous_saved_wordcount)/300)
+                or (self.history_standby == 1)):
+                self.roadblock = True
+            else: 
+                self.roadblock = False
 
-        if roadblock == True and (time.time() - self.start_time) > total_time/6:
-            prompt notification of roadblock
-        
-        inputted_wordcount and inputted_pagecount taken from js
-        if (wordcount == inputted_wordcount) and (pagecount = inputted_pagecount):
-            prompt notification of completion of assignment
-        """
+            if self.roadblock == True and (time.time() - self.start_time) > self.total_time/6:
+                print("hi")
+                # prompt notification of roadblock
+            
+            # inputted_wordcount and inputted_pagecount taken from js
+            if (wordcount == self.inputted_wordcount) and (pagecount == self.inputted_pagecount):
+                print("hi")
+                # prompt notification of completion
+
+            self.previous_saved_charcount = self.saved_charcount
+            self.saved_charcount = charcount
+            self.previous_saved_wordcount = self.saved_wordcount
+            self.saved_wordcount = wordcount
+
+        publication_buffer=open("./api/roadblock.buf", 'w')
+        publication_buffer.write(self.roadblock)
 
         return self.keyboard_training_features
         # test both types of keyboard features in ml model and determine which has less error

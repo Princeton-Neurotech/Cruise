@@ -14,9 +14,9 @@ def keyboard_process():
   proc1 = multiprocessing.Process(target=workers.worker1)
   proc1.start() 
 
-# def brain_data_process(board,ns):
-#  proc2 = multiprocessing.Process(target=worker2, args=(board,ns))
-#  proc2.start()
+def brain_data_process(board,ns):
+  proc2 = multiprocessing.Process(target=worker2, args=(board,ns))
+  proc2.start()
 
 # def timing():
 """
@@ -42,12 +42,12 @@ def keyboard_process():
   # plt.legend()
 """
 
-def interface_process(namespace, hrs):    
+def interface_process(namespace):    
   proc3 = multiprocessing.Process(target=workers.worker3, args=[mySelenium, myUID])
   proc3.start()
-  if hrs == 1.5:
-    namespace.keyboard.to_csv('keyboard.csv', mode='a', header=False)
-    proc3.terminate()
+  proc3.terminate()
+  # if hrs == 1.5:
+    # namespace.keyboard.to_csv('keyboard.csv', mode='a', header=False)
 
 def ml_analysis(namespace):
   # pca to reduce dimensionality from 5104 to low hundreds features
@@ -80,7 +80,7 @@ def timing_process():
 if __name__ == "__main__":
   mgr = Manager()
   ns = mgr.Namespace()
-  hrs = 0
+  # hrs = 0
   timing_process()
   mySelenium = web_interface.selenium()
   myList = mySelenium.connectSelenium()
