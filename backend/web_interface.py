@@ -4,11 +4,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-import only_keyboard_features
+import keyboard_features
 import extract_text
 
 class selenium():
-    kb = only_keyboard_features.keyboard()
+    kb = keyboard_features.keyboard()
     extractor = extract_text.textExtractor()
     docs_service = extractor.get_credentials()
         

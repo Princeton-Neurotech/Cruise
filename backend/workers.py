@@ -1,11 +1,11 @@
-import only_keyboard_features
+import keyboard_features
 import pandas as pd
 import time
 
 # keyboard functions
 def worker1(keyboard1, namespace):
     print("starting keyboard data collection")
-    keyboard1 = only_keyboard_features.keyboard()
+    keyboard1 = keyboard_features.keyboard()
     while True:
         namespace.keyboard = keyboard1.realtime(keyboard1.text) 
         print(namespace.keyboard)
