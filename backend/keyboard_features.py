@@ -203,6 +203,7 @@ class keyboard():
             self.previous_saved_wordcount = self.saved_wordcount
             self.saved_wordcount = wordcount
 
+        # write roadblock boolean to buf to check later
         publication_buffer=open("./api/roadblock.buf", 'w')
         publication_buffer.write(self.roadblock)
 
