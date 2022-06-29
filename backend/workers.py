@@ -3,7 +3,7 @@ import pandas as pd
 import time
 
 # keyboard functions
-def worker1(keyboard1, namespace):
+def worker1(namespace):
     print("starting keyboard data collection")
     keyboard1 = keyboard_features.keyboard()
     while True:
@@ -30,7 +30,11 @@ def worker3(mySelenium, myUID):
         text = mySelenium.processSelenium(myUID)
         time.sleep(5)
         pd.options.display.max_columns = None
-        print(text.tail())
+        keyboard1 = keyboard_features.keyboard()
+        keyboard1.realtime(keyboard1.text) 
+        print(keyboard1.keyboard_training_features)
+        print("hi")
+        # print(text.tail())
 
 def worker4():
     tm = 5400 # 5400, 9000

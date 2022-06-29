@@ -11,7 +11,7 @@ import pandas as pd
 # sys.setrecursionlimit(15000)
  
 def keyboard_process():
-  proc1 = multiprocessing.Process(target=workers.worker1)
+  proc1 = multiprocessing.Process(target=workers.worker1, args=(ns,))
   proc1.start() 
 
 def brain_data_process(board,ns):
@@ -42,10 +42,10 @@ def brain_data_process(board,ns):
   # plt.legend()
 """
 
-def interface_process(namespace):    
+def interface_process():    
   proc3 = multiprocessing.Process(target=workers.worker3, args=[mySelenium, myUID])
   proc3.start()
-  proc3.terminate()
+  # proc3.terminate()
   # if hrs == 1.5:
     # namespace.keyboard.to_csv('keyboard.csv', mode='a', header=False)
 
@@ -80,13 +80,13 @@ def timing_process():
 if __name__ == "__main__":
   mgr = Manager()
   ns = mgr.Namespace()
-  # hrs = 0
-  timing_process()
+  # don't run keyboard_process, realtime() is ran within worker 3 in processSelenium
+  # keyboard_process()
   mySelenium = web_interface.selenium()
   myList = mySelenium.connectSelenium()
   myUID = myList[0]
   myDriver = myList[1]
-  interface_process(ns)
+  interface_process()
   mySelenium.closeSelenium(myDriver)
   
 # freeze_support()

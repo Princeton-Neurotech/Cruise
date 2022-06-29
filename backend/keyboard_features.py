@@ -13,9 +13,6 @@ from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
-# from web_interface import entire_url
-# from extract_text import *
-
 class keyboard():
     
     def __init__(self):
@@ -27,6 +24,7 @@ class keyboard():
         self.PAGE_LENGTH = 4002
 
         self.roadblock = False
+        self.roadblock_number = 0
         self.total_time = 10
         self.inputted_wordcount = 2000
         self.inputted_pagecount = 2
@@ -35,16 +33,19 @@ class keyboard():
         self.previous_saved_wordcount = 0
         self.saved_wordcount = 0
 
+        self.standby = False
         self.nb_standby = 0
         self.wordcount_list = [0, ]
-        self.features_list = ["wordcount", "sentencecount", "standby", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
+        self.features_list = ["wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
         self.history_time_seconds = []
         self.history_char_count = []
         self.history_word_count = []
         self.history_sentence_count = []
         self.history_standby = []
+        self.history_nb_standby = []
         self.history_features = []
         self.history_dffeatures = []
+        self.history_roadblock_number = []
         
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
@@ -71,7 +72,6 @@ class keyboard():
                     # self.time_last_change = time.time()
         self.wordcount_list.append(wordcount)
 
-        # add these to csv?
         charcount = len(text.replace('\n', ''))
         if self.previous_charcount != charcount:
             self.time_last_change = time.time()
@@ -84,16 +84,10 @@ class keyboard():
         # standbyNotification = ""
         if (time.time() - self.time_last_change) > 10:
             #standbyNotification = "You've entered a standby"
-            self.history_standby.append(1)
+            self.standby = True
+            self.nb_standby += 1
         else:
-            self.history_standby.append(0)
-
-        # set Thresholds to -1 unless a number exists
-        # wordcountThresholdInt, pagecountThresholdInt = -1, -1
-        # try:
-        #    wordcountThresholdInt = int(self.input_wordcount_threshold.get(0.0, "end"))
-        # except:
-        #    pass
+            self.standby = False
         
         self.last_charcount = charcount
 
@@ -111,6 +105,10 @@ class keyboard():
         self.history_char_count.append(charcount)
         self.history_word_count.append(wordcount)
         self.history_sentence_count.append(sentencecount)
+        self.history_standby.append(self.standby)
+        self.history_sentence_count.append(self.nb_standby)
+        self.history_roadblock_number.append(self.roadblock_number)
+        
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time(), 2))
         # self.history_dffeatures["time (s)"] = self.history_time_seconds
@@ -119,6 +117,8 @@ class keyboard():
         self.history_dffeatures["wordcount"] = self.history_word_count
         self.history_dffeatures["sentencecount"] = self.history_sentence_count
         self.history_dffeatures["standby"] = self.history_standby
+        self.history_dffeatures["number of standby"] = self.history_nb_standby
+        self.history_dffeatures["roadblock number"] = self.history_roadblock_number
         self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
         self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
         self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
@@ -176,26 +176,25 @@ class keyboard():
         # ml logic
         # notification of roadblock is prompted if roadblocks repeatedly occur for 1/6 of the inputted time
         # obtain total_time variable from js like we did for doc url
-        if (time.time() - self.start_time) % 300 == 0:
+        if (round((time.time() - self.start_time), 0) % 10) == 0:
             # at time 0: previous_saved_charcount
             # at time 5: saved_charcount
             # at time 10: charcount
             # at time 15 and beyond: new charcount
-
-            if (((charcount - self.saved_charcount)/300 < (self.saved_charcount - self.previous_saved_charcount)/300) or 
-                ((wordcount - self.saved_wordcount)/300 < (self.saved_wordcount - self.previous_saved_wordcount)/300)
-                or (self.history_standby == 1)):
+            print("im here")
+            if (((charcount - self.saved_charcount)/300 <= (self.saved_charcount - self.previous_saved_charcount)/300) or 
+            ((wordcount - self.saved_wordcount)/300 <= (self.saved_wordcount - self.previous_saved_wordcount)/300)
+            or (self.standby is True)):
                 self.roadblock = True
-            else: 
+                self.roadblock_number += 1
+            else:
                 self.roadblock = False
 
-            if self.roadblock == True and (time.time() - self.start_time) > self.total_time/6:
-                print("hi")
+            # if self.roadblock == True and (time.time() - self.start_time) > self.total_time/6:
                 # prompt notification of roadblock
             
             # inputted_wordcount and inputted_pagecount taken from js
-            if (wordcount == self.inputted_wordcount) and (pagecount == self.inputted_pagecount):
-                print("hi")
+            # if (wordcount == self.inputted_wordcount) and (pagecount == self.inputted_pagecount):
                 # prompt notification of completion
 
             self.previous_saved_charcount = self.saved_charcount
@@ -204,8 +203,8 @@ class keyboard():
             self.saved_wordcount = wordcount
 
         # write roadblock boolean to buf to check later
-        publication_buffer=open("./api/roadblock.buf", 'w')
-        publication_buffer.write(self.roadblock)
+        publication_buffer = open("roadblock.buf", 'w')
+        publication_buffer.write(str(self.roadblock))
 
         return self.keyboard_training_features
         # test both types of keyboard features in ml model and determine which has less error

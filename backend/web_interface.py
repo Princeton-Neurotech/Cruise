@@ -6,6 +6,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import keyboard_features
 import extract_text
+import logging
+logging.basicConfig()
 
 class selenium():
     kb = keyboard_features.keyboard()
