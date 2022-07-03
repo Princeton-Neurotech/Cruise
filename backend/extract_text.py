@@ -15,8 +15,6 @@ SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1'
 # DISCOVERY_DOC = 'https://discovery.googleapis.com/discovery/v1/apis'
 
-# DOCUMENT_ID = '1fxXMiOqWnYOWrH-t9M-U8CpDdr9OrJy3snUp-cdmdts'
-
 class textExtractor:
 
     def get_credentials(self):
@@ -59,9 +57,15 @@ class textExtractor:
                 element: a ParagraphElement from a Google Doc.
         """
         text_run = element.get('textRun')
+        # page_count = element.get('autoText')  
+        # print(text_run.get('content'))  
         if not text_run:
             return ''
+        # if not page_count:
+            # return ''
+        # print(page_count.get('type'))
         return text_run.get('content')
+        # page_count.get('content')
 
     def read_strucutural_elements(self, elements):
         """Recurses through a list of Structural Elements to read a document's text where text may be
@@ -97,5 +101,3 @@ class textExtractor:
         # Outputs: String 
         text = self.read_strucutural_elements(doc_content)
         return text
-
-    # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

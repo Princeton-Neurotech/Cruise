@@ -27,14 +27,11 @@ def worker2(board, namespace):
 # web interface functions
 def worker3(mySelenium, myUID):
     while True:
-        text = mySelenium.processSelenium(myUID)
+        mySelenium.processSelenium(myUID)
         time.sleep(5)
         pd.options.display.max_columns = None
         keyboard1 = keyboard_features.keyboard()
-        keyboard1.realtime(keyboard1.text) 
         print(keyboard1.keyboard_training_features)
-        print("hi")
-        # print(text.tail())
 
 def worker4():
     tm = 5400 # 5400, 9000

@@ -1,11 +1,12 @@
 from sys import argv, exit, stderr
 from routes import app
+import keyboard_features
 
 def main():
 
     if len(argv) != 3:
         print(len(argv))
-        print('Usage: ' + argv[1] + ' port', file=stderr)
+        # print('Usage: ' + argv[1] + ' port', file=stderr)
         exit(1)
 
     try:
@@ -22,3 +23,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    keyboard_features1 = keyboard_features.keyboard()
+    print(keyboard_features1.keyboard_training_features)

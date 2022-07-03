@@ -1,15 +1,8 @@
 import time
-from typing import final
 import pandas as pd
 import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
-
-import googleapiclient.discovery as discovery
-from httplib2 import Http
-from oauth2client import client, file, tools
-
-from sys import exit
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -18,34 +11,34 @@ class keyboard():
     def __init__(self):
         self.start_time = time.time()
         self.time_last_change = time.time()
-        self.time_for_features = time.time()
+        self.termination_time = time.time()
 
         self.previous_charcount = 0
         self.PAGE_LENGTH = 4002
 
+        self.completion = False
         self.roadblock = False
         self.roadblock_number = 0
-        self.total_time = 10
-        self.inputted_wordcount = 2000
-        self.inputted_pagecount = 2
         self.previous_saved_charcount = 0
         self.saved_charcount = 0
         self.previous_saved_wordcount = 0
         self.saved_wordcount = 0
+        self.previous_saved_sentencecount = 0
+        self.saved_sentencecount = 0
 
         self.standby = False
         self.nb_standby = 0
-        self.wordcount_list = [0, ]
         self.features_list = ["wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
         self.history_time_seconds = []
-        self.history_char_count = []
-        self.history_word_count = []
-        self.history_sentence_count = []
+        self.history_charcount = []
+        self.history_wordcount = []
+        self.history_sentencecount = []
         self.history_standby = []
         self.history_nb_standby = []
         self.history_features = []
         self.history_dffeatures = []
         self.history_roadblock_number = []
+        self.wordcount_list = []
         
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
@@ -54,7 +47,8 @@ class keyboard():
         self.text = ''
 
     def realtime(self, text):
-        charcount, wordcount, sentencecount, pagecount = 0, 0, 0, 0
+        charcount, wordcount, sentencecount = 0, 0, 0
+        wordcount_threshold, pagecount_threshold = 0, 0
         dictionary = enchant.Dict("en_US")
         
         completeSentences = sent_tokenize(text)  # arg needs to be a string, produces array of sentences
@@ -70,7 +64,6 @@ class keyboard():
                 if dictionary.check(word) and word != ".":
                     wordcount += 1
                     # self.time_last_change = time.time()
-        self.wordcount_list.append(wordcount)
 
         charcount = len(text.replace('\n', ''))
         if self.previous_charcount != charcount:
@@ -88,10 +81,9 @@ class keyboard():
             self.nb_standby += 1
         else:
             self.standby = False
-        
-        self.last_charcount = charcount
 
         """
+            # way back when we had tkiner gui...
             # WHEN ML MODEL IS FINISHED INCORPORATE PREDICTIONS INTO ROADBLOCK NOTIFICATION POPPING UP
             ml_label_predicted = machine_learning.training_predictions < wordcountThresholdInt
             if ml_label_predicted:
@@ -102,20 +94,20 @@ class keyboard():
         """
 
         # for data collection
-        self.history_char_count.append(charcount)
-        self.history_word_count.append(wordcount)
-        self.history_sentence_count.append(sentencecount)
+        self.history_charcount.append(charcount)
+        self.history_wordcount.append(wordcount)
+        self.history_sentencecount.append(sentencecount)
         self.history_standby.append(self.standby)
-        self.history_sentence_count.append(self.nb_standby)
+        self.history_nb_standby.append(self.nb_standby)
         self.history_roadblock_number.append(self.roadblock_number)
         
         self.history_dffeatures = pd.DataFrame(self.history_features)
         self.history_time_seconds.append(round(time.time(), 2))
         # self.history_dffeatures["time (s)"] = self.history_time_seconds
 
-        self.history_dffeatures["charcount"] = self.history_char_count
-        self.history_dffeatures["wordcount"] = self.history_word_count
-        self.history_dffeatures["sentencecount"] = self.history_sentence_count
+        self.history_dffeatures["charcount"] = self.history_charcount
+        self.history_dffeatures["wordcount"] = self.history_wordcount
+        self.history_dffeatures["sentencecount"] = self.history_sentencecount
         self.history_dffeatures["standby"] = self.history_standby
         self.history_dffeatures["number of standby"] = self.history_nb_standby
         self.history_dffeatures["roadblock number"] = self.history_roadblock_number
@@ -138,80 +130,79 @@ class keyboard():
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
 
-        # SELF.HISTORY_DFFEATURES IS SECOND KEYBOARD TRAINING FEATURES
-        # print(self.history_dffeatures)
-
         # take a rolling computation where 1st row would be computations of that row, 2nd row would be 1st and 
         # 2nd, 3rd so on until the last row, for example, is  mean of the last 60 rows
         for col in self.features_list:
-            if col == "wordcount" or col == "sentencecount" or "standby":
+            if col == "charcount" or col == "wordcount" or col == "sentencecount" or col == "standby" or col == "number of standby" or col == "roadblock number":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).mean() 
             # elif col == "standby":
             #     self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(60, min_periods=1).max()
-            elif col == "words produced" or col == "sentences produced" or col == "words deleted" or col == "sentences deleted" or col == "change in wordcount" or col == "change in sentencecount":
+            elif col == "chars produced" or col == "words produced" or col == "sentences produced" or col == "chars deleted" or col == "words deleted" or col == "sentences deleted" or col == "change in charcount" or col == "change in wordcount" or col == "change in sentencecount":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).sum() 
         
-        # add one row of self.history_dffeature's summary columns every 5s
-        # self.keyboard_training_features = self.history_dffeatures[['5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY words produced', '5rSUMMARY sentences produced', '5rSUMMARY words deleted', '5rSUMMARY sentences deleted', '5rSUMMARY standby']]
         # because of current rolling mean, all previous rows are NaN, need to take most current row
         self.history_dffeatures = self.history_dffeatures.tail(1)
 
         # concatenate rows so dataframe is continuous
-        self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)
-        print(self.keyboard_training_features)
-        
+        self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)  
         self.row_index += 1
 
-        # create initial csv file for records
-        # if len(self.keyboard_training_features.index) == 1:
-        #    self.keyboard_training_features.to_csv('keyboard.csv')
-        
         # every 5s append one row to existing csv file to update records
         self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
 
-        # label is sum of all future data
-        self.training_label = self.history_dffeatures["words produced"][-300:].sum()
+        # label is sum of future words produced data
+        # self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
 
-        # ml logic
-        # notification of roadblock is prompted if roadblocks repeatedly occur for 1/6 of the inputted time
-        # obtain total_time variable from js like we did for doc url
+        # ROADBLOCK LOGIC
+        # existence of roadblock is checked every 5 min
+        # notification of roadblock is prompted if rate of charcount/wordcount/sentencecount written is less than previous 5 min
+        # at time 0: previous_saved_charcount
+        # at time 5: saved_charcount
+        # at time 10: charcount
+        # at time 15 and beyond: new charcount
         if (round((time.time() - self.start_time), 0) % 10) == 0:
-            # at time 0: previous_saved_charcount
-            # at time 5: saved_charcount
-            # at time 10: charcount
-            # at time 15 and beyond: new charcount
-            print("im here")
             if (((charcount - self.saved_charcount)/300 <= (self.saved_charcount - self.previous_saved_charcount)/300) or 
-            ((wordcount - self.saved_wordcount)/300 <= (self.saved_wordcount - self.previous_saved_wordcount)/300)
+            ((wordcount - self.saved_wordcount)/300 <= (self.saved_wordcount - self.previous_saved_wordcount)/300) or 
+            ((sentencecount - self.saved_sentencecount)/300 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/300)
             or (self.standby is True)):
                 self.roadblock = True
                 self.roadblock_number += 1
             else:
                 self.roadblock = False
 
-            # if self.roadblock == True and (time.time() - self.start_time) > self.total_time/6:
-                # prompt notification of roadblock
-            
-            # inputted_wordcount and inputted_pagecount taken from js
-            # if (wordcount == self.inputted_wordcount) and (pagecount == self.inputted_pagecount):
-                # prompt notification of completion
-
             self.previous_saved_charcount = self.saved_charcount
             self.saved_charcount = charcount
             self.previous_saved_wordcount = self.saved_wordcount
             self.saved_wordcount = wordcount
+            self.previous_saved_sentencecount = self.saved_sentencecount
+            self.saved_sentencecount = sentencecount
+
+            # COMPLETION LOGIC
+            # also check this every 5 min
+            trade_buffer = open("thr.buf", 'r')
+            with trade_buffer as f:
+                lines = f.read() 
+                wordcount_threshold = lines.split('\n', 1)[0]
+                pagecount_threshold = lines.split('\n', 1)[1]
+            
+            if (wordcount == wordcount_threshold) or (pagecount == pagecount_threshold):
+                self.completion = True
+                self.termination_time = time.time()
 
         # write roadblock boolean to buf to check later
-        publication_buffer = open("roadblock.buf", 'w')
-        publication_buffer.write(str(self.roadblock))
+        roadblock_buffer = open("roadblock.buf", 'w')
+        roadblock_buffer.write(str(self.roadblock))
 
+        completion_buffer = open("completion.buf", "w")
+        completion_buffer.write(str(self.completion))
+
+        print(self.keyboard_training_features)
         return self.keyboard_training_features
+        
         # test both types of keyboard features in ml model and determine which has less error
-        # self.keyboard_training_features # first training set - means, maxes, sums
         # return self.history_dffeatures # second training set - raw numbers
+        # self.keyboard_training_features # first training set - means, maxes, sums
 
 if __name__ == '__main__':
     keyboard1 = keyboard()
-    # textExtractor1 = textExtractor()
-    # keyboard1.realtime(textExtractor1.retrieveText(entire_url))

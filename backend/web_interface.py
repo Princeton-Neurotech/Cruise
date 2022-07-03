@@ -27,7 +27,6 @@ class selenium():
                     print("found document")
                     # Inject JS 
                     if not in_docs:
-                        entire_url = driver.current_url
                         UID = driver.current_url[35:-5]
                         sleep(1)
                         """

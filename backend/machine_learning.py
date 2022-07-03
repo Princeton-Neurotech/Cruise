@@ -13,7 +13,6 @@ import brain_data_collection
 import brain_data_computations
 
 class ml():
-
     def __init__(self):
         self.csv_index = 0
         self.features_list = ['mean_0', 'mean_d_h2h1_0', 'mean_q1_0', 'mean_q2_0', 'mean_q3_0',

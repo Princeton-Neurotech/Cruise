@@ -1,4 +1,3 @@
-
 while True:
     trade_buffer=open("./api/publication.buf", 'r')
     lines=trade_buffer.readlines()
