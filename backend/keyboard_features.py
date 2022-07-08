@@ -148,7 +148,7 @@ class keyboard():
         self.row_index += 1
 
         # every 5s append one row to existing csv file to update records
-        self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=False)
+        self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=True)
 
         # label is sum of future words produced data
         # self.training_label = self.history_dffeatures["words produced"][-300:].sum()
