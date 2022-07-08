@@ -12,6 +12,7 @@ from sklearn.datasets import make_hastie_10_2
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.inspection import PartialDependenceDisplay
 import time
+import os
 
 data = pd.read_csv('data.csv')
 # data.columns = ["charcount", "wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "chars prodocued", "words produced", "sentences produced", "chars deleted", "words deleted", "sentences deleted", "change in charcount", "change in wordcount", "change in sentencecount", "5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY roadblock number", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"]
@@ -64,10 +65,10 @@ for i,v in enumerate(importance):
 sorted_indices = np.argsort(importance)[::-1]
 print(sorted_indices)
 
-plt.title('Feature Importance')
-plt.bar(range(x_train_set.shape[1]), importance[sorted_indices], align='center')
-plt.xticks(range(x_train_set.shape[1]), x_train_set.columns[sorted_indices], rotation=90)
-plt.tight_layout()
+# plt.title('Feature Importance')
+# plt.bar(range(x_train_set.shape[1]), importance[sorted_indices], align='center')
+# plt.xticks(range(x_train_set.shape[1]), x_train_set.columns[sorted_indices], rotation=90)
+# plt.tight_layout()
 # plt.show()
 
 
@@ -77,11 +78,11 @@ plt.tight_layout()
 # PartialDependenceDisplay.from_estimator(clf, X, features)
 # plt.gcf()
 # plt.gca()
-
+# plt.use('Agg')
 display = PartialDependenceDisplay.from_estimator(
     random_forest,
     x_train_set,
-    features=["charcount", "wordcount", "sentencecount", "standby", "number of standby", "chars prodocued", "words produced", "sentences produced", "chars deleted", "words deleted", "sentences deleted", "change in charcount", "change in wordcount", "change in sentencecount", "5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"],
+    features=["5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"],
     kind="both"
 )
 
@@ -90,6 +91,9 @@ display.figure_.suptitle(
     "for the California housing dataset, with MLPRegressor"
 )
 display.figure_.subplots_adjust(hspace=0.3)
+
+plt.savefig('name.png')
+os.system('eog name.png &')
 
 confidence = 0.95
 squared_errors = (testing_predictions - y_test_set)**2
