@@ -31,7 +31,7 @@ def worker3(mySelenium, myUID):
         time.sleep(5)
         pd.options.display.max_columns = None
         keyboard1 = keyboard_features.keyboard()
-        print(keyboard1.keyboard_training_features)
+        # print(keyboard1.keyboard_training_features)
 
 def worker4():
     tm = 5400 # 5400, 9000

@@ -10,14 +10,19 @@ class keyboard():
     
     def __init__(self):
         self.start_time = time.time()
+        self.min_time = 0
         self.time_last_change = time.time()
         self.termination_time = time.time()
 
         self.previous_charcount = 0
         self.PAGE_LENGTH = 4002
 
+        self.columns = 0
+        self.counter = 0
         self.completion = False
         self.roadblock = False
+        self.new = False
+        self.previous_roadblock = False
         self.roadblock_number = 0
         self.previous_saved_charcount = 0
         self.saved_charcount = 0
@@ -30,6 +35,7 @@ class keyboard():
         self.nb_standby = 0
         self.features_list = ["wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "words produced", "sentences produced", "words deleted", "sentences deleted", "change in wordcount", "change in sentencecount"]
         self.history_time_seconds = []
+        self.history_min_time_seconds = []
         self.history_charcount = []
         self.history_wordcount = []
         self.history_sentencecount = []
@@ -37,8 +43,10 @@ class keyboard():
         self.history_nb_standby = []
         self.history_features = []
         self.history_dffeatures = []
+        self.history_roadblock = []
         self.history_roadblock_number = []
         self.wordcount_list = []
+        self.history_new = []
         
         self.row_index = 0
         self.keyboard_training_features = pd.DataFrame()
@@ -72,11 +80,8 @@ class keyboard():
 
         pagecount = len(text) // self.PAGE_LENGTH
         
-        # case: user wrote or deleted nothing for 60s
-        # if nothing has changed from last loop and the last change was over 60s ago --> standby
-        # standbyNotification = ""
+        # case: user wrote or deleted nothing for 10s
         if (time.time() - self.time_last_change) > 10:
-            #standbyNotification = "You've entered a standby"
             self.standby = True
             self.nb_standby += 1
         else:
@@ -93,23 +98,48 @@ class keyboard():
                     self.popup_close()
         """
 
+        # print(((self.keyboard_training_features['wordcount']) == wordcount).any())
+        if self.counter != 0:
+            if wordcount in self.history_wordcount:
+            # if wordcount in self.keyboard_training_features.values:
+            # if ((self.keyboard_training_features['wordcount']) == wordcount).all():
+                similar_rows = self.keyboard_training_features[self.keyboard_training_features['wordcount'] == wordcount]
+                self.new = True
+                # print(similar_rows)
+                # similar_row = similar_rows[0]
+                self.min_time = similar_rows['min time (s)'].iloc[0]
+                print(self.min_time)
+            else:
+                self.min_time = time.time() - self.start_time
+                self.new = False
+            print(self.min_time)
+        if self.counter == 0:
+            self.counter += 1
+
         # for data collection
+        self.history_time_seconds.append(time.time() - self.start_time)
+        self.history_new.append(self.new)
         self.history_charcount.append(charcount)
         self.history_wordcount.append(wordcount)
         self.history_sentencecount.append(sentencecount)
         self.history_standby.append(self.standby)
         self.history_nb_standby.append(self.nb_standby)
+        self.history_roadblock.append(self.roadblock)
         self.history_roadblock_number.append(self.roadblock_number)
+        if (self.min_time == 0):
+            self.history_min_time_seconds.append(time.time() - self.start_time)
+        else:
+            self.history_min_time_seconds.append(self.min_time)
         
         self.history_dffeatures = pd.DataFrame(self.history_features)
-        self.history_time_seconds.append(round(time.time(), 2))
-        # self.history_dffeatures["time (s)"] = self.history_time_seconds
-
+        
+        self.history_dffeatures["new"] = self.history_new
         self.history_dffeatures["charcount"] = self.history_charcount
         self.history_dffeatures["wordcount"] = self.history_wordcount
         self.history_dffeatures["sentencecount"] = self.history_sentencecount
-        self.history_dffeatures["standby"] = self.history_standby
         self.history_dffeatures["number of standby"] = self.history_nb_standby
+        self.history_dffeatures["standby"] = self.history_standby
+        self.history_dffeatures["roadblock"] = self.history_roadblock
         self.history_dffeatures["roadblock number"] = self.history_roadblock_number
         self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
         self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
@@ -129,11 +159,13 @@ class keyboard():
         self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
         self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
+        self.history_dffeatures["time (s)"] = self.history_time_seconds
+        self.history_dffeatures['min time (s)'] = self.history_min_time_seconds
 
         # take a rolling computation where 1st row would be computations of that row, 2nd row would be 1st and 
         # 2nd, 3rd so on until the last row, for example, is  mean of the last 60 rows
         for col in self.features_list:
-            if col == "charcount" or col == "wordcount" or col == "sentencecount" or col == "standby" or col == "number of standby" or col == "roadblock number":
+            if col == "charcount" or col == "wordcount" or col == "sentencecount" or col == "standby" or col == "number of standby" or col == "roadblock" or col == "roadblock number":
                 self.history_dffeatures['5rSUMMARY ' + col] = self.history_dffeatures[col].rolling(60, min_periods=1).mean() 
             # elif col == "standby":
             #     self.history_dffeatures["5rSUMMARY " + col] = self.history_dffeatures[col].rolling(60, min_periods=1).max()
@@ -147,9 +179,12 @@ class keyboard():
         self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)  
         self.row_index += 1
 
-        # every 5s append one row to existing csv file to update records
-        self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard.csv', mode='a', header=True)
-
+        if self.columns == 0:
+            # every 5s append one row to existing csv file to update records
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard1.csv', mode='a', header=True)
+        else:
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard1.csv', mode='a', header=False)
+        self.columns += 1
         # label is sum of future words produced data
         # self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
@@ -161,34 +196,35 @@ class keyboard():
         # at time 5: saved_charcount
         # at time 10: charcount
         # at time 15 and beyond: new charcount
-        if (round((time.time() - self.start_time), 0) % 10) == 0:
-            if (((charcount - self.saved_charcount)/300 <= (self.saved_charcount - self.previous_saved_charcount)/300) or 
-            ((wordcount - self.saved_wordcount)/300 <= (self.saved_wordcount - self.previous_saved_wordcount)/300) or 
-            ((sentencecount - self.saved_sentencecount)/300 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/300)
-            or (self.standby is True)):
-                self.roadblock = True
+        if (((charcount - self.saved_charcount)/10 <= (self.saved_charcount - self.previous_saved_charcount)/10) or 
+        ((wordcount - self.saved_wordcount)/10 <= (self.saved_wordcount - self.previous_saved_wordcount)/10) or 
+        ((sentencecount - self.saved_sentencecount)/10 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/10)
+        or (self.standby is True)):
+            self.roadblock = True
+            if self.previous_roadblock is False:
                 self.roadblock_number += 1
-            else:
-                self.roadblock = False
+            self.previous_roadblock = self.roadblock
+        else:
+            self.roadblock = False
 
-            self.previous_saved_charcount = self.saved_charcount
-            self.saved_charcount = charcount
-            self.previous_saved_wordcount = self.saved_wordcount
-            self.saved_wordcount = wordcount
-            self.previous_saved_sentencecount = self.saved_sentencecount
-            self.saved_sentencecount = sentencecount
+        self.previous_saved_charcount = self.saved_charcount
+        self.saved_charcount = charcount
+        self.previous_saved_wordcount = self.saved_wordcount
+        self.saved_wordcount = wordcount
+        self.previous_saved_sentencecount = self.saved_sentencecount
+        self.saved_sentencecount = sentencecount
 
-            # COMPLETION LOGIC
-            # also check this every 5 min
-            trade_buffer = open("thr.buf", 'r')
-            with trade_buffer as f:
-                lines = f.read() 
-                wordcount_threshold = lines.split('\n', 1)[0]
-                pagecount_threshold = lines.split('\n', 1)[1]
-            
-            if (wordcount == wordcount_threshold) or (pagecount == pagecount_threshold):
-                self.completion = True
-                self.termination_time = time.time()
+        # COMPLETION LOGIC
+        # also check this every 5 min
+        trade_buffer = open("thr.buf", 'r')
+        with trade_buffer as f:
+            lines = f.read() 
+            wordcount_threshold = lines.split('\n', 1)[0]
+            pagecount_threshold = lines.split('\n', 1)[1]
+        
+        if (wordcount == wordcount_threshold) or (pagecount == pagecount_threshold):
+            self.completion = True
+            self.termination_time = time.time()
 
         # write roadblock boolean to buf to check later
         roadblock_buffer = open("roadblock.buf", 'w')

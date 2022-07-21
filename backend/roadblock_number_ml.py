@@ -19,7 +19,7 @@ data = pd.read_csv('data.csv')
 # print(data)
 # exported_data = data.to_csv('data.csv')
 # data = pd.read_csv('data.csv')
-print(data.columns)
+# print(data.columns)
 
 # training and testing sets, 80/20 ratio
 label = data["5rSUMMARY roadblock number"]
@@ -32,19 +32,19 @@ x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label,
 
 # models
 # decision_tree = DecisionTreeRegressor()
-random_forest = RandomForestRegressor()
-# linear_regression = LinearRegression()
+# random_forest = RandomForestRegressor()
+linear_regression = LinearRegression()
 
 # fitting and predicting
-random_forest.fit(x_train_set, y_train_set)
-testing_predictions = random_forest.predict(x_test_set)
+linear_regression.fit(x_train_set, y_train_set)
+testing_predictions = linear_regression.predict(x_test_set)
 
 # calculating error
 mse = mean_squared_error(y_test_set, testing_predictions)
 mse = np.sqrt(mse)
 print(mse)
 
-scores = cross_val_score(random_forest, x_test_set, y_test_set, scoring = "r2", cv=10)
+scores = cross_val_score(linear_regression, x_test_set, y_test_set, scoring = "r2", cv=10)
 rmse_scores = np.sqrt(scores)
 print("Scores:", scores)
 print("Mean:", scores.mean())
@@ -55,8 +55,9 @@ print("Standard deviation:", scores.std())
 # for name, score in zip(x_train_set["features_names"], random_forest.feature_importances_):
 # print(name, score)
 
+"""
 # 5, 15, 16 are important
-importance = random_forest.feature_importances_
+importance = linear_regression.feature_importances_
 print(importance)
 # summarize feature importance
 for i,v in enumerate(importance):
@@ -64,6 +65,7 @@ for i,v in enumerate(importance):
 
 sorted_indices = np.argsort(importance)[::-1]
 print(sorted_indices)
+"""
 
 # plt.title('Feature Importance')
 # plt.bar(range(x_train_set.shape[1]), importance[sorted_indices], align='center')
@@ -80,7 +82,7 @@ print(sorted_indices)
 # plt.gca()
 # plt.use('Agg')
 display = PartialDependenceDisplay.from_estimator(
-    random_forest,
+    linear_regression,
     x_train_set,
     features=["5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"],
     kind="both"

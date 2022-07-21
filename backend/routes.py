@@ -8,6 +8,7 @@ import sys
 import multiprocessing
 from multiprocessing import Manager
 import keyboard_features
+import min_time_ml
 
 app = Flask(__name__) 
 CORS(app)
@@ -102,7 +103,8 @@ def getThresholds():
         print(json)
         publication_buffer=open("thr.buf", 'w')
         publication_buffer.write(wordCount + "\n" + pageCount)
-        return jsonify(json), 201
+        prediction_result = min_time_ml.machine_learning()
+        return jsonify(prediction_result), 201
     else:
         return 'Content-Type not supported!'
 
