@@ -4,11 +4,13 @@ from flask import Response, render_template, url_for, flash, redirect, request, 
 from flask_cors import CORS 
 from crypt import methods
 import sys
+import json
 # sys.path.insert(0, '/Users/leilahudson/Documents/GitHub/Startup/Cruise/backend')
 import multiprocessing
 from multiprocessing import Manager
 import keyboard_features
 import min_time_ml
+import roadblock_ml
 
 app = Flask(__name__) 
 CORS(app)
@@ -97,14 +99,14 @@ def getFonts():
 def getThresholds():
     content_type = request.headers.get('Content-Type')
     if (content_type == 'application/json'):
-        json = request.json
-        wordCount = json['wordCount']
-        pageCount = json['pageCount']
-        print(json)
+        requested_json = request.json
+        wordCount = requested_json['wordCount']
+        pageCount = requested_json['pageCount']
+        print(requested_json)
         publication_buffer=open("thr.buf", 'w')
         publication_buffer.write(wordCount + "\n" + pageCount)
-        prediction_result = min_time_ml.machine_learning()
-        return jsonify(prediction_result), 201
+        prediction_result = min_time_ml.machine_learning(wordCount)
+        return jsonify({"wordcount":prediction_result[0]}), 201
     else:
         return 'Content-Type not supported!'
 
@@ -122,6 +124,10 @@ def getTime():
     else:
         return 'Content-Type not supported!'
 
+@app.route("/api/ml/", methods=["GET","POST"])
+def getML():
+    prediction_result = roadblock_ml.rb_ml()
+    return jsonify({"prediction":prediction_result[0]}), 201
 
 if __name__ == "__main__":
     app.run(port=3000, debug=True)

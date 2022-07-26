@@ -36,7 +36,7 @@ class FontSettings extends React.Component {
     sendFont = (() => {
         let form = document.getElementById('fontSettingsList');
         let res = reportValidity(form);
-        
+        console.log("hi")
         if (res) {
             
             axios.post("http://127.0.0.1:8080/api/fonts/", { LineSpace: this.state.LineSpace,

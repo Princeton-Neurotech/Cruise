@@ -6,6 +6,8 @@ import PageCount from './PageCount';
 import axios from 'axios';
 import reportValidity from 'report-validity'
 import ReactNotifications from 'react-browser-notifications';
+import Swal from 'sweetalert2';
+window.Swal = Swal;
 
 class Thresholds extends React.Component {
     constructor(props) {
@@ -30,12 +32,12 @@ class Thresholds extends React.Component {
     }
 
     showRoadblockNotifications() {
-        console.log(this.n.supported())
+        // console.log(this.n.supported())
         if (this.n.supported()) this.n.show();
     }
 
     showCompNotifications() {
-        console.log(this.a.supported())
+        // console.log(this.a.supported())
         if (this.a.supported()) this.a.show();
     }
 
@@ -50,6 +52,11 @@ class Thresholds extends React.Component {
         setInterval(() => {
             this.checkRoadblock()
         }, 1000);
+        // do this every 5 min
+        setInterval(() => {
+            this.sendML()
+        }, 300000);
+        
         let form = document.getElementById('fontSettingsList');
         let res = reportValidity(form);
         if (res) {
@@ -57,7 +64,25 @@ class Thresholds extends React.Component {
                                                             pageCount: this.state.pageCount })
                 .then(res => {
                     console.log(res);
-                    console.log(res.data);
+                    console.log(res.data['wordcount']);
+                    /*
+                    if (!res.ok) {
+                        Swal.fire(
+                            'Unsuccessful',
+                            'Unable to delete selected user. Please contact administrator.',
+                            'error'
+                        );
+                        return;
+                    }
+                    */
+                    Swal.fire({
+                        title: 'We expect you to take ' + (res.data['wordcount'])/60 + ' minutes',
+                        text: "",
+                        icon: 'OK',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    })
                 })
         }
 
@@ -66,17 +91,22 @@ class Thresholds extends React.Component {
         }, 5000);
     })
 
+    sendML = (() => {
+
+        axios.get("http://127.0.0.1:3000/api/ml/")
+    })
+
     checkRoadblock() {
-            axios.get("http://127.0.0.1:3000/api/roadblock/")
-                .then(res => {
-                    if (res.data[0] == 'True') {
-                        this.showRoadblockNotifications();
-                        this.state.isRoadblock = true;
-                    }
-                    // need to then set back to false!
-                    // console.log(res);
-                    // console.log(res.data);
-                })
+        axios.get("http://127.0.0.1:3000/api/roadblock/")
+            .then(res => {
+                if (res.data[0] == 'True') {
+                    this.showRoadblockNotifications();
+                    this.state.isRoadblock = true;
+                }
+                // need to then set back to false!
+                // console.log(res);
+                // console.log(res.data);
+            })
         }
 
     checkCompletion() {

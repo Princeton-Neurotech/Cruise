@@ -12,7 +12,7 @@ from sklearn.datasets import make_hastie_10_2
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.inspection import PartialDependenceDisplay
 
-def machine_learning():
+def machine_learning(wordcount):
     data = pd.read_csv('keyboard1.csv')
     # data.columns = ["charcount", "wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "chars prodocued", "words produced", "sentences produced", "chars deleted", "words deleted", "sentences deleted", "change in charcount", "change in wordcount", "change in sentencecount", "5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY roadblock number", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"]
     # print(data)
@@ -110,13 +110,13 @@ def machine_learning():
     # grid_search = GridSearchCV(random_forest, param_grid, cv=[], scoring='r2', return_train_score=True)
     # grid_search.fit(x_train_set, y_train_set)
 
-    completion_buffer = open("thr.buf", 'r')
-    thresholds = completion_buffer.readlines()
-    wordcount = int(thresholds[0])
-    ynew_list = [[wordcount]]
+    # completion_buffer = open("thr.buf", 'r')
+    # thresholds = completion_buffer.readlines()
+    # wordcount = int(thresholds[0])
+    ynew_list = [[int(wordcount)]]
     # ynew_list = np.array([wordcount, 0, 0, 0], [wordcount, 0, 0, 0])
     # ynew_list.reshape(-1, 1)
-    # print(ynew_list)
+    print(ynew_list)
     ynew = linear_regression.predict(ynew_list)
     print(ynew)
     return ynew
