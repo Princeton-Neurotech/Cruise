@@ -17,7 +17,6 @@ class keyboard():
         self.previous_charcount = 0
         self.PAGE_LENGTH = 4002
 
-        self.columns = 0
         self.counter = 0
         self.completion = False
         self.roadblock = False
@@ -179,12 +178,24 @@ class keyboard():
         self.keyboard_training_features = pd.concat([self.keyboard_training_features, self.history_dffeatures], axis=0)  
         self.row_index += 1
 
+        """
         if self.columns == 0:
             # every 5s append one row to existing csv file to update records
             self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard1.csv', mode='a', header=True)
         else:
             self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard1.csv', mode='a', header=False)
         self.columns += 1
+        """
+
+        keyboard2 = None
+        try:
+            keyboard2 = pd.read_csv('keyboard2.csv')
+        except:
+            keyboard2 = pd.DataFrame()
+            # every 5s append one row to existing csv file to update records
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard2.csv', mode='a', header=True)
+        if not keyboard2.empty:
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard2.csv', mode='a', header=False)
         # label is sum of future words produced data
         # self.training_label = self.history_dffeatures["words produced"][-300:].sum()
         # print(self.training_label)
@@ -207,6 +218,7 @@ class keyboard():
         else:
             self.roadblock = False
 
+        if (time.time - self.start_time >= )
         self.previous_saved_charcount = self.saved_charcount
         self.saved_charcount = charcount
         self.previous_saved_wordcount = self.saved_wordcount

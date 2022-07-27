@@ -1,0 +1,10 @@
+,new,charcount,wordcount,sentencecount,number of standby,standby,roadblock,roadblock number,change in charcount,change in wordcount,change in sentencecount,chars produced,words produced,sentences produced,chars deleted,words deleted,sentences deleted,time (s),min time (s),5rSUMMARY wordcount,5rSUMMARY sentencecount,5rSUMMARY standby,5rSUMMARY number of standby,5rSUMMARY roadblock number,5rSUMMARY words produced,5rSUMMARY sentences produced,5rSUMMARY words deleted,5rSUMMARY sentences deleted,5rSUMMARY change in wordcount,5rSUMMARY change in sentencecount
+0,False,21,5,0,0,False,False,0,,,,,,,,,,0.9139580726623535,0.9139649868011475,5.0,0.0,0.0,0.0,0.0,,,,,,
+0,False,22,5,1,0,False,False,0,,,,,,,,,,0.8643062114715576,0.8643162250518799,5.0,1.0,0.0,0.0,0.0,,,,,,
+1,True,22,5,1,0,False,False,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6.221534967422485,0.8643162250518799,5.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2,True,22,5,1,1,True,True,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.559006929397583,0.8643162250518799,5.0,1.0,0.3333333333333333,0.3333333333333333,0.3333333333333333,0.0,0.0,0.0,0.0,0.0,0.0
+3,False,36,7,1,1,False,True,1,14.0,2.0,0.0,14.0,2.0,0.0,0.0,0.0,0.0,16.87451410293579,16.87447714805603,5.5,1.0,0.25,0.5,0.5,2.0,0.0,0.0,0.0,2.0,0.0
+0,False,41,8,2,0,False,False,0,,,,,,,,,,1.1059472560882568,1.1059520244598389,8.0,2.0,0.0,0.0,0.0,,,,,,
+1,True,42,8,2,0,False,False,0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,6.43123722076416,1.1059520244598389,8.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2,True,42,8,2,0,False,True,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.759891986846924,1.1059520244598389,8.0,2.0,0.0,0.0,0.3333333333333333,0.0,0.0,0.0,0.0,0.0,0.0
+3,True,42,8,2,1,True,True,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,17.103837251663208,1.1059520244598389,8.0,2.0,0.25,0.25,0.5,0.0,0.0,0.0,0.0,0.0,0.0

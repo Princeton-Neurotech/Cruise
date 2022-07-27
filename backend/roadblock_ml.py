@@ -1,4 +1,5 @@
 import pandas as pd
+from regex import R
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
@@ -24,12 +25,28 @@ def rb_ml():
     data = data.dropna()
 
     # training and testing sets, 80/20 ratio
-    label = data["roadblock"]
+    label = data["standby"]
+    label = label.shift(periods=-59)
+    label = label.dropna()
+    label = label.astype('int')
 
+    data = data.drop("roadblock", axis=1)
     data = data.drop("5rSUMMARY roadblock number", axis=1)
+    data = data.drop("5rSUMMARY standby", axis=1)
+    data = data.drop("5rSUMMARY number of standby", axis=1)
     data = data.drop("roadblock number", axis=1)
     data = data.drop("Unnamed: 0", axis=1)
-    x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label, test_size=0.4, random_state=42)
+
+    data = data.shift(periods=59)
+    # print(data)
+    data = data.dropna()
+    # print(data)
+    # x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label, test_size=0.4, shuffle=False)
+    x_train_set = data.iloc[:-59 , :]
+    x_test_set = data.tail(59)
+    y_train_set = label.iloc[:-59]
+    y_test_set = label.tail(59)
+    print(y_test_set)
 
     # models
     svc = SVC()
@@ -67,9 +84,9 @@ def rb_ml():
     print(roadblock_f1_score)
     precision, recall, thresholds = precision_recall_curve(y_test_set, testing_predictions)
     # pr, tpr, thresholds = roc_curve(y_test_set, scores)
-    plt.plot(thresholds, precision[:-1], label='precision')
+    # plt.plot(thresholds, precision[:-1], label='precision')
     # plt.plot(thresholds, recall[:-1], label='recall')
-    plt.show()
+    # plt.show()
     # print(fpr)
     # print(tpr)
 
@@ -104,10 +121,11 @@ def rb_ml():
     # plt.gcf()
     # plt.gca()
     # plt.use('Agg')
+    """
     display = PartialDependenceDisplay.from_estimator(
         svc,
         x_train_set,
-        features=["5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"],
+        features=["5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount", "5rSUMMARY standby"],
         kind="both"
     )
 
@@ -115,10 +133,11 @@ def rb_ml():
         "Partial dependence of house value on non-location features\n"
         "for the California housing dataset, with MLPRegressor"
     )
-    display.figure_.subplots_adjust(hspace=0.3)
+    """
+    # display.figure_.subplots_adjust(hspace=0.3)
 
-    plt.savefig('name.png')
-    os.system('eog name.png &')
+    # plt.savefig('name.png')
+    # os.system('eog name.png &')
 
     confidence = 0.95
     squared_errors = (testing_predictions - y_test_set)**2
@@ -129,3 +148,8 @@ def rb_ml():
     # search for best hyperparameters
     # grid_search = GridSearchCV(random_forest, param_grid, cv=[], scoring='r2', return_train_score=True)
     # grid_search.fit(x_train_set, y_train_set)
+    
+    print(testing_predictions)
+    return testing_predictions[-1]
+
+rb_ml()
