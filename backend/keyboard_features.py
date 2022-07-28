@@ -193,12 +193,9 @@ class keyboard():
         except:
             keyboard2 = pd.DataFrame()
             # every 5s append one row to existing csv file to update records
-            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard2.csv', mode='a', header=True)
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', header=True)
         if not keyboard2.empty:
-            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard2.csv', mode='a', header=False)
-        # label is sum of future words produced data
-        # self.training_label = self.history_dffeatures["words produced"][-300:].sum()
-        # print(self.training_label)
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', header=False)
 
         # ROADBLOCK LOGIC
         # existence of roadblock is checked every 5 min
@@ -207,6 +204,8 @@ class keyboard():
         # at time 5: saved_charcount
         # at time 10: charcount
         # at time 15 and beyond: new charcount
+
+        # changes too little
         # ((sentencecount - self.saved_sentencecount)/10 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/10)
         if abs((float((charcount - self.saved_charcount)/10)) <= abs(float((self.saved_charcount - self.previous_saved_charcount)/10)) and 
         abs(float((wordcount - self.saved_wordcount)/10)) <= abs(float((self.saved_wordcount - self.previous_saved_wordcount)/10)) and
@@ -218,9 +217,6 @@ class keyboard():
         else:
             self.roadblock = False
 
-        print(float((charcount - self.saved_charcount)/10))
-        print(float((self.saved_charcount - self.previous_saved_charcount)/10))
-        # do we want to updaye these less frequently?
         # if (time.time - self.start_time >= 60):
         self.previous_saved_charcount = self.saved_charcount
         self.saved_charcount = charcount
@@ -230,7 +226,7 @@ class keyboard():
         self.saved_sentencecount = sentencecount
 
         # COMPLETION LOGIC
-        # also check this every 5 min
+        # check this every 5 min
         trade_buffer = open("thr.buf", 'r')
         with trade_buffer as f:
             lines = f.read() 
