@@ -1,3 +1,4 @@
+from cgi import test
 import pandas as pd
 from regex import R
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -16,35 +17,33 @@ from sklearn.inspection import PartialDependenceDisplay
 import os
 
 def rb_ml():
-    data = pd.read_csv('keyboard1.csv')
-    # data.columns = ["charcount", "wordcount", "sentencecount", "standby", "number of standby", "roadblock number", "chars prodocued", "words produced", "sentences produced", "chars deleted", "words deleted", "sentences deleted", "change in charcount", "change in wordcount", "change in sentencecount", "5rSUMMARY charcount", "5rSUMMARY wordcount", "5rSUMMARY sentencecount", "5rSUMMARY standby", "5rSUMMARY number of standby", "5rSUMMARY roadblock number", "5rSUMMARY words produced", "5rSUMMARY sentences produced", "5rSUMMARY words deleted", "5rSUMMARY sentences deleted", "5rSUMMARY change in wordcount", "5rSUMMARY change in sentencecount"]
-    # print(data)
-    # exported_data = data.to_csv('data.csv')
-    # data = pd.read_csv('data.csv')
-    # print(data.columns)
-    data = data.dropna()
+    data = pd.read_csv('keyboard3.csv')
+    data.columns = ['new', 'charcount', 'wordcount', 'sentencecount', 'number of standby',
+       'standby', 'roadblock', 'roadblock number', 'change in charcount',
+       'change in wordcount', 'change in sentencecount', 'chars produced',
+       'words produced', 'sentences produced', 'chars deleted',
+       'words deleted', 'sentences deleted', 'time (s)', 'min time (s)',
+       '5rSUMMARY wordcount', '5rSUMMARY sentencecount', '5rSUMMARY standby',
+       '5rSUMMARY number of standby', '5rSUMMARY roadblock number',
+       '5rSUMMARY words produced', '5rSUMMARY sentences produced',
+       '5rSUMMARY words deleted', '5rSUMMARY sentences deleted',
+       '5rSUMMARY change in wordcount', '5rSUMMARY change in sentencecount']
 
     # training and testing sets, 80/20 ratio
-    label = data["standby"]
-    label = label.shift(periods=-59)
-    label = label.dropna()
-    label = label.astype('int')
+    label = data["roadblock"]
 
     data = data.drop("roadblock", axis=1)
     data = data.drop("5rSUMMARY roadblock number", axis=1)
-    data = data.drop("5rSUMMARY standby", axis=1)
-    data = data.drop("5rSUMMARY number of standby", axis=1)
     data = data.drop("roadblock number", axis=1)
-    data = data.drop("Unnamed: 0", axis=1)
-
+    # data = data.drop("Unnamed: 0", axis=1)
     data = data.shift(periods=59)
-    # print(data)
     data = data.dropna()
-    # print(data)
+    print(data)
+
     # x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label, test_size=0.4, shuffle=False)
     x_train_set = data.iloc[:-59 , :]
     x_test_set = data.tail(59)
-    y_train_set = label.iloc[:-59]
+    y_train_set = label.iloc[:-118]
     y_test_set = label.tail(59)
     print(y_test_set)
 
@@ -140,6 +139,8 @@ def rb_ml():
     # os.system('eog name.png &')
 
     confidence = 0.95
+    testing_predictions = testing_predictions.astype(np.float32)
+    y_test_set = y_test_set.astype(np.float32)
     squared_errors = (testing_predictions - y_test_set)**2
     confidence_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
     # print(confidence_interval)

@@ -245,6 +245,7 @@ class keyboard():
         completion_buffer.write(str(self.completion))
 
         print(self.keyboard_training_features)
+        print(self.keyboard_training_features.columns)
         return self.keyboard_training_features
         
         # test both types of keyboard features in ml model and determine which has less error
