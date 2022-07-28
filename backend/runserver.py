@@ -1,6 +1,7 @@
 from sys import argv, exit, stderr
 from routes import app
-import keyboard_features
+import run_multiprocessing
+import web_interface
 
 def main():
 
@@ -23,5 +24,9 @@ def main():
 
 if __name__ == '__main__':
     main()
-    keyboard_features1 = keyboard_features.keyboard()
-    print(keyboard_features1.keyboard_training_features)
+    mySelenium = web_interface.selenium()
+    myList = mySelenium.connectSelenium()
+    myUID = myList[0]
+    myDriver = myList[1]
+    run_multiprocessing.interface_process()
+    mySelenium.closeSelenium(myDriver)

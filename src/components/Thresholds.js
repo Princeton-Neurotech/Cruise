@@ -56,7 +56,7 @@ class Thresholds extends React.Component {
         setInterval(() => {
             this.sendML()
         }, 300000);
-        
+
         let form = document.getElementById('fontSettingsList');
         let res = reportValidity(form);
         if (res) {
@@ -92,7 +92,6 @@ class Thresholds extends React.Component {
     })
 
     sendML = (() => {
-
         axios.get("http://127.0.0.1:3000/api/ml/")
     })
 

@@ -207,10 +207,10 @@ class keyboard():
         # at time 5: saved_charcount
         # at time 10: charcount
         # at time 15 and beyond: new charcount
-        if (((charcount - self.saved_charcount)/10 <= (self.saved_charcount - self.previous_saved_charcount)/10) or 
-        ((wordcount - self.saved_wordcount)/10 <= (self.saved_wordcount - self.previous_saved_wordcount)/10) or 
-        ((sentencecount - self.saved_sentencecount)/10 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/10)
-        or (self.standby is True)):
+        # ((sentencecount - self.saved_sentencecount)/10 <= (self.saved_sentencecount - self.previous_saved_sentencecount)/10)
+        if abs((float((charcount - self.saved_charcount)/10)) <= abs(float((self.saved_charcount - self.previous_saved_charcount)/10)) and 
+        abs(float((wordcount - self.saved_wordcount)/10)) <= abs(float((self.saved_wordcount - self.previous_saved_wordcount)/10)) and
+        (self.standby is True)):
             self.roadblock = True
             if self.previous_roadblock is False:
                 self.roadblock_number += 1
@@ -218,7 +218,10 @@ class keyboard():
         else:
             self.roadblock = False
 
-        if (time.time - self.start_time >= )
+        print(float((charcount - self.saved_charcount)/10))
+        print(float((self.saved_charcount - self.previous_saved_charcount)/10))
+        # do we want to updaye these less frequently?
+        # if (time.time - self.start_time >= 60):
         self.previous_saved_charcount = self.saved_charcount
         self.saved_charcount = charcount
         self.previous_saved_wordcount = self.saved_wordcount
