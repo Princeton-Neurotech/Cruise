@@ -75,7 +75,7 @@ defusedxml @ file:///tmp/build/80754af9/defusedxml_1615228127516/work
 diff-match-patch @ file:///Users/ktietz/demo/mc3/conda-bld/diff-match-patch_1630511840874/work
 distlib==0.3.4
 distributed @ file:///opt/concourse/worker/volumes/live/34c9adba-e95e-473d-7a32-ecdf958a8844/volume/distributed_1635968220957/work
-Django==4.0.5
+Django==4.0.6
 django-http-method==1.2.1
 docutils @ file:///opt/concourse/worker/volumes/live/c87e10af-317d-45cb-7142-3d02053858ee/volume/docutils_1620827978243/work
 dukpy @ file:///Users/runner/miniforge3/conda-bld/dukpy_1637280939917/work
