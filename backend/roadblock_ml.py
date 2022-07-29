@@ -29,6 +29,7 @@ def rb_ml():
        '5rSUMMARY words deleted', '5rSUMMARY sentences deleted',
        '5rSUMMARY change in wordcount', '5rSUMMARY change in sentencecount']
 
+    data = data.dropna()
     # training and testing sets, 80/20 ratio
     label = data["roadblock"]
 
@@ -38,7 +39,9 @@ def rb_ml():
     # data = data.drop("Unnamed: 0", axis=1)
     data = data.shift(periods=59)
     data = data.dropna()
+    label = label.dropna()
     print(data)
+    print(label)
 
     # x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label, test_size=0.4, shuffle=False)
     x_train_set = data.iloc[:-59 , :]
@@ -57,8 +60,14 @@ def rb_ml():
     linear_regression = LinearRegression()
 
     # fitting and predicting
-    svc.fit(x_train_set, y_train_set)
-    testing_predictions = svc.predict(x_test_set)
+    random_forest_classifier.fit(x_train_set, y_train_set)
+    testing_predictions = random_forest_classifier.predict_proba(x_test_set)
+    print(testing_predictions)
+    pred = testing_predictions.T
+    roadblock_pred = pred[1]
+    print(roadblock_pred)
+    threshold = np.percentile(roadblock_pred, 95)
+    print(threshold)
 
     # calculating error
     # mse = mean_squared_error(y_test_set, testing_predictions)
@@ -69,7 +78,7 @@ def rb_ml():
     n_correct = sum(testing_predictions==y_test_set)
     print(n_correct/(len(x_test_set)))
 
-    scores = cross_val_score(svc, x_test_set, y_test_set, scoring = "accuracy", cv=3)
+    scores = cross_val_score(svc, x_test_set, y_test_set, scoring = "accuracy", cv=10)
     rmse_scores = np.sqrt(scores)
     print("Scores:", scores)
     print("Mean:", scores.mean())
@@ -144,7 +153,6 @@ def rb_ml():
     squared_errors = (testing_predictions - y_test_set)**2
     confidence_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
     # print(confidence_interval)
-    # print(testing_predictions)
 
     # search for best hyperparameters
     # grid_search = GridSearchCV(random_forest, param_grid, cv=[], scoring='r2', return_train_score=True)
