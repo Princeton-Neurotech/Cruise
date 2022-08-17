@@ -38,17 +38,17 @@ def rb_ml():
     data = data.drop("roadblock number", axis=1)
     # data = data.drop("Unnamed: 0", axis=1)
     data = data.shift(periods=59)
+    #print(data)
     data = data.dropna()
     label = label.dropna()
-    print(data)
-    print(label)
+    # print(label)
 
     # x_train_set, x_test_set, y_train_set, y_test_set = train_test_split(data, label, test_size=0.4, shuffle=False)
     x_train_set = data.iloc[:-59 , :]
     x_test_set = data.tail(59)
     y_train_set = label.iloc[:-118]
     y_test_set = label.tail(59)
-    print(y_test_set)
+    #print(y_test_set)
 
     # models
     svc = SVC()
@@ -62,12 +62,30 @@ def rb_ml():
     # fitting and predicting
     random_forest_classifier.fit(x_train_set, y_train_set)
     testing_predictions = random_forest_classifier.predict_proba(x_test_set)
-    print(testing_predictions)
+    test = pd.DataFrame(testing_predictions)
+    test = test.dropna()
+    test2 = pd.DataFrame(y_test_set)
+    test2 = test2.dropna()
+    test = test.reset_index(drop=True)
+    test2 = test2.reset_index(drop=True)
+    #test1 = pd.concat([test,test2], axis=0, join = "outer")
+    test1 = test.join(test2)
+    test1["diff"] = test1[1].diff()
+    mean1 = test1['diff'].mean()
+    quantile = test1['diff'].quantile(.85)
+    print(quantile)
+
+    test1["road"] = test1['diff'] > quantile
+    print(test1)
+    #test1 = testing_predictions["0"] + testing_predictions["1"] + test2["roadbloack"]
+    #print("here")
+    #print(test1)
+    #print(test2.shape)
     pred = testing_predictions.T
     roadblock_pred = pred[1]
-    print(roadblock_pred)
+    #print(roadblock_pred)
     threshold = np.percentile(roadblock_pred, 95)
-    print(threshold)
+    #print(threshold)
 
     # calculating error
     # mse = mean_squared_error(y_test_set, testing_predictions)
@@ -84,13 +102,15 @@ def rb_ml():
     print("Mean:", scores.mean())
     print("Standard deviation:", scores.std())
 
-    roadblock_precision_score = precision_score(y_test_set, testing_predictions)
-    print(roadblock_precision_score)
-    roadblock_recall_score = recall_score(y_test_set, testing_predictions)
-    print(roadblock_recall_score)
-    roadblock_f1_score = f1_score(y_test_set, testing_predictions)
-    print(roadblock_f1_score)
-    precision, recall, thresholds = precision_recall_curve(y_test_set, testing_predictions)
+    # roadblock_precision_score = precision_score(y_test_set, testing_predictions)
+    # print(roadblock_precision_score)
+    # roadblock_recall_score = recall_score(y_test_set, testing_predictions)
+    # print(roadblock_recall_score)
+    # roadblock_f1_score = f1_score(y_test_set, testing_predictions)
+    # print(roadblock_f1_score)
+    # precision, recall, thresholds = precision_recall_curve(y_test_set, testing_predictions)
+
+
     # pr, tpr, thresholds = roc_curve(y_test_set, scores)
     # plt.plot(thresholds, precision[:-1], label='precision')
     # plt.plot(thresholds, recall[:-1], label='recall')
@@ -147,18 +167,18 @@ def rb_ml():
     # plt.savefig('name.png')
     # os.system('eog name.png &')
 
-    confidence = 0.95
-    testing_predictions = testing_predictions.astype(np.float32)
-    y_test_set = y_test_set.astype(np.float32)
-    squared_errors = (testing_predictions - y_test_set)**2
-    confidence_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
+    # confidence = 0.95
+    # testing_predictions = testing_predictions.astype(np.float32)
+    # y_test_set = y_test_set.astype(np.float32)
+    # squared_errors = (testing_predictions - y_test_set)**2
+    # confidence_interval = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1, loc=squared_errors.mean(), scale=stats.sem(squared_errors)))
     # print(confidence_interval)
 
     # search for best hyperparameters
     # grid_search = GridSearchCV(random_forest, param_grid, cv=[], scoring='r2', return_train_score=True)
     # grid_search.fit(x_train_set, y_train_set)
-    
-    print(testing_predictions)
-    return testing_predictions[-1]
+    #print(testing_predictions)
+    print(test1)
+    return test1["road"]
 
 rb_ml()

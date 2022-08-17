@@ -4,6 +4,8 @@ import numpy as np
 import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 import warnings
+import nltk
+nltk.download('punkt')
 warnings.filterwarnings('ignore')
 
 class keyboard():
@@ -140,24 +142,24 @@ class keyboard():
         self.history_dffeatures["standby"] = self.history_standby
         self.history_dffeatures["roadblock"] = self.history_roadblock
         self.history_dffeatures["roadblock number"] = self.history_roadblock_number
-        self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff()
-        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff()
-        self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff()
-        self.history_dffeatures["chars produced"] = self.history_dffeatures["change in charcount"].copy()
-        self.history_dffeatures["chars produced"][self.history_dffeatures["chars produced"] < 0] = 0
-        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["change in charcount"] = self.history_dffeatures["charcount"].diff() if not self.history_dffeatures["charcount"].diff().empty else [0]
+        self.history_dffeatures["change in wordcount"] = self.history_dffeatures["wordcount"].diff() if not self.history_dffeatures["wordcount"].diff().empty else [0]
+        self.history_dffeatures["change in sentencecount"] = self.history_dffeatures["sentencecount"].diff() if not self.history_dffeatures["sentencecount"].diff().empty else [0]
+        self.history_dffeatures["chars produced"] = self.history_dffeatures["change in charcount"].copy() if not self.history_dffeatures["change in charcount"].copy().empty else [0]
+        self.history_dffeatures["chars produced"][self.history_dffeatures["chars produced"] < 0] = 0 
+        self.history_dffeatures["words produced"] = self.history_dffeatures["change in wordcount"].copy() if not self.history_dffeatures["change in wordcount"].copy().empty else [0]
         self.history_dffeatures["words produced"][self.history_dffeatures["words produced"] < 0] = 0
-        self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["sentences produced"] = self.history_dffeatures["change in sentencecount"].copy() if not self.history_dffeatures["change in sentencecount"].copy().empty else [0]
         self.history_dffeatures["sentences produced"][self.history_dffeatures["sentences produced"] < 0] = 0
-        self.history_dffeatures["chars deleted"] = -1*self.history_dffeatures["change in charcount"].copy()
+        self.history_dffeatures["chars deleted"] = -1*self.history_dffeatures["change in charcount"].copy() if not self.history_dffeatures["change in charcount"].copy().empty else [0]
         self.history_dffeatures["chars deleted"][self.history_dffeatures["chars deleted"] < 0] = 0
-        self.history_dffeatures["chars deleted"] = self.history_dffeatures["chars deleted"].abs()
-        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy()
+        self.history_dffeatures["chars deleted"] = self.history_dffeatures["chars deleted"].abs() if not self.history_dffeatures["chars deleted"].abs().empty else [0]
+        self.history_dffeatures["words deleted"] = -1*self.history_dffeatures["change in wordcount"].copy() if not self.history_dffeatures["change in wordcount"].copy().empty else [0]
         self.history_dffeatures["words deleted"][self.history_dffeatures["words deleted"] < 0] = 0
-        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs()
-        self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy()
+        self.history_dffeatures["words deleted"] = self.history_dffeatures["words deleted"].abs() if not self.history_dffeatures["words deleted"].abs().empty else [0]
+        self.history_dffeatures["sentences deleted"] = -1*self.history_dffeatures["change in sentencecount"].copy() if not self.history_dffeatures["change in sentencecount"].copy().empty else [0]
         self.history_dffeatures["sentences deleted"][self.history_dffeatures["sentences deleted"] < 0] = 0
-        self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs()
+        self.history_dffeatures["sentences deleted"] = self.history_dffeatures["sentences deleted"].abs() if not self.history_dffeatures["sentences deleted"].abs().empty else [0]
         self.history_dffeatures["time (s)"] = self.history_time_seconds
         self.history_dffeatures['min time (s)'] = self.history_min_time_seconds
 

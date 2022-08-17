@@ -41,9 +41,18 @@ def brain_data_process(board,ns):
   plt.show()
   # plt.legend()
 """
+# def selenium():
+#     print("process 1")
+#     mySelenium = web_interface.selenium()
+#     myList = mySelenium.connectSelenium()
+#     myUID = myList[0]
+#     myDriver = myList[1]
 
-def interface_process():    
+def interface_process(mySelenium, myUID): 
+  print("process 2")  
   proc3 = multiprocessing.Process(target=workers.worker3, args=[mySelenium, myUID])
+  # p = multiprocessing.Process(target=selenium)
+  # p.start()
   proc3.start()
   # proc3.terminate()
   # if hrs == 1.5:
@@ -76,6 +85,18 @@ def timing_process():
   proc4 = multiprocessing.Process(target=workers.worker4)
   proc4.start()
 
+def main():
+  mgr = Manager()
+  ns = mgr.Namespace()
+  # don't run keyboard_process, realtime() is ran within worker 3 in processSelenium
+  # keyboard_process()
+  mySelenium = web_interface.selenium()
+  myList = mySelenium.connectSelenium()
+  myUID = myList[0]
+  myDriver = myList[1]
+  interface_process(mySelenium,myUID)
+  # mySelenium.closeSelenium(myDriver)
+
 # run keyboard and interface concurrently to collect ml data
 if __name__ == "__main__":
   mgr = Manager()
@@ -86,7 +107,7 @@ if __name__ == "__main__":
   myList = mySelenium.connectSelenium()
   myUID = myList[0]
   myDriver = myList[1]
-  interface_process()
+  interface_process(mySelenium,myUID)
   mySelenium.closeSelenium(myDriver)
   
 # freeze_support()

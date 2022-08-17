@@ -1,6 +1,7 @@
 import keyboard_features
 import pandas as pd
 import time
+import roadblock_ml
 
 # keyboard functions
 def worker1(namespace):
@@ -27,10 +28,12 @@ def worker2(board, namespace):
 # web interface functions
 def worker3(mySelenium, myUID):
     while True:
+        print("process 2")
         mySelenium.processSelenium(myUID)
         time.sleep(5)
         pd.options.display.max_columns = None
         keyboard1 = keyboard_features.keyboard()
+        prediction = roadblock_ml.rb_ml()
         # print(keyboard1.keyboard_training_features)
 
 def worker4():
