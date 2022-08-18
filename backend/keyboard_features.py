@@ -5,7 +5,7 @@ import enchant
 from nltk.tokenize import word_tokenize, sent_tokenize
 import warnings
 import nltk
-nltk.download('punkt')
+# nltk.download('punkt')
 warnings.filterwarnings('ignore')
 
 class keyboard():
@@ -101,13 +101,15 @@ class keyboard():
 
         # print(((self.keyboard_training_features['wordcount']) == wordcount).any())
         if self.counter != 0:
-            if wordcount in self.history_wordcount:
+            similar_rows = self.keyboard_training_features[self.keyboard_training_features['wordcount'] == wordcount]
+            if wordcount in self.history_wordcount and not similar_rows.empty:
             # if wordcount in self.keyboard_training_features.values:
             # if ((self.keyboard_training_features['wordcount']) == wordcount).all():
-                similar_rows = self.keyboard_training_features[self.keyboard_training_features['wordcount'] == wordcount]
                 self.new = True
                 # print(similar_rows)
                 # similar_row = similar_rows[0]
+                print("here")
+                print(self.history_wordcount)
                 self.min_time = similar_rows['min time (s)'].iloc[0]
                 print(self.min_time)
             else:
@@ -188,16 +190,16 @@ class keyboard():
             self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard1.csv', mode='a', header=False)
         self.columns += 1
         """
-
+        self.keyboard_training_features = self.keyboard_training_features.reset_index(drop=True)
         keyboard2 = None
         try:
-            keyboard2 = pd.read_csv('keyboard2.csv')
+            keyboard2 = pd.read_csv('keyboard3.csv')
         except:
             keyboard2 = pd.DataFrame()
             # every 5s append one row to existing csv file to update records
-            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', header=True)
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', header=True, index=False)
         if not keyboard2.empty:
-            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', header=False)
+            self.keyboard_training_features.loc[self.row_index - 1:self.row_index].to_csv('keyboard3.csv', mode='a', index=False, header=False)
 
         # ROADBLOCK LOGIC
         # existence of roadblock is checked every 5 min
