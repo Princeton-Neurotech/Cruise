@@ -26,9 +26,6 @@ def main():
     except Exception as ex:
         print(ex, file=stderr)
         exit(1)
-    
-
-
 
 if __name__ == '__main__':
     print("process 3")

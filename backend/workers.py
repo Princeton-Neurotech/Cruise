@@ -32,6 +32,7 @@ def worker3(mySelenium, myUID):
         mySelenium.processSelenium(myUID)
         time.sleep(5)
         pd.options.display.max_columns = None
+        # run keyboard and ml processes concurrently
         keyboard1 = keyboard_features.keyboard()
         prediction = roadblock_ml.rb_ml()
         # print(keyboard1.keyboard_training_features)
