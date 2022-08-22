@@ -84,7 +84,8 @@ def rb_ml():
     pred = testing_predictions.T
     roadblock_pred = pred[1]
     #print(roadblock_pred)
-    threshold = np.percentile(roadblock_pred, 95)
+    # we consider a threshold as the top 10% values of probabilities of roadblocks
+    threshold = np.percentile(roadblock_pred, 90)
     #print(threshold)
 
     # calculating error
@@ -178,7 +179,13 @@ def rb_ml():
     # grid_search = GridSearchCV(random_forest, param_grid, cv=[], scoring='r2', return_train_score=True)
     # grid_search.fit(x_train_set, y_train_set)
     #print(testing_predictions)
-    print(test1)
-    return test1["road"]
+    print(test1[-1:])
+    final_prediction = test1['road'][-1:]
+    print(final_prediction)
+    # roadblocks = test1.loc[test1['road'] == True]
+    # print(roadblocks)
+    roadblock_buffer = open("roadblock.buf", 'w')
+    roadblock_buffer.write(str(final_prediction))
+    return final_prediction
 
 rb_ml()

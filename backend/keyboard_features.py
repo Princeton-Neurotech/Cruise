@@ -242,8 +242,8 @@ class keyboard():
             self.termination_time = time.time()
 
         # write roadblock boolean to buf to check later
-        roadblock_buffer = open("roadblock.buf", 'w')
-        roadblock_buffer.write(str(self.roadblock))
+        # roadblock_buffer = open("roadblock.buf", 'w')
+        # roadblock_buffer.write(str(self.roadblock))
 
         completion_buffer = open("completion.buf", "w")
         completion_buffer.write(str(self.completion))

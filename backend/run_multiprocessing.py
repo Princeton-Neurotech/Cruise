@@ -85,6 +85,7 @@ def timing_process():
   proc4 = multiprocessing.Process(target=workers.worker4)
   proc4.start()
 
+"""
 def main():
   mgr = Manager()
   ns = mgr.Namespace()
@@ -96,6 +97,7 @@ def main():
   myDriver = myList[1]
   interface_process(mySelenium,myUID)
   # mySelenium.closeSelenium(myDriver)
+"""
 
 # run keyboard and interface concurrently to collect ml data
 if __name__ == "__main__":

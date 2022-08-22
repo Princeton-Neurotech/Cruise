@@ -1,10 +1,9 @@
 from sys import argv, exit, stderr
 from routes import app
-import run_multiprocessing
 import web_interface
+import multiprocessing
 from multiprocessing import Process
-import threading
-
+import workers
 
 finished = None
 def main():
@@ -28,16 +27,19 @@ def main():
         exit(1)
 
 if __name__ == '__main__':
-    print("process 3")
-    # main()
-    proc1 = threading.Thread(target=main)
-  # p = multiprocessing.Process(target=selenium)
-  # p.start()
+    proc1 = multiprocessing.Process(target=main)
     proc1.start()
-    while finished is None:
-        print("stuck")
-        pass
     proc1.join()
-    print("amir&leila")
-    run_multiprocessing.main()
+    print("is process 1 alive? ", proc1.is_alive() == True)
+    while proc1.is_alive() == True:
+        mySelenium = web_interface.selenium()
+        myList = mySelenium.connectSelenium()
+        myUID = myList[0]
+        myDriver = myList[1]
+        proc2 = multiprocessing.Process(target=workers.worker1, args=[mySelenium, myUID])
+        proc3 = multiprocessing.Process(target=workers.worker2)
+        proc2.start()
+        proc3.start()
+        proc2.join()
+        proc3.join()
     # mySelenium.closeSelenium(myDriver)
