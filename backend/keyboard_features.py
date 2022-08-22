@@ -108,8 +108,7 @@ class keyboard():
                 self.new = True
                 # print(similar_rows)
                 # similar_row = similar_rows[0]
-                print("here")
-                print(self.history_wordcount)
+                # print(self.history_wordcount)
                 self.min_time = similar_rows['min time (s)'].iloc[0]
                 print(self.min_time)
             else:
@@ -248,8 +247,8 @@ class keyboard():
         completion_buffer = open("completion.buf", "w")
         completion_buffer.write(str(self.completion))
 
-        print(self.keyboard_training_features)
-        print(self.keyboard_training_features.columns)
+        # print(self.keyboard_training_features)
+        # print(self.keyboard_training_features.columns)
         return self.keyboard_training_features
         
         # test both types of keyboard features in ml model and determine which has less error

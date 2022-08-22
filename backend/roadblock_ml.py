@@ -73,10 +73,10 @@ def rb_ml():
     test1["diff"] = test1[1].diff()
     mean1 = test1['diff'].mean()
     quantile = test1['diff'].quantile(.85)
-    print(quantile)
+    # print(quantile)
 
     test1["road"] = test1['diff'] > quantile
-    print(test1)
+    # print(test1)
     #test1 = testing_predictions["0"] + testing_predictions["1"] + test2["roadbloack"]
     #print("here")
     #print(test1)
@@ -86,7 +86,7 @@ def rb_ml():
     #print(roadblock_pred)
     # we consider a threshold as the top 10% values of probabilities of roadblocks
     threshold = np.percentile(roadblock_pred, 90)
-    #print(threshold)
+    # print(threshold)
 
     # calculating error
     # mse = mean_squared_error(y_test_set, testing_predictions)
@@ -95,13 +95,13 @@ def rb_ml():
 
     # alternative to mse for classification ml model
     n_correct = sum(testing_predictions==y_test_set)
-    print(n_correct/(len(x_test_set)))
+    # print(n_correct/(len(x_test_set)))
 
-    scores = cross_val_score(svc, x_test_set, y_test_set, scoring = "accuracy", cv=10)
-    rmse_scores = np.sqrt(scores)
-    print("Scores:", scores)
-    print("Mean:", scores.mean())
-    print("Standard deviation:", scores.std())
+    # scores = cross_val_score(svc, x_test_set, y_test_set, scoring = "accuracy", cv=10)
+    # rmse_scores = np.sqrt(scores)
+    # print("Scores:", scores)
+    # print("Mean:", scores.mean())
+    # print("Standard deviation:", scores.std())
 
     # roadblock_precision_score = precision_score(y_test_set, testing_predictions)
     # print(roadblock_precision_score)
@@ -180,7 +180,8 @@ def rb_ml():
     # grid_search.fit(x_train_set, y_train_set)
     #print(testing_predictions)
     print(test1[-1:])
-    final_prediction = test1['road'][-1:]
+    # final_prediction = test1['road'][-1:]
+    final_prediction = test1['road'].iat[-1]
     print(final_prediction)
     # roadblocks = test1.loc[test1['road'] == True]
     # print(roadblocks)

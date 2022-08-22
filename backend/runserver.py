@@ -29,17 +29,13 @@ def main():
 if __name__ == '__main__':
     proc1 = multiprocessing.Process(target=main)
     proc1.start()
-    proc1.join()
-    print("is process 1 alive? ", proc1.is_alive() == True)
-    while proc1.is_alive() == True:
-        mySelenium = web_interface.selenium()
-        myList = mySelenium.connectSelenium()
-        myUID = myList[0]
-        myDriver = myList[1]
-        proc2 = multiprocessing.Process(target=workers.worker1, args=[mySelenium, myUID])
-        proc3 = multiprocessing.Process(target=workers.worker2)
-        proc2.start()
-        proc3.start()
-        proc2.join()
-        proc3.join()
+    mySelenium = web_interface.selenium()
+    myUID = mySelenium.connectSelenium('https://docs.google.com/document/d/1c2EB7UQkKFClWztXksJH8tMS1RW79UgpFre-s19NJIE/edit')
+    proc2 = multiprocessing.Process(target=workers.worker1, args=[mySelenium, myUID])
+    proc2.start()
+    # proc1.join()
+    # print("is process 1 alive? ", proc1.is_alive() == True)
+    # while proc1.is_alive() == True:
+    # proc2.join()
+    # proc3.join()
     # mySelenium.closeSelenium(myDriver)
