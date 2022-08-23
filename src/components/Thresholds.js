@@ -81,8 +81,9 @@ class Thresholds extends React.Component {
                         icon: 'OK',
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'OK',
                     })
+                    console.log("swal.fire");
                 })
         }
 
@@ -168,6 +169,7 @@ class Thresholds extends React.Component {
                     </div>
                 </Collapse>
             </div>)
+            console.log("react notifs")
         }
 }
 

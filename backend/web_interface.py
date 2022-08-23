@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 import keyboard_features
 import extract_text
 import logging
+import appscript
 logging.basicConfig()
 
 class selenium():
@@ -15,16 +16,24 @@ class selenium():
     docs_service = extractor.get_credentials()
         
     def connectSelenium(self, url):
+        url = appscript.app('Google Chrome').windows.tabs.URL()
+        # print("url: ", url)
+        index = 0
         in_docs = False
         while not in_docs:
             if url:
-                if url.startswith("https://docs.google.com/document/d/"):
-                    print("found document")
-                    if not in_docs:
-                        UID = url[35:-5]
-                        sleep(1)
-                        in_docs = True
-        
+                # print([[tuple(l.split()) for l in list] for list in url])
+                for list in url:
+                    for item in list:
+                        # print(item)
+                        if item.startswith("https://docs.google.com/document/d/"):
+                            print("found document")
+                            if not in_docs:
+                                UID = item[35:-5]
+                                print(UID)
+                                sleep(1)
+                                in_docs = True
+                                        
         # document ID obtained from Google Doc
         return UID
     
@@ -32,5 +41,5 @@ class selenium():
         text = self.extractor.retrieveText(UID, self.docs_service)
         return self.kb.realtime(text)
 
-    def closeSelenium(self, driver):
-        driver.close()
+    # def closeSelenium(self, driver):
+        # driver.close()
