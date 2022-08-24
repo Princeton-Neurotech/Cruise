@@ -19,6 +19,7 @@
     "react-bootstrap": "^2.4.0",
     "react-browser-notifications": "^1.0.14",
     "react-dom": "^18.1.0",
+    "react-hot-toast": "^2.3.0",
     "react-native-numeric-input": "^1.9.1",
     "react-native-vector-icons": "^9.1.0",
     "react-numeric-input": "^2.2.3",

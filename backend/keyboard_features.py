@@ -247,7 +247,7 @@ class keyboard():
         completion_buffer = open("completion.buf", "w")
         completion_buffer.write(str(self.completion))
 
-        # print(self.keyboard_training_features)
+        print(self.keyboard_training_features)
         # print(self.keyboard_training_features.columns)
         return self.keyboard_training_features
         

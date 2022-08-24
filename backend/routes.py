@@ -40,7 +40,6 @@ def getSelenium():
 
 @app.route("/api/roadblock/", methods=["GET","POST"])
 def checkRoadblock():
-    print("writing roadblock")
     roadblock_buffer = open("roadblock.buf", 'r')
     roadblock = roadblock_buffer.readlines()
     return jsonify(roadblock if roadblock is not None else False)
@@ -87,7 +86,6 @@ def getThresholds():
         pageCount = requested_json['pageCount']
         print(requested_json)
         publication_buffer=open("thr.buf", 'w')
-        print("are you writing to thr")
         publication_buffer.write(wordCount + "\n" + pageCount)
         prediction_result = min_time_ml.machine_learning(wordCount)
         return jsonify({"wordcount":prediction_result[0]}), 201
