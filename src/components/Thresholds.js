@@ -9,6 +9,7 @@ import ReactNotifications from 'react-browser-notifications';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
+import notifications from 'chrome';
 window.Swal = Swal;
 
 class Thresholds extends React.Component {
@@ -101,6 +102,8 @@ class Thresholds extends React.Component {
         axios.get("http://127.0.0.1:3000/api/roadblock/")
             .then(res => {
                 if (res.data[0] == 'True') {
+                    console.log("roadblock notifs");
+                    this.roadblock_notif();
                     this.showRoadblockNotifications();
                     this.state.isRoadblock = true;
                 }
@@ -119,6 +122,8 @@ class Thresholds extends React.Component {
         axios.get("http://127.0.0.1:3000/api/completion/")
             .then(res => {
                 if (res.data[0] == 'True') {
+                    console.log("completion notifs");
+                    this.completion_notif();
                     this.showCompNotifications();
                     this.state.isCompletion = true;
                 }
@@ -144,23 +149,27 @@ class Thresholds extends React.Component {
         this.state.pageCount = childData;
     }
 
-    /*
-    chrome.notifications.create('roadblock', {
-        type: 'basic',
-        iconUrl: 'src/components/sad_whale.jpg',
-        title: 'roadblock',
-        message: 'You have approached a roadblock!',
-        priority: 2
-    })
+    roadblock_notif() {
+        console.log("made roadblock notif");
+        chrome.notifications.create('roadblock', {
+            type: 'basic',
+            iconUrl: 'src/components/sad_whale.jpg',
+            title: 'roadblock',
+            message: 'You have approached a roadblock!',
+            priority: 2
+        })
+    }
 
-    chrome.notifications.create('completion', {
-        type: 'basic',
-        iconUrl: 'src/components/happy_whale.jpg',
-        title: 'completion',
-        message: 'You have completed your goal!',
-        priority: 2
-    })
-    */
+    completion_notif() {
+        console.log("made completion notif");
+        chrome.notifications.create('completion', {
+            type: 'basic',
+            iconUrl: 'src/components/happy_whale.jpg',
+            title: 'completion',
+            message: 'You have completed your goal!',
+            priority: 2
+        })
+    }
 
     /*
     askNotificationPermission() {
@@ -190,7 +199,6 @@ class Thresholds extends React.Component {
     roadblock_img = 'src/components/sad_whale.jpg';
     roadblock_text = `You have approached a roadblock!`;
     roadblock_notification = new Notification('Roadblock', { body: roadblock_text, icon: roadblock_img });
-    */
     
     notify = () => toast('Here is your toast.');
 
@@ -223,6 +231,7 @@ class Thresholds extends React.Component {
           }
         };
     };
+    */
 
     // const [open, setOpen] = useState(false);
     render() {
