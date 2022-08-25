@@ -11,5 +11,17 @@
       "16": "logo192.png",
       "48": "logo192.png",
       "128": "logo192.png"
-  }
+  },
+  "permissions": [
+    "notifications"
+  ],
+  "env": {
+    "browser": true,
+    "chrome": true,
+    "es6": true,
+    "webextensions": true
+  },
+  "globals": {
+    "chrome": true
+}
 }

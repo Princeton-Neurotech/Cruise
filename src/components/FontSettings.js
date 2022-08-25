@@ -1,3 +1,4 @@
+/*
 import React, { useState } from 'react'
 import Collapse from 'react-bootstrap/Collapse';
 import Button from 'react-bootstrap/Button';
@@ -50,8 +51,8 @@ class FontSettings extends React.Component {
     }
     )
     render() {
-        return (
-            <div className='fontSettings' >
+        return ( */
+            {/* <div className='fontSettings' >
                 <Button
                     id='fontSettingsBtn'
                     onClick={this.setOpen}
@@ -62,10 +63,10 @@ class FontSettings extends React.Component {
                 </Button>
                 <Collapse in={this.state.open}>
                     <form id="fontSettingsList">
-                        {/* <FontFamilies value={this.state.value}
+                        <FontFamilies value={this.state.value}
                             onChangeValue={this.handleChangeValue} 
-                            parentCallback = {this.handleCallback}/> */}
-                        <FontFamilies parentCallback = {this.handleCallbackOne} />
+                            parentCallback = {this.handleCallback}/> 
+                        (<FontFamilies parentCallback = {this.handleCallbackOne} />
                         <FontSize parentCallback = {this.handleCallbackTwo} />
                         <LineSpace parentCallback = {this.handleCallbackThree} />
                         <button className="btn btn-success" onClick={this.sendFont}>Submit</button>
@@ -74,6 +75,6 @@ class FontSettings extends React.Component {
             </div>
         )
     }
-}
+} */ }
 
-export default FontSettings
+// export default FontSettings

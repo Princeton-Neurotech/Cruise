@@ -62,6 +62,7 @@ def getURL():
     else:
         return 'Content-Type not supported!'
 
+"""
 @app.route("/api/fonts/", methods=["GET","POST"])
 def getFonts():
     content_type = request.headers.get('Content-Type')
@@ -76,6 +77,7 @@ def getFonts():
         return jsonify(json), 201
     else:
         return 'Content-Type not supported!'
+"""
 
 @app.route("/api/thr/", methods=["GET","POST"])
 def getThresholds():

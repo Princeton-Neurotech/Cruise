@@ -6,7 +6,7 @@ import PageCount from './PageCount';
 import axios from 'axios';
 import reportValidity from 'report-validity'
 import ReactNotifications from 'react-browser-notifications';
-import {NotificationContainer, NotificationManager} from 'react-notifications';
+// import {NotificationContainer, NotificationManager} from 'react-notifications';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import notifications from 'chrome';
@@ -104,7 +104,7 @@ class Thresholds extends React.Component {
                 if (res.data[0] == 'True') {
                     console.log("roadblock notifs");
                     this.roadblock_notif();
-                    this.showRoadblockNotifications();
+                    // this.showRoadblockNotifications();
                     this.state.isRoadblock = true;
                 }
                 // need to then set back to false!
@@ -124,7 +124,7 @@ class Thresholds extends React.Component {
                 if (res.data[0] == 'True') {
                     console.log("completion notifs");
                     this.completion_notif();
-                    this.showCompNotifications();
+                    // this.showCompNotifications();
                     this.state.isCompletion = true;
                 }
                 // console.log(res);

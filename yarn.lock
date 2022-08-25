@@ -3084,6 +3084,11 @@
   "resolved" "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   "version" "1.5.1"
 
+"base64-js@0.0.8":
+  "integrity" "sha512-3XSA2cR/h/73EzlXXdU6YNycmYI7+kicTxks4eJg2g39biHR84slg2+des+p7iHYhbRg/udIS4TD53WabcOUkw=="
+  "resolved" "https://registry.npmjs.org/base64-js/-/base64-js-0.0.8.tgz"
+  "version" "0.0.8"
+
 "basic-auth@^2.0.1":
   "integrity" "sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg=="
   "resolved" "https://registry.npmjs.org/basic-auth/-/basic-auth-2.0.1.tgz"
@@ -3149,7 +3154,7 @@
     "inherits" "^2.0.4"
     "readable-stream" "^3.4.0"
 
-"bluebird@^3.5.0", "bluebird@^3.5.1", "bluebird@^3.5.5":
+"bluebird@^3.0.3", "bluebird@^3.5.0", "bluebird@^3.5.1", "bluebird@^3.5.5":
   "integrity" "sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg=="
   "resolved" "https://registry.npmjs.org/bluebird/-/bluebird-3.7.2.tgz"
   "version" "3.7.2"
@@ -3691,6 +3696,14 @@
   "integrity" "sha512-p3KULyQg4S7NIHixdwbGX+nFHkoBiA4YQmyWtjb8XngSKV124nJmRysgAeujbUVb15vh+RvFUfCPqU7rXk+hZg=="
   "resolved" "https://registry.npmjs.org/chrome-trace-event/-/chrome-trace-event-1.0.3.tgz"
   "version" "1.0.3"
+
+"chrome@^0.1.0":
+  "integrity" "sha512-6KYl20U4Taj6YipylsWr2etUvp9AElJKfGNSBmyGTymYmancnOb041ZNadolEZi2nboLXH7jMSqUmm4kpuTzfg=="
+  "resolved" "https://registry.npmjs.org/chrome/-/chrome-0.1.0.tgz"
+  "version" "0.1.0"
+  dependencies:
+    "exeq" "^2.2.0"
+    "plist" "^1.1.0"
 
 "ci-info@^1.5.0":
   "integrity" "sha512-vsGdkwSCDpWmP80ncATX7iea5DWQemg1UgCW5J8tqjU3lYw4FBYuj89J0CTVomA7BEfvSZd84GmHko+MxFQU2A=="
@@ -5412,6 +5425,14 @@
     "p-finally" "^1.0.0"
     "signal-exit" "^3.0.0"
     "strip-eof" "^1.0.0"
+
+"exeq@^2.2.0":
+  "integrity" "sha512-B648qbDS00nQZv9UQGLT5RbZm/5dNBX10F8oWeXcgpFHSLm1249u95t/3sn2wXdQjLhlF+edAECdshFtSr1K0Q=="
+  "resolved" "https://registry.npmjs.org/exeq/-/exeq-2.4.0.tgz"
+  "version" "2.4.0"
+  dependencies:
+    "bluebird" "^3.0.3"
+    "native-or-bluebird" "^1.2.0"
 
 "exit@^0.1.2":
   "integrity" "sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ=="
@@ -8205,6 +8226,11 @@
   "resolved" "https://registry.npmjs.org/lodash.uniq/-/lodash.uniq-4.5.0.tgz"
   "version" "4.5.0"
 
+"lodash@^3.5.0":
+  "integrity" "sha512-9mDDwqVIma6OZX79ZlDACZl8sBm0TEnkf99zV3iMA4GzkIT/9hiqP5mY0HoT1iNLCrKc/R1HByV+yJfRWVJryQ=="
+  "resolved" "https://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz"
+  "version" "3.10.1"
+
 "lodash@^4.17.10", "lodash@^4.17.12", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.19", "lodash@^4.17.20", "lodash@^4.17.21", "lodash@^4.17.4", "lodash@^4.17.5", "lodash@>=3.5 <5":
   "integrity" "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
   "resolved" "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
@@ -8956,6 +8982,11 @@
     "regex-not" "^1.0.0"
     "snapdragon" "^0.8.1"
     "to-regex" "^3.0.1"
+
+"native-or-bluebird@^1.2.0":
+  "integrity" "sha512-0SH8UubxDfe382eYiwmd12qxAbiWGzlGZv6CkMA+DPojWa/Y0oH4hE0lRtFfFgJmPQFyKXeB8XxPbZz6TvvKaQ=="
+  "resolved" "https://registry.npmjs.org/native-or-bluebird/-/native-or-bluebird-1.2.0.tgz"
+  "version" "1.2.0"
 
 "natural-compare@^1.4.0":
   "integrity" "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw=="
@@ -9709,6 +9740,16 @@
   "version" "2.0.0"
   dependencies:
     "find-up" "^2.1.0"
+
+"plist@^1.1.0":
+  "integrity" "sha512-dL9Xc2Aj3YyBnwvCNuHmFl2LWvQacm/HEAsoVwLiuu0POboMChETt5wexpU1P6F6MnibIucXlVsMFFgNUT2IyA=="
+  "resolved" "https://registry.npmjs.org/plist/-/plist-1.2.0.tgz"
+  "version" "1.2.0"
+  dependencies:
+    "base64-js" "0.0.8"
+    "util-deprecate" "1.0.2"
+    "xmlbuilder" "4.0.0"
+    "xmldom" "0.1.x"
 
 "plist@^3.0.2":
   "integrity" "sha512-WiIVYyrp8TD4w8yCvyeIr+lkmrGRd5u0VbRnU+tP/aRLxP/YadJUYOMZJ/6hIa3oUyVCsycXvtNRgd5XBJIbiA=="
@@ -12901,7 +12942,7 @@
   "resolved" "https://registry.npmjs.org/use/-/use-3.1.1.tgz"
   "version" "3.1.1"
 
-"util-deprecate@^1.0.1", "util-deprecate@^1.0.2", "util-deprecate@~1.0.1":
+"util-deprecate@^1.0.1", "util-deprecate@^1.0.2", "util-deprecate@~1.0.1", "util-deprecate@1.0.2":
   "integrity" "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="
   "resolved" "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   "version" "1.0.2"
@@ -13531,6 +13572,18 @@
   "integrity" "sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg=="
   "resolved" "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-15.1.1.tgz"
   "version" "15.1.1"
+
+"xmlbuilder@4.0.0":
+  "integrity" "sha512-wrG9gc6hCFDd5STt+6fsjP2aGSkjkNSewH+1K6s0KVOd94vXAUyTwlxWVnMFVtLdMf+q0QRZN1z9hTOKgoEdMg=="
+  "resolved" "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-4.0.0.tgz"
+  "version" "4.0.0"
+  dependencies:
+    "lodash" "^3.5.0"
+
+"xmldom@0.1.x":
+  "integrity" "sha512-yS2uJflVQs6n+CyjHoaBmVSqIDevTAWrzMmjG1Gc7h1qQ7uVozNhEPJAwZXWyGQ/Gafo3fCwrcaokezLPupVyQ=="
+  "resolved" "https://registry.npmjs.org/xmldom/-/xmldom-0.1.31.tgz"
+  "version" "0.1.31"
 
 "xregexp@4.0.0":
   "integrity" "sha512-PHyM+sQouu7xspQQwELlGwwd05mXUFqwFYfqPO0cC7x4fxyHnnuetmQr6CjJiafIDoH4MogHb9dOoJzR/Y4rFg=="

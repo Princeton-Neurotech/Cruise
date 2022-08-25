@@ -1,5 +1,5 @@
 import NavBar from "./components/NavBar";
-import FontSettings from "./components/FontSettings";
+// import FontSettings from "./components/FontSettings";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from "react";
 import Thresholds from "./components/Thresholds";
@@ -12,7 +12,7 @@ function App() {
       <NavBar />
       <TotalTime />
       {/* <DocURL /> */}
-      <FontSettings />
+      {/*<FontSettings /> */}
       <Thresholds />
     </div>
   );
