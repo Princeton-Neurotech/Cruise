@@ -35,7 +35,7 @@ class NavBar extends React.Component {
             <section className='NavWrap'>
                 {settingsBtn}
                 {notificationsBtn}
-                <span className="counter counter-lg">9</span>
+                { /* <span className="counter counter-lg">9</span> */ }
             </section>
         )
     }

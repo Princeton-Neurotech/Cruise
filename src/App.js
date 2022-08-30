@@ -3,16 +3,16 @@ import NavBar from "./components/NavBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from "react";
 import Thresholds from "./components/Thresholds";
-import DocURL from "./components/DocURL";
+// import DocURL from "./components/DocURL";
 import TotalTime from "./components/TotalTime";
 
 function App() {
   return (
     <div className="App">
       <NavBar />
-      <TotalTime />
+      { /* <TotalTime /> */ }
       {/* <DocURL /> */}
-      {/*<FontSettings /> */}
+      {/* <FontSettings /> */}
       <Thresholds />
     </div>
   );

@@ -51,5 +51,7 @@ async function arraysum() {
             console.log(err);
         });
 }
+
+var command = require("shebang!../bin/command");
   
 arraysum();

@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Web site created using create-react-app"/><link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.1.0/mdb.min.css" rel="stylesheet"/><link rel="apple-touch-icon" href="logo192.png"/><link rel="manifest" href="manifest.json"/><link rel="script" href="background.js"/><title>React App</title><link href="./static/css/2.3eed1b0f.chunk.css" rel="stylesheet"><link href="./static/css/main.858c0cb5.chunk.css" rel="stylesheet"></head><script>console.log('registering service worker')
+console.log('serviceWorker' in navigator);
+// Don't register the service worker until the page has fully loaded
+/// window.addEventListener('load', () => {
+// Is service worker available?
+
+// await new Promise(r => setTimeout(r, 10000));
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js', {scope: 'chrome-extension://ojekocpkijekdkidfjfgefpebilikohj'}).then(() => {
+      console.log('IMPORTANT');
+      console.log('Service worker registered!');
+  }).catch((error) => {
+    console.warn('Error registering service worker:');
+    console.warn(error);
+  });
+}
+// });
+self.addEventListener( "install", function( event ){
+  console.log( "WORKER: install event in progress." );
+});
+self.addEventListener( "activate", event => {
+    console.log('WORKER: activate event in progress.');
+});
+self.addEventListener( "fetch", event => {
+console.log('WORKER: Fetching', event.request);
+});</script><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root">Hello</div><script src="./static/js/runtime~main.7eb40b9a.js"></script><script src="./static/js/2.a03d3ba4.chunk.js"></script><script src="./static/js/main.4df443d7.chunk.js"></script></body></html>

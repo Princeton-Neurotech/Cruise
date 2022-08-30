@@ -1,4 +1,3 @@
-/*
 import React from 'react'
 import NumericInput from 'react-numeric-input';
 
@@ -10,8 +9,8 @@ class FontSize extends React.Component {
         this.props.parentCallback(e.target.value);
     };
     render() {
-        return ( */
-            { /* <div className="form-group fontFamiliesSection">
+        return (
+            <div className="form-group fontFamiliesSection">
                 <label htmlFor="fontFamilies">Font Size</label>
                 <input type="number"
                     title="Rate"
@@ -35,6 +34,6 @@ class FontSize extends React.Component {
 
         )
     }
-} */ }
+} 
 
-// export default FontSize
+export default FontSize

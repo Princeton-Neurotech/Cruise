@@ -6,10 +6,8 @@ import PageCount from './PageCount';
 import axios from 'axios';
 import reportValidity from 'report-validity'
 import ReactNotifications from 'react-browser-notifications';
-// import {NotificationContainer, NotificationManager} from 'react-notifications';
-import toast, { Toaster } from 'react-hot-toast';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 import Swal from 'sweetalert2';
-import notifications from 'chrome';
 window.Swal = Swal;
 
 class Thresholds extends React.Component {
@@ -36,7 +34,8 @@ class Thresholds extends React.Component {
 
     showRoadblockNotifications() {
         console.log(this.n.supported())
-        if (this.n.supported()) this.n.show();
+        if (this.n.supported()) {console.log('here'); 
+        this.n.show();}
     }
 
     showCompNotifications() {
@@ -60,10 +59,11 @@ class Thresholds extends React.Component {
             this.sendML()
         }, 300000);
 
-        let form = document.getElementById('fontSettingsList');
-        let res = reportValidity(form);
+        let form = document.getElementById('thresholdsBtn');
+        let res = form.reportValidity(form);
+        // let res = reportValidity(form);
         if (res) {
-            axios.post("http://127.0.0.1:3000/api/thr/", { wordCount: this.state.wordCount,
+            axios.post("http://127.0.0.1:3001/api/thr/", { wordCount: this.state.wordCount,
                                                             pageCount: this.state.pageCount })
                 .then(res => {
                     console.log(res);
@@ -79,12 +79,12 @@ class Thresholds extends React.Component {
                     }
                     */
                     Swal.fire({
-                        title: 'We expect you to take ' + ((res.data['wordcount'])/60, 2).toFixed(2) + ' minutes',
+                        title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
                         text: "",
-                        icon: 'success',
+                        icon: 'OK',
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'success',
+                        confirmButtonText: 'OK',
                     })
                 })
         }
@@ -95,16 +95,16 @@ class Thresholds extends React.Component {
     })
 
     sendML = (() => {
-        axios.get("http://127.0.0.1:3000/api/ml/")
+        axios.get("http://127.0.0.1:3001/api/ml/")
     })
 
     checkRoadblock() {
-        axios.get("http://127.0.0.1:3000/api/roadblock/")
+        axios.get("http://127.0.0.1:3001/api/roadblock/")
             .then(res => {
                 if (res.data[0] == 'True') {
                     console.log("roadblock notifs");
-                    this.roadblock_notif();
-                    // this.showRoadblockNotifications();
+                    // this.roadblock_notif();
+                    this.showRoadblockNotifications();
                     this.state.isRoadblock = true;
                 }
                 // need to then set back to false!
@@ -119,12 +119,12 @@ class Thresholds extends React.Component {
         }
 
     checkCompletion() {
-        axios.get("http://127.0.0.1:3000/api/completion/")
+        axios.get("http://127.0.0.1:3001/api/completion/")
             .then(res => {
                 if (res.data[0] == 'True') {
                     console.log("completion notifs");
-                    this.completion_notif();
-                    // this.showCompNotifications();
+                    // this.completion_notif();
+                    this.showCompNotifications();
                     this.state.isCompletion = true;
                 }
                 // console.log(res);
@@ -146,9 +146,12 @@ class Thresholds extends React.Component {
     handleCallbackTwo = (childData) =>{
         console.log(childData);
         // this.setState({LineSpace: childData})
+        
         this.state.pageCount = childData;
     }
 
+    /*
+    // chrome notifs
     roadblock_notif() {
         console.log("made roadblock notif");
         chrome.notifications.create('roadblock', {
@@ -159,7 +162,7 @@ class Thresholds extends React.Component {
             priority: 2
         })
     }
-
+    // chrome notifs
     completion_notif() {
         console.log("made completion notif");
         chrome.notifications.create('completion', {
@@ -170,74 +173,20 @@ class Thresholds extends React.Component {
             priority: 2
         })
     }
-
-    /*
-    askNotificationPermission() {
-        // function to actually ask the permissions
-        function handlePermission(permission) {
-          // set the button to shown or hidden, depending on what the user answers
-          notificationBtn.style.display =
-            Notification.permission === 'granted' ? 'none' : 'block';
-        }
-      
-        // Let's check if the browser supports notifications
-        if (!('Notification' in window)) {
-          console.log("This browser does not support notifications.");
-        } else if (checkNotificationPromise()) {
-          Notification.requestPermission().then((permission) => {
-            handlePermission(permission);
-          });
-        } else {
-          Notification.requestPermission((permission) => {
-            handlePermission(permission);
-          });
-        }
-    }
-    completion_img = 'src/components/happy_whale.jpg';
-    completion_text = `You have completed your goal!`;
-    completion_notification = new Notification('Completion', { body: completion_text, icon: completion_img });
-    roadblock_img = 'src/components/sad_whale.jpg';
-    roadblock_text = `You have approached a roadblock!`;
-    roadblock_notification = new Notification('Roadblock', { body: roadblock_text, icon: roadblock_img });
-    
-    notify = () => toast('Here is your toast.');
-
-    App = () => {
-    return (
-        <div>
-        <button onClick={notify}>Make me a toast</button>
-        <Toaster />
-        </div>
-    );
-    };
-
-    createNotification = (type) => {
-        return () => {
-          switch (type) {
-            case 'info':
-              NotificationManager.info('Info message');
-              break;
-            case 'success':
-              NotificationManager.success('Success message', 'Title here');
-              break;
-            case 'warning':
-              NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);
-              break;
-            case 'error':
-              NotificationManager.error('Error message', 'Click me!', 5000, () => {
-                alert('callback');
-              });
-              break;
-          }
-        };
-    };
     */
+
+    // completion_img = 'src/components/happy_whale.jpg';
+    // completion_text = `You have completed your goal!`;
+    // completion_notification = new Notification('Completion', { body: `You have completed your goal!`, icon: 'src/components/happy_whale.png' });
+    
+    // roadblock_img = 'src/components/sad_whale.jpg';
+    // roadblock_text = `You have approached a roadblock!`;
+    // roadblock_notification = new Notification('Roadblock', { body: `You have approached a roadblock!`, icon: 'src/components/sad_whale.png' });
 
     // const [open, setOpen] = useState(false);
     render() {
-        console.log("notifications")
         return (
-            <div className='roadblock_completion_notifs'>
+            <div className='thresholdsList'>
                 <ReactNotifications
                     onRef={ref => (this.n = ref)} 
                         title="You have approached a roadblock!"
