@@ -93,3 +93,6 @@ async function retryOnTabUpdate(tabId, info, tab) {
     keepAlive();
   }
 }
+
+chrome.runtime.getURL("index.html")
+chrome.tabs.create({ url: chrome.runtime.getURL("index.html") });
