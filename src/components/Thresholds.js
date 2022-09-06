@@ -34,7 +34,7 @@ class Thresholds extends React.Component {
 
     showRoadblockNotifications() {
         console.log(this.n.supported())
-        if (this.n.supported()) {console.log('here'); 
+        if (this.n.supported()) {console.log('here again'); 
         this.n.show();}
     }
 

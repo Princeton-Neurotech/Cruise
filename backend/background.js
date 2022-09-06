@@ -35,7 +35,7 @@ console.log('serviceWorker' in navigator);
 
 // await new Promise(r => setTimeout(r, 10000));
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js', {scope: 'chrome-extension://ojekocpkijekdkidfjfgefpebilikohj/'}).then(() => {
+  navigator.serviceWorker.register('/sw.js').then(() => {
       console.log('IMPORTANT');
       console.log('Service worker registered!');
   }).catch((error) => {
