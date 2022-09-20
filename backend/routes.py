@@ -114,4 +114,4 @@ def getML():
     # return jsonify({"prediction":prediction_result[0]}), 201
 
 if __name__ == "__main__":
-    app.run(port=3000, debug=True)
+    app.run(port=3001, debug=True)

@@ -50,7 +50,8 @@ click==8.0.3
 cloudpickle @ file:///tmp/build/80754af9/cloudpickle_1632508026186/work
 clyent==1.2.2
 colorama @ file:///tmp/build/80754af9/colorama_1607707115595/work
-conda==4.13.0
+comtypes==1.1.14
+conda==4.14.0
 conda-build==3.21.5
 conda-content-trust @ file:///tmp/build/80754af9/conda-content-trust_1617045594566/work
 conda-pack @ file:///tmp/build/80754af9/conda-pack_1611163042455/work
@@ -83,10 +84,11 @@ EnchantX==0.1.1
 entrypoints==0.3
 esprima==4.0.1
 et-xmlfile==1.1.0
+f==0.0.1
 fastcache @ file:///opt/concourse/worker/volumes/live/8356601f-d9bc-4d13-4017-1a58ebea6849/volume/fastcache_1607571270986/work
 filelock @ file:///tmp/build/80754af9/filelock_1635402558181/work
 flake8 @ file:///tmp/build/80754af9/flake8_1620776156532/work
-Flask @ file:///home/ktietz/src/ci/flask_1611932660458/work
+Flask @ https://github.com/pallets/flask/archive/master.tar.gz
 Flask-Cors==3.0.10
 flask-http-response==0.0.1.0
 flatbuffers==2.0
@@ -133,7 +135,7 @@ itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
 javascripthon==0.11
 jdcal @ file:///Users/ktietz/demo/mc3/conda-bld/jdcal_1630584345063/work
 jedi @ file:///opt/concourse/worker/volumes/live/4b03e428-2d0c-4635-502c-16df884971e8/volume/jedi_1611333763457/work
-Jinja2 @ file:///tmp/build/80754af9/jinja2_1612213139570/work
+Jinja2==3.1.2
 jinja2-time @ file:///tmp/build/80754af9/jinja2-time_1617751524098/work
 joblib @ file:///tmp/build/80754af9/joblib_1635411271373/work
 json-tricks @ file:///home/conda/feedstock_root/build_artifacts/json_tricks_1606949734910/work
@@ -161,7 +163,7 @@ locket==0.2.1
 lxml @ file:///opt/concourse/worker/volumes/live/e9a191ad-c8f1-4bb7-7955-c333b8ab6c55/volume/lxml_1616443232489/work
 macropy3==1.1.0b2
 Markdown==3.3.6
-MarkupSafe @ file:///opt/concourse/worker/volumes/live/fac44ebc-60de-4182-7f89-29bb8796c554/volume/markupsafe_1607027351541/work
+MarkupSafe==2.1.1
 matplotlib @ file:///opt/concourse/worker/volumes/live/f670ab63-e220-495e-450b-14c9591f195b/volume/matplotlib-suite_1634667037960/work
 matplotlib-inline @ file:///tmp/build/80754af9/matplotlib-inline_1628242447089/work
 mccabe==0.6.1
@@ -399,6 +401,7 @@ python-slugify @ file:///tmp/build/80754af9/python-slugify_1620405669636/work
 python-vlc==3.0.12118
 pytz==2021.3
 PyWavelets @ file:///opt/concourse/worker/volumes/live/3cbb6155-7383-45e0-55bb-8641a92939f6/volume/pywavelets_1607645526758/work
+pywinauto==0.6.6
 PyYAML==6.0
 pyzmq @ file:///opt/concourse/worker/volumes/live/a6b770e2-97ff-4d20-790a-688be9a9004f/volume/pyzmq_1628276022869/work
 QDarkStyle @ file:///tmp/build/80754af9/qdarkstyle_1617386714626/work
@@ -473,6 +476,8 @@ tifffile @ file:///tmp/build/80754af9/tifffile_1627275862826/work
 tinycss @ file:///tmp/build/80754af9/tinycss_1617713798712/work
 toml @ file:///tmp/build/80754af9/toml_1616166611790/work
 toolz @ file:///home/linux1/recipes/ci/toolz_1610987900194/work
+torch==1.12.1
+torchvision==0.13.1
 tornado @ file:///opt/concourse/worker/volumes/live/2c1a63a2-006b-48ee-56b9-0cfe8b4927f9/volume/tornado_1606942321278/work
 tqdm @ file:///tmp/build/80754af9/tqdm_1635330843403/work
 traitlets @ file:///tmp/build/80754af9/traitlets_1632522747050/work
@@ -481,6 +486,7 @@ trio-websocket==0.9.2
 typed-ast @ file:///opt/concourse/worker/volumes/live/c2210c24-bb2d-4474-77f5-1bc9bf1cb79f/volume/typed-ast_1624953683856/work
 typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1631814937681/work
 typish==1.9.3
+uiautomation==2.0.17
 ujson @ file:///opt/concourse/worker/volumes/live/258fa87e-ec76-445c-5f9c-fc9523993cd7/volume/ujson_1611259511951/work
 unicodecsv==0.14.1
 Unidecode @ file:///tmp/build/80754af9/unidecode_1614712377438/work
@@ -493,7 +499,7 @@ webassets==2.0
 webdriver-manager==3.5.2
 webencodings==0.5.1
 websocket-client @ file:///home/conda/feedstock_root/build_artifacts/websocket-client_1648562593984/work
-Werkzeug @ file:///tmp/build/80754af9/werkzeug_1635505089296/work
+Werkzeug==2.2.2
 whichcraft @ file:///tmp/build/80754af9/whichcraft_1617751293875/work
 widgetsnbextension @ file:///opt/concourse/worker/volumes/live/42762d5a-6520-4b06-68a2-619dfed6a007/volume/widgetsnbextension_1607531500933/work
 wrapt @ file:///opt/concourse/worker/volumes/live/1381ca3b-f984-4f5c-4f46-a67ca4eeffa5/volume/wrapt_1607574524589/work

@@ -7,6 +7,7 @@ import axios from 'axios';
 import reportValidity from 'report-validity'
 import ReactNotifications from 'react-browser-notifications';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import Notification  from './Notification';
 import Swal from 'sweetalert2';
 window.Swal = Swal;
 
@@ -19,6 +20,7 @@ class Thresholds extends React.Component {
             wordCount: 0,
             pageCount: 0,
             open: false,
+            title: ""
         };
     }
 
@@ -33,14 +35,16 @@ class Thresholds extends React.Component {
     }
 
     showRoadblockNotifications() {
-        console.log(this.n.supported())
-        if (this.n.supported()) {console.log('here again'); 
-        this.n.show();}
+        console.log("hello")
+        // console.log(this.n.supported())
+        // if (this.n.supported()) {console.log('here again'); 
+        // this.n.show();}
     }
 
     showCompNotifications() {
-        console.log(this.a.supported())
-        if (this.a.supported()) this.a.show();
+        console.log("hello too")
+        // console.log(this.a.supported())
+        // if (this.a.supported()) this.a.show();
     }
 
     handleRoadClick(event) {
@@ -138,17 +142,53 @@ class Thresholds extends React.Component {
     }
 
     handleCallbackOne = (childData) =>{
-        console.log(childData);
+        // console.log(childData);
         // this.setState({LineSpace: childData})
-        this.state.wordCount = childData;
+        this.setState({ ...this.state , wordCount: childData });
     }
 
     handleCallbackTwo = (childData) =>{
         console.log(childData);
         // this.setState({LineSpace: childData})
         
-        this.state.pageCount = childData;
+        this.setState({ ...this.state , pageCount: childData });
     }
+
+    handleButtonClick() {
+
+        if(this.state.ignore) {
+          return;
+        }
+    
+        const now = Date.now();
+    
+        const title = 'React-Web-Notification' + now;
+        const body = 'Hello' + new Date();
+        const tag = now;
+        // const icon = 'http://mobilusoss.github.io/react-web-notification/example/Notifications_button_24.png';
+        // const icon = 'http://localhost:3000/Notifications_button_24.png';
+    
+        // Available options
+        // See https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification
+        const options = {
+          tag: tag,
+          body: body,
+          // icon: icon,
+          lang: 'en',
+          dir: 'ltr',
+          // sound: './sound.mp3'  // no browsers supported https://developer.mozilla.org/en/docs/Web/API/notification/sound#Browser_compatibility
+        }
+        this.setState({
+          title: title,
+          options: options
+        });
+      }
+    
+      handleButtonClick2() {
+        this.props.swRegistration.getNotifications({}).then(function(notifications) {
+          console.log(notifications);
+        });
+      }
 
     /*
     // chrome notifs
@@ -203,6 +243,21 @@ class Thresholds extends React.Component {
                         timeout="2000"
                     onClick={event => this.handleCompClick(event)}
                 />
+                <div>
+                        <button onClick={this.handleButtonClick.bind(this)}>Notify!</button>
+                        {document.title === 'swExample' && <button onClick={this.handleButtonClick2.bind(this)}>swRegistration.getNotifications</button>}
+                        <Notification
+                        ignore={this.state.ignore && this.state.title !== ''}
+                        // notSupported={this.handleNotSupported.bind(this)}
+                        // onPermissionGranted={this.handlePermissionGranted.bind(this)}
+                        // onPermissionDenied={this.handlePermissionDenied.bind(this)}
+                        // onShow={this.handleNotificationOnShow.bind(this)}
+                        timeout={5000}
+                        title={this.state.title}
+                        options={this.state.options}
+                        swRegistration={this.props.swRegistration}
+                        />
+                    </div>
                 <Button
                     id='thresholdsBtn'
                     onClick={() => {this.setState({open: !this.state.open})}}
