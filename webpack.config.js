@@ -7,6 +7,5 @@ plugins: [
 var OpenBrowserPlugin = require('open-browser-webpack-plugin');
 
 plugins: [
-  new OpenBrowserPlugin({ url: 'http://localhost:3000' })
+  new OpenBrowserPlugin({ url: 'chrome-extension://ojekocpkijekdkidfjfgefpebilikohj/index.html' })
 ]
-

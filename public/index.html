@@ -3,15 +3,31 @@
   <head>
     <meta charset="utf-8"/>
     <link rel="icon" href="favicon.ico"/>
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="theme-color" content="#000000"/>
     <meta name="description" content="Web site created using create-react-app"/>
     <link href="mdb.min.css" rel="stylesheet"/>
     <link rel="apple-touch-icon" href="logo192.png"/>
     <link rel="manifest" href="manifest.json"/>
+    <link rel="happy whale" href="src/components/happy_whale.png"/>
+    <link rel="sad whale" href="src/components/sad_whale.png"/>
     <!-- <link rel="script" href="background.js"/> -->
     <!-- <link rel="script" href="sw.js"/> -->
     <title>React App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    <script>
+      if ('serviceWorker' in navigator) {
+          window.addEventListener("load", () => {
+          navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log("Service worker registered"))
+          .catch(err => console.error(`Service Worker Error: ${err}`));
+          });
+      } else {
+          console.log("Service Worker is not supported by browser.");
+      }
+    </script>
 
  <!--
   <meta charset="utf-8" />

@@ -1,6 +1,6 @@
 {
   "name": "Cruise",
-  "description": "The power of React and TypeScript for building interactive Chrome extensions",
+  "description": "Writing productivity app",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
@@ -8,14 +8,16 @@
       "default_title": "Open the popup"
   },
   "icons": {
-      "16": "logo192.png",
-      "48": "logo192.png",
-      "128": "logo192.png"
+      "16": "main_logo.png",
+      "48": "main_logo.png",
+      "128": "main_logo.png"
   },
   "permissions": [
-    "notifications", "tabs"
+    "notifications", "tabs", "storage", "activeTab", "scripting"
   ], 
   "host_permissions": 
-  ["<all_urls>"
-  ]
+  ["<all_urls>"],
+  "background": {
+    "service_worker": "sw.js"
+  }
 }

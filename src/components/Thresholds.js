@@ -20,7 +20,8 @@ class Thresholds extends React.Component {
             wordCount: 0,
             pageCount: 0,
             open: false,
-            title: ""
+            title: "",
+            notRun: true
         };
     }
 
@@ -35,16 +36,15 @@ class Thresholds extends React.Component {
     }
 
     showRoadblockNotifications() {
-        console.log("hello")
-        // console.log(this.n.supported())
-        // if (this.n.supported()) {console.log('here again'); 
-        // this.n.show();}
+        console.log(this.n.supported())
+        if (this.n.supported()); 
+        this.n.show();
     }
 
     showCompNotifications() {
-        console.log("hello too")
-        // console.log(this.a.supported())
-        // if (this.a.supported()) this.a.show();
+        console.log(this.a.supported())
+        if (this.a.supported());
+        this.a.show();
     }
 
     handleRoadClick(event) {
@@ -63,9 +63,9 @@ class Thresholds extends React.Component {
             this.sendML()
         }, 300000);
 
-        let form = document.getElementById('thresholdsBtn');
-        let res = form.reportValidity(form);
-        // let res = reportValidity(form);
+        // let form = document.getElementById('thresholdsList');
+        // let res = form.reportValidity(form);
+        let res = true;
         if (res) {
             axios.post("http://127.0.0.1:3001/api/thr/", { wordCount: this.state.wordCount,
                                                             pageCount: this.state.pageCount })
@@ -107,10 +107,20 @@ class Thresholds extends React.Component {
             .then(res => {
                 if (res.data[0] == 'True') {
                     console.log("roadblock notifs");
-                    // this.roadblock_notif();
-                    this.showRoadblockNotifications();
                     this.state.isRoadblock = true;
-                }
+                    if (this.state.isRoadblock == true) {
+                        Swal.fire({
+                            title: 'You have approached a roadblock!',
+                            text: "",
+                            icon: 'OK',
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'OK',
+                            iconHtml: '<img src="/src/components/sad_whale.png">'
+                        })
+                        this.state.notRun = false;
+                        }   
+                    }
                 // need to then set back to false!
                 // console.log(res);
                 // console.log(res.data);
@@ -120,16 +130,29 @@ class Thresholds extends React.Component {
                     return Promise.reject(error)
                  }
             )
+            this.state.isRoadblock = false;
         }
 
     checkCompletion() {
         axios.get("http://127.0.0.1:3001/api/completion/")
             .then(res => {
                 if (res.data[0] == 'True') {
+                    this.state.notRun = true;
                     console.log("completion notifs");
-                    // this.completion_notif();
-                    this.showCompNotifications();
+                    // this.showCompNotifications();
                     this.state.isCompletion = true;
+                    if ((this.state.isCompletion == true) && (this.state.notRun == true)) {
+                    Swal.fire({
+                        title: 'You have completed your goal!',
+                        text: "",
+                        icon: 'OK',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'OK',
+                        iconHtml: '<img src="/src/components/happy_whale.png">'
+                    })
+                }
+                this.state.isCompletion = false;
                 }
                 // console.log(res);
                 // console.log(res.data);
@@ -139,6 +162,7 @@ class Thresholds extends React.Component {
                     return Promise.reject(error)
                 }
             )
+            this.state.notRun = false;
     }
 
     handleCallbackOne = (childData) =>{
@@ -155,7 +179,6 @@ class Thresholds extends React.Component {
     }
 
     handleButtonClick() {
-
         if(this.state.ignore) {
           return;
         }
@@ -190,39 +213,6 @@ class Thresholds extends React.Component {
         });
       }
 
-    /*
-    // chrome notifs
-    roadblock_notif() {
-        console.log("made roadblock notif");
-        chrome.notifications.create('roadblock', {
-            type: 'basic',
-            iconUrl: 'src/components/sad_whale.jpg',
-            title: 'roadblock',
-            message: 'You have approached a roadblock!',
-            priority: 2
-        })
-    }
-    // chrome notifs
-    completion_notif() {
-        console.log("made completion notif");
-        chrome.notifications.create('completion', {
-            type: 'basic',
-            iconUrl: 'src/components/happy_whale.jpg',
-            title: 'completion',
-            message: 'You have completed your goal!',
-            priority: 2
-        })
-    }
-    */
-
-    // completion_img = 'src/components/happy_whale.jpg';
-    // completion_text = `You have completed your goal!`;
-    // completion_notification = new Notification('Completion', { body: `You have completed your goal!`, icon: 'src/components/happy_whale.png' });
-    
-    // roadblock_img = 'src/components/sad_whale.jpg';
-    // roadblock_text = `You have approached a roadblock!`;
-    // roadblock_notification = new Notification('Roadblock', { body: `You have approached a roadblock!`, icon: 'src/components/sad_whale.png' });
-
     // const [open, setOpen] = useState(false);
     render() {
         return (
@@ -244,7 +234,7 @@ class Thresholds extends React.Component {
                     onClick={event => this.handleCompClick(event)}
                 />
                 <div>
-                        <button onClick={this.handleButtonClick.bind(this)}>Notify!</button>
+                        {/* <button onClick={this.handleButtonClick.bind(this)}>Notify!</button> */}
                         {document.title === 'swExample' && <button onClick={this.handleButtonClick2.bind(this)}>swRegistration.getNotifications</button>}
                         <Notification
                         ignore={this.state.ignore && this.state.title !== ''}
@@ -258,21 +248,11 @@ class Thresholds extends React.Component {
                         swRegistration={this.props.swRegistration}
                         />
                     </div>
-                <Button
-                    id='thresholdsBtn'
-                    onClick={() => {this.setState({open: !this.state.open})}}
-                    aria-controls="threshholdsList"
-                    aria-expanded={this.state.open}
-                >
-                    Word and Page Count
-                </Button>
-                <Collapse in={this.state.open}>
-                    <div id="threshholdsList">
-                        <WordCount parentCallback = {this.handleCallbackOne} />
-                        <PageCount parentCallback = {this.handleCallbackTwo}/>
-                        <button className="btn btn-success" onClick={this.sendThr}>submit</button>
-                    </div>
-                </Collapse>
+                <div id="thresholdsList">
+                    <WordCount parentCallback = {this.handleCallbackOne} />
+                    <PageCount parentCallback = {this.handleCallbackTwo}/>
+                    <button className="btn btn-success" onClick={this.sendThr}>submit</button>
+                </div>
             </div>)
         }
 }
