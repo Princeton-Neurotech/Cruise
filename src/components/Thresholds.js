@@ -20,20 +20,19 @@ class Thresholds extends React.Component {
             wordCount: 0,
             pageCount: 0,
             open: false,
-            title: "",
-            notRun: true
+            title: ""
         };
     }
 
-    setRoadblock = () => {
-        setInterval(this.checkRoadblock()
-            , 1000)
-    }
+    // setRoadblock = () => {
+    //     setInterval(this.checkRoadblock()
+    //         , 60000)
+    // }
 
-    setCompletion = () => {
-        setInterval(this.checkCompletion()
-            , 5000)
-    }
+    // setCompletion = () => {
+    //     setInterval(this.checkCompletion()
+    //         , 5000)
+    // }
 
     showRoadblockNotifications() {
         console.log(this.n.supported())
@@ -57,7 +56,7 @@ class Thresholds extends React.Component {
     sendThr = (() => {
         setInterval(() => {
             this.checkRoadblock()
-        }, 1000);
+        }, 60000);
         // do this every 5 min
         setInterval(() => {
             this.sendML()
@@ -95,7 +94,7 @@ class Thresholds extends React.Component {
 
         setInterval(() => {
             this.checkCompletion()
-        }, 5000);
+        }, 60000);
     })
 
     sendML = (() => {
@@ -118,8 +117,8 @@ class Thresholds extends React.Component {
                             confirmButtonText: 'OK',
                             iconHtml: '<img src="/src/components/sad_whale.png">'
                         })
-                        this.state.notRun = false;
                         }   
+                        this.state.isRoadblock = false;
                     }
                 // need to then set back to false!
                 // console.log(res);
@@ -130,7 +129,6 @@ class Thresholds extends React.Component {
                     return Promise.reject(error)
                  }
             )
-            this.state.isRoadblock = false;
         }
 
     checkCompletion() {
@@ -141,7 +139,7 @@ class Thresholds extends React.Component {
                     console.log("completion notifs");
                     // this.showCompNotifications();
                     this.state.isCompletion = true;
-                    if ((this.state.isCompletion == true) && (this.state.notRun == true)) {
+                    if (this.state.isCompletion == true) {
                     Swal.fire({
                         title: 'You have completed your goal!',
                         text: "",
@@ -162,7 +160,6 @@ class Thresholds extends React.Component {
                     return Promise.reject(error)
                 }
             )
-            this.state.notRun = false;
     }
 
     handleCallbackOne = (childData) =>{
