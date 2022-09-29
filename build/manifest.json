@@ -13,10 +13,8 @@
       "128": "main_logo.png"
   },
   "permissions": [
-    "notifications", "tabs", "storage", "activeTab", "scripting"
-  ], 
-  "host_permissions": 
-  ["<all_urls>"],
+    "notifications"
+  ],
   "background": {
     "service_worker": "sw.js"
   }

@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build": "INLINE_RUNTIME_CHUNK=false react-scripts build && node buildPackage.js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
@@ -64,6 +64,7 @@
   "devDependencies": {
     "chrome-webstore-upload": "^1.0.0",
     "open-browser-webpack-plugin": "^0.0.5",
+    "web-ext": "^7.2.0",
     "webpack-shebang-plugin": "^1.1.8"
   }
 }
