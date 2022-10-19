@@ -13,7 +13,7 @@
       "128": "main_logo.png"
   },
   "permissions": [
-    "notifications"
+    "notifications", "tabs", "webRequest"
   ],
   "background": {
     "service_worker": "sw.js"
