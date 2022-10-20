@@ -1,2 +1,2 @@
 web: gunicorn runserver:app
-web: python3 runserver.py localhost 3001
+web: python3 public/backend/runserver.py localhost 3001
