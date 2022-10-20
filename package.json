@@ -1,6 +1,9 @@
 {
   "name": "cruise_extension",
   "version": "0.1.0",
+  "engines": {
+    "node": "16.13.2"
+  },
   "homepage": ".",
   "private": true,
   "proxy": "http://127.0.0.1:3001",
