@@ -1,1 +1,1 @@
-worker: python3 public/backend/app.py
+web: gunicorn main:app
