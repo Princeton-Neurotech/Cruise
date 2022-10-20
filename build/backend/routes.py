@@ -1,12 +1,7 @@
 # from time import time
-from flask import Flask, render_template 
-from flask import Response, render_template, url_for, flash, redirect, request, jsonify, make_response
+from flask import Flask, request, jsonify
 from flask_cors import CORS 
-from crypt import methods
-import json
-import multiprocessing
 from multiprocessing import Manager
-import keyboard_features
 import min_time_ml
 import roadblock_ml
 
