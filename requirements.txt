@@ -71,4 +71,3 @@ webdriver-manager==3.8.3
 Werkzeug==2.2.2
 wsproto==1.2.0
 zipp==3.8.1
-MODULE_NAME==MODULE_VERSION
