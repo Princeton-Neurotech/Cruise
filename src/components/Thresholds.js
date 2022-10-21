@@ -73,6 +73,7 @@ class Thresholds extends React.Component {
  
     let res = true;
     if (res) {
+        console.log("checking thresholds")
         axios.post("http://127.0.0.1:3001/api/thr/", { wordCount: this.state.wordCount,
                                                         pageCount: this.state.pageCount })
             .then(res => {
