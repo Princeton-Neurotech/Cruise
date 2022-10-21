@@ -109,7 +109,7 @@ class Thresholds extends React.Component {
 })
 
   checkRoadblock() { 
-    axios.get("http://127.0.0.1:3001/api/roadblock") 
+    axios.get("http://127.0.0.1:3001/api/roadblock/") 
       .then(res => {
               if (res.data[0] == 'True') {
                   console.log("roadblock notifs");
@@ -139,7 +139,7 @@ class Thresholds extends React.Component {
       }
 
   checkCompletion() {
-    axios.get("http://127.0.0.1:3001/api/completion") 
+    axios.get("http://127.0.0.1:3001/api/completion/") 
           .then(res => {
               if (res.data[0] == 'True') {
                   this.state.notRun = true;
