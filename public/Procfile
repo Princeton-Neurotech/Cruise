@@ -1,2 +1,0 @@
-web: gunicorn public/backend app:app
-web: python3 public/backend/app.py localhost 3001
