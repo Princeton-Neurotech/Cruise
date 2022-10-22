@@ -21,6 +21,7 @@
     "firebase": "^9.11.0",
     "firebase-functions": "^3.24.1",
     "flask": "^0.2.10",
+    "gunicorn": "^20.1.0",
     "heroku": "^7.65.0",
     "http-server": "^14.1.1",
     "mdb": "^0.1.0",
@@ -71,6 +72,7 @@
   "devDependencies": {
     "chrome-webstore-upload": "^1.0.0",
     "flask": "^0.2.10",
+    "gunicorn": "^20.1.0",
     "open-browser-webpack-plugin": "^0.0.5",
     "web-ext": "^7.2.0",
     "webpack-shebang-plugin": "^1.1.8"
