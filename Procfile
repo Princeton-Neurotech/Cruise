@@ -1,1 +1,1 @@
-web: waitress-serve --port=3001 app.wsgi:application
+web: waitress-serve --port=3001 app.wsgi:app
