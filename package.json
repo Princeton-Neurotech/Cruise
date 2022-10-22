@@ -70,7 +70,6 @@
   },
   "devDependencies": {
     "chrome-webstore-upload": "^1.0.0",
-    "gunicorn": "20.1.0",
     "netlify-cli": "^12.0.11",
     "open-browser-webpack-plugin": "^0.0.5",
     "web-ext": "^7.2.0",
