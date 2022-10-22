@@ -1,1 +1,1 @@
-web: gunicorn app:app 
+web: waitress-serve --port=3001 app.wsgi:application

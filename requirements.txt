@@ -101,6 +101,7 @@ uritemplate==4.1.1
 urllib3==1.26.12
 virtualenv==20.16.5
 virtualenv-clone==0.5.7
+waitress==2.1.2
 webassets==2.0
 webdriver-manager==3.8.3
 webencodings==0.5.1
