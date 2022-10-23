@@ -73,7 +73,7 @@ class Thresholds extends React.Component {
  
     let res = true;
     if (res) {
-        axios.post("https://cruise-extension.herokuapp.com:80/api/thr/", { wordCount: this.state.wordCount,
+        axios.post("https://cruise-extension.herokuapp.com/api/thr/", {port:443}, { wordCount: this.state.wordCount,
                                                         pageCount: this.state.pageCount })
             .then(res => {
                 console.log(res);
@@ -105,11 +105,11 @@ class Thresholds extends React.Component {
   })
 
   sendML = (() => {
-    axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port: 80})
+    axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port: 443})
 })
 
   checkRoadblock() { 
-    axios.get("https://cruise-extension.herokuapp.com/api/roadblock", {port: 80}) 
+    axios.get("https://cruise-extension.herokuapp.com/api/roadblock", {port: 443}) 
       .then(res => {
               if (res.data[0] == 'True') {
                   console.log("roadblock notifs");
@@ -139,7 +139,7 @@ class Thresholds extends React.Component {
       }
 
   checkCompletion() {
-    axios.get("https://cruise-extension.herokuapp.com/api/completion", {port: 80}) 
+    axios.get("https://cruise-extension.herokuapp.com/api/completion", {port: 443}) 
           .then(res => {
               if (res.data[0] == 'True') {
                   this.state.notRun = true;
