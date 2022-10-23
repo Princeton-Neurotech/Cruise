@@ -14,7 +14,6 @@ window.Swal = Swal;
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-
 /*
 const functions = require('firebase-functions');
 const express = require('express');
@@ -30,6 +29,7 @@ app.use('/api/completion');
 app.use('/api/ml');
 */
 
+const port = process.env.PORT || 80;
 class Thresholds extends React.Component {
     constructor(props) {
         super(props);
