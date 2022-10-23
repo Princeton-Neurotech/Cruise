@@ -71,11 +71,16 @@ class Thresholds extends React.Component {
         this.sendML()
     }, 300000);
  
+    let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
     let res = true;
     if (res) {
-        axios.post("/api/thr/", {port: 80}, { wordCount: this.state.wordCount,
-                                                        pageCount: this.state.pageCount })
-            .then(res => {
+        fetch("/api/thr/", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          }).then(res => {
                 console.log(res);
                 console.log(res.data['wordcount']);
                 /*
