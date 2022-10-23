@@ -7,6 +7,7 @@ import { initializeApp } from "firebase/app";
 import Thresholds from "./components/Thresholds";
 import DocURL from "./components/DocURL";
 import TotalTime from "./components/TotalTime";
+const cors = require('cors')
 
 function App() {
   const firebaseConfig = { 

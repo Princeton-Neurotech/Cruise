@@ -6,7 +6,7 @@
   },
   "homepage": ".",
   "private": true,
-  "proxy": "https://cruise-extension.herokuapp.com",
+  "proxy": "https://cruise-extension.herokuapp.com/",
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
