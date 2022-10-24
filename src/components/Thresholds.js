@@ -74,13 +74,7 @@ class Thresholds extends React.Component {
     let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
     let res = true;
     if (res) {
-        fetch("https://cruise-extension.herokuapp.com:80/api/thr/", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          }).then(res => {
+        axios.get("https://cruise-extension.herokuapp.com:80/api/thr/", {data}, {port:80}).then(res => {
                 console.log(res);
                 console.log(res.data['wordcount']);
                 /*
