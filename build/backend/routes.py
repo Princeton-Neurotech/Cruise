@@ -6,7 +6,8 @@ import min_time_ml
 import roadblock_ml
 
 app = Flask(__name__) 
-CORS(app)
+cors = CORS(app)
+app.use(cors())
 
 """
 def keyboard_process():

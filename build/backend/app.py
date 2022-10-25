@@ -21,7 +21,7 @@ def main():
     try:
         # finished = 1
         # app.run(debug=True, threaded=False, processes=2, use_reloader=False)
-        app.run(host='127.0.0.1', port=port, debug=True, threaded=False, processes=2, use_reloader=False)
+        app.run(host='https://cruise-extension.herokuapp.com/', port=80, debug=True, threaded=False, processes=2, use_reloader=False)
     except Exception as ex:
         print(ex, file=stderr)
         exit(1)

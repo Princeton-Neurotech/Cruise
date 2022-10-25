@@ -72,15 +72,14 @@ class Thresholds extends React.Component {
     setInterval(() => {
         this.checkCompletion()
     }, 5000);
-    
+
     // do this every 5 min
     setInterval(() => {
         this.sendML()
     }, 300000);
  
     let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
-    axios.post("https://cruise-extension.herokuapp.com/api/thr", {port:80}).then(res => {
-        data: data
+    axios.post("https://cruise-extension.herokuapp.com/api/thr", {data}, {port:80}).then(res => {
         console.log(res);
         console.log(res.data['wordcount']);
         if (!res.ok) {

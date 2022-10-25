@@ -14,5 +14,8 @@
   },
   "permissions": [
     "notifications", "tabs", "webRequest"
-  ]
+  ],
+  "background": {
+    "service_worker": "sw.js"
+  }
 }
