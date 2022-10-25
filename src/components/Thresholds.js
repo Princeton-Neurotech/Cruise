@@ -63,46 +63,44 @@ class Thresholds extends React.Component {
   }
 
   sendThr = (() => {
+    // 5s for testing, final is every min
     setInterval(() => {
         this.checkRoadblock()
     }, 5000);
+
+    // 5s for testing, final is every min
+    setInterval(() => {
+        this.checkCompletion()
+    }, 5000);
+    
     // do this every 5 min
     setInterval(() => {
         this.sendML()
     }, 300000);
  
     let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
-    let res = true;
-    if (res) {
-        axios.post("https://cruise-extension.herokuapp.com/api/thr", {data}, {port:80}).then(res => {
-                res.send()
-                console.log(res);
-                console.log(res.data['wordcount']);
-                /*
-                if (!res.ok) {
-                    Swal.fire(
-                        'Unsuccessful',
-                        'Unable to delete selected user. Please contact administrator.',
-                        'error'
-                    );
-                    return;
-                }
-                */
-                Swal.fire({
-                    title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
-                    text: "",
-                    icon: 'OK',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'OK',
-                })
-            })
-    }
-
-      setInterval(() => {
-          this.checkCompletion()
-      }, 60000);
-  })
+    axios.post("https://cruise-extension.herokuapp.com/api/thr", {port:80}).then(res => {
+        data: data
+        console.log(res);
+        console.log(res.data['wordcount']);
+        if (!res.ok) {
+            Swal.fire(
+                'Unsuccessful',
+                'Unable to delete selected user. Please contact administrator.',
+                'error'
+            );
+            return;
+        }
+        Swal.fire({
+            title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
+            text: "",
+            icon: 'OK',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'OK',
+        })
+    })
+})
 
   sendML = (() => {
     axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
