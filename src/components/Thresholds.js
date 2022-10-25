@@ -74,7 +74,8 @@ class Thresholds extends React.Component {
     let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
     let res = true;
     if (res) {
-        axios.get("https://cruise-extension.herokuapp.com:80/api/thr/", {data}, {port:80}).then(res => {
+        axios.post("https://cruise-extension.herokuapp.com/api/thr", {data}, {port:80}).then(res => {
+                res.send()
                 console.log(res);
                 console.log(res.data['wordcount']);
                 /*
@@ -104,7 +105,7 @@ class Thresholds extends React.Component {
   })
 
   sendML = (() => {
-    axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port:80})
+    axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
 })
 
   checkRoadblock() { 
