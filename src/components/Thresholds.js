@@ -78,8 +78,7 @@ class Thresholds extends React.Component {
         this.sendML()
     }, 300000);
  
-    let data = {wordCount: this.state.wordCount, pageCount: this.state.pageCount}
-    axios.post("https://cruise-extension.herokuapp.com:80/api/thr/", { wordCount: this.state.wordCount,
+    axios.post("https://cruise-extension.herokuapp.com/api/thr/", { wordCount: this.state.wordCount,
                                                          pageCount: this.state.pageCount }).then(res => {
         console.log(res);
         console.log(res.data['wordcount']);
