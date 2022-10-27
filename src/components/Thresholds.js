@@ -213,16 +213,7 @@ class Thresholds extends React.Component {
         console.log(notifications);
       });
     }
-
-    // runServer() {
-      // fetch("/backend/runserver.py")
-      // axios.post({
-          // type: "POST",
-          // url: "/backend/runserver.py",
-          // data: { param: text}
-        // })
-    // }
-
+    
   // const [open, setOpen] = useState(false);
   render() {
       return (
@@ -267,5 +258,4 @@ class Thresholds extends React.Component {
       }
 }
 
-// exports.api = functions.https.onRequest(app);
 export default Thresholds
