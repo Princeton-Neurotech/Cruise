@@ -63,6 +63,7 @@ class Thresholds extends React.Component {
   }
 
   sendThr = (() => {
+    console.log("post")
     // 5s for testing, final is every min
     setInterval(() => {
         this.checkRoadblock()
