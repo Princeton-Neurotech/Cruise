@@ -63,7 +63,6 @@ class Thresholds extends React.Component {
   }
 
   sendThr = (() => {
-    console.log("post")
     // 5s for testing, final is every min
     setInterval(() => {
         this.checkRoadblock()
@@ -81,6 +80,7 @@ class Thresholds extends React.Component {
  
     axios.post("https://cruise-extension.herokuapp.com:80/api/thr/", { wordCount: this.state.wordCount,
                                                          pageCount: this.state.pageCount }).then(res => {
+        console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
         if (!res.ok) {
