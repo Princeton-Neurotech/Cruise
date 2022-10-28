@@ -79,7 +79,7 @@ class Thresholds extends React.Component {
         this.sendML()
     }, 300000);
  
-    axios.post("/api/thr", {port: 80}, { wordCount: this.state.wordCount,
+    axios.post("/:80/api/thr", { wordCount: this.state.wordCount,
                                                          pageCount: this.state.pageCount }).then(res => {
         console.log("post")                                                    
         console.log(res);
