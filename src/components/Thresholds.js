@@ -29,6 +29,7 @@ app.use('/api/completion');
 app.use('/api/ml');
 */
 
+var cors = require('cors');
 const port = process.env.PORT || 80;
 class Thresholds extends React.Component {
     constructor(props) {
@@ -78,7 +79,7 @@ class Thresholds extends React.Component {
         this.sendML()
     }, 300000);
  
-    axios.post("https://cruise-extension.herokuapp.com:80/api/thr/", { wordCount: this.state.wordCount,
+    axios.post("https://cruise-extension.herokuapp.com:80", { wordCount: this.state.wordCount,
                                                          pageCount: this.state.pageCount }).then(res => {
         console.log("post")                                                    
         console.log(res);
