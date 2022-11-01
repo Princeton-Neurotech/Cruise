@@ -108,10 +108,6 @@ class Thresholds extends React.Component {
             "Access-Control-Allow-Origin": "*",
         }
       };
-
-      setInterval(() => {
-        this.checkWildcard()
-    }, 5000);
  
     const body = JSON.stringify({ wordCount: this.state.wordCount, pageCount: this.state.pageCount })
     axios.post("https://cruise-extension.herokuapp.com:80/api/thr", body, {"headers": { "content-type": "application/json",}}).then(res => {
@@ -136,6 +132,10 @@ class Thresholds extends React.Component {
         })
     })
 })
+
+setInterval(() => {
+    this.checkWildcard()
+}, 5000);
 
   sendML = (() => {
     axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
