@@ -4,6 +4,7 @@ from flask_cors import CORS
 from multiprocessing import Manager
 import min_time_ml
 import roadblock_ml
+import sys
 
 app = Flask(__name__) 
 cors = CORS(app)
@@ -32,6 +33,11 @@ def getSelenium():
     run_multiprocessing.interface_process(ns)
     mySelenium.closeSelenium(myDriver)
 """
+
+@app.route("api/wildcard/", methods=["GET", "POST"])
+def wildcard():
+    print("wildcard handler")
+    return sys.stdout('Status: 404 Not Found\r\n\r\n')
 
 @app.route("/api/roadblock/", methods=["GET","POST"])
 def checkRoadblock():

@@ -63,6 +63,29 @@ class Thresholds extends React.Component {
       this.a.close(event.target.tag);
   }
 
+  checkWildcard = (() => {
+    axios.post("https://cruise-extension.herokuapp.com:80/api/wildcard", "wildcard").then(res => {
+        console.log("post")                                                    
+        console.log(res);
+        if (!res.ok) {
+            Swal.fire(
+                'Unsuccessful',
+                'Unable to delete selected user. Please contact administrator.',
+                'error'
+            );
+            return;
+        }
+        Swal.fire({
+            title: 'Wildcard!',
+            text: "",
+            icon: 'OK',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'OK',
+        })
+    })
+  })
+
   sendThr = (() => {
     // 5s for testing, final is every min
     setInterval(() => {
@@ -85,6 +108,10 @@ class Thresholds extends React.Component {
             "Access-Control-Allow-Origin": "*",
         }
       };
+
+      setInterval(() => {
+        this.checkWildcard()
+    }, 5000);
  
     const body = JSON.stringify({ wordCount: this.state.wordCount, pageCount: this.state.pageCount })
     axios.post("https://cruise-extension.herokuapp.com:80/api/thr", body, {"headers": { "content-type": "application/json",}}).then(res => {
