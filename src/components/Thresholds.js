@@ -78,9 +78,16 @@ class Thresholds extends React.Component {
     setInterval(() => {
         this.sendML()
     }, 300000);
+
+    // let axiosConfig = {
+    //     headers: {
+    //         'Content-Type': 'application/json;charset=UTF-8',
+    //         "Access-Control-Allow-Origin": "*",
+    //     }
+    //   };
  
-    axios.post("https://cruise-extension.herokuapp.com:80/api/thr", { wordCount: this.state.wordCount,
-                                                         pageCount: this.state.pageCount }).then(res => {
+    body = { wordCount: this.state.wordCount, pageCount: this.state.pageCount }
+    axios.get("https://cruise-extension.herokuapp.com:80/api/thr", body).then(res => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
