@@ -7,7 +7,6 @@ import roadblock_ml
 
 app = Flask(__name__) 
 cors = CORS(app)
-app.use(cors())
 
 """
 def keyboard_process():

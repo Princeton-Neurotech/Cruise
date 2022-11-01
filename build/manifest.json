@@ -7,7 +7,6 @@
       "default_popup": "index.html",
       "default_title": "Open the popup"
   },
-  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/npm/sweetalert2@11; object-src 'self'",
   "icons": {
       "16": "main_logo.png",
       "48": "main_logo.png",
