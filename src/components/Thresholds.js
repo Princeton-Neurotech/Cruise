@@ -91,7 +91,7 @@ class Thresholds extends React.Component {
         this.checkWildcard()
     }, 5000);
   })
-  sendT()
+  // sendT()
   
 
 sendThr = (() => {
