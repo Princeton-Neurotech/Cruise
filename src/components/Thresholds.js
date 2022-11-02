@@ -120,12 +120,8 @@ sendThr = (() => {
  
     axios.request({method: 'POST',
     url: 'https://cruise-extension.herokuapp.com:80/api/thr',
-    headers: {
-        'content-type': 'text/json'
-    },
-    data: {
-      body: { wordCount: this.state.wordCount, pageCount: this.state.pageCount },
-    }}).then(res => {
+    data: JSON.stringify({wordCount: this.state.wordCount, pageCount: this.state.pageCount }),
+    }).then(res => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
