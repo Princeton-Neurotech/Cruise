@@ -118,8 +118,7 @@ sendThr = (() => {
         }
       };
  
-    const body = JSON.stringify({ wordCount: this.state.wordCount, pageCount: this.state.pageCount })
-    axios.post("https://cruise-extension.herokuapp.com:80/api/thr", body, {"headers": { "content-type": "application/json",}}).then(res => {
+    axios.post("https://cruise-extension.herokuapp.com:80/api/thr", "thresholds").then(res => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
