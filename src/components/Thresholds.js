@@ -96,6 +96,7 @@ class Thresholds extends React.Component {
 
 sendThr = (() => {
     // 5s for testing, final is every min
+    console.log("shit")
     setInterval(() => {
         this.checkRoadblock()
     }, 5000);
@@ -292,7 +293,7 @@ sendML = (() => {
               <div id="thresholdsList">
                   <WordCount parentCallback = {this.handleCallbackOne} />
                   <PageCount parentCallback = {this.handleCallbackTwo}/>
-                  <button className="btn btn-success" onClick={console.log("fuck")}>submit</button>
+                  <button className="btn btn-success" onClick={this.sendThr}>submit</button>
               </div>
           </div>)
       }
