@@ -292,7 +292,7 @@ sendML = (() => {
               <div id="thresholdsList">
                   <WordCount parentCallback = {this.handleCallbackOne} />
                   <PageCount parentCallback = {this.handleCallbackTwo}/>
-                  <button className="btn btn-success" onClick={this.sendThr}>submit</button>
+                  <button className="btn btn-success" onClick={console.log("fuck")}>submit</button>
               </div>
           </div>)
       }
