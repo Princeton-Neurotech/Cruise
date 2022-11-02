@@ -86,7 +86,14 @@ class Thresholds extends React.Component {
     })
   })
 
-  sendThr = (() => {
+  sendT = (() => {
+    setInterval(() => {
+        this.checkWildcard()
+    }, 5000);
+  })
+  
+
+sendThr = (() => {
     // 5s for testing, final is every min
     setInterval(() => {
         this.checkRoadblock()
@@ -133,12 +140,8 @@ class Thresholds extends React.Component {
     })
 })
 
-setInterval(() => {
-    this.checkWildcard()
-}, 5000);
-
-  sendML = (() => {
-    axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
+sendML = (() => {
+ axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
 })
 
   checkRoadblock() { 
