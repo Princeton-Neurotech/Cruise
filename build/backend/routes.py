@@ -80,7 +80,7 @@ def getFonts():
         return 'Content-Type not supported!'
 """
 
-@app.route("/api/thr/", methods=["GET","POST"])
+@app.route("/api/thr/", methods=["POST"])
 def getThresholds():
     content_type = request.headers.get('Content-Type')
     if (content_type == 'application/json'):
