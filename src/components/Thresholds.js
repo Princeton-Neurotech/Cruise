@@ -27,6 +27,11 @@ class Thresholds extends React.Component {
         };
     }
 
+    instance = axios.create({
+        baseURL:"https://cruise-extension.herokuapp.com:80/api",
+        withCredentials: true,
+    });
+
   showRoadblockNotifications() {
       console.log(this.n.supported())
       if (this.n.supported()); 
@@ -93,15 +98,8 @@ sendThr = (() => {
     setInterval(() => {
         this.sendML()
     }, 300000);
-
-    let axiosConfig = {
-        headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            "Access-Control-Allow-Origin": "*",
-        }
-      };
  
-    axios.post('/', {wordCount: this.state.wordCount, pageCount: this.state.pageCount }).then((res) => {
+    axios.post('/thr/', this.state).then((res) => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
