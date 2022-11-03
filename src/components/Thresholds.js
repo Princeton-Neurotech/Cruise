@@ -98,28 +98,32 @@ sendThr = (() => {
     setInterval(() => {
         this.sendML()
     }, 300000);
- 
-    axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', this.state).then((res) => {
-        console.log("post")                                                    
-        console.log(res);
-        console.log(res.data['wordcount']);
-        if (!res.ok) {
-            Swal.fire(
-                'Unsuccessful',
-                'Unable to delete selected user. Please contact administrator.',
-                'error'
-            );
-            return;
-        }
-        Swal.fire({
-            title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
-            text: "",
-            icon: 'OK',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'OK',
+
+    res = true
+    if (res) {
+        console.log("post1")
+        axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', this.state).then((res) => {
+            console.log("post2")                                                    
+            console.log(res);
+            console.log(res.data['wordcount']);
+            if (!res.ok) {
+                Swal.fire(
+                    'Unsuccessful',
+                    'Unable to delete selected user. Please contact administrator.',
+                    'error'
+                );
+                return;
+            }
+            Swal.fire({
+                title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
+                text: "",
+                icon: 'OK',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'OK',
+            })
         })
-    })
+    }
 })
 
 sendML = (() => {
