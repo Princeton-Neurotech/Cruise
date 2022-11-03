@@ -101,11 +101,7 @@ sendThr = (() => {
         }
       };
  
-    axios.request(
-        {method: 'POST',
-        url: '/api/thr/',
-        data: JSON.stringify({wordCount: this.state.wordCount, pageCount: this.state.pageCount }),
-        }).then((res) => {
+    axios.post('/', {wordCount: this.state.wordCount, pageCount: this.state.pageCount }).then((res) => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
