@@ -99,7 +99,7 @@ sendThr = (() => {
         this.sendML()
     }, 300000);
  
-    axios.post('/thr/', this.state).then((res) => {
+    axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', this.state).then((res) => {
         console.log("post")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
