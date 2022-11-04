@@ -88,6 +88,9 @@ def getThresholds():
         wordCount = requested_json['wordCount']
         pageCount = requested_json['pageCount']
         print(requested_json)
+        f = open("check.buf", "a")
+        f.write("thresholds worked")
+        f.close()
         publication_buffer=open("thr.buf", 'w')
         publication_buffer.write(wordCount + "\n" + pageCount)
         prediction_result = min_time_ml.machine_learning(wordCount)
