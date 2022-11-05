@@ -1,0 +1,92 @@
+{
+  "name": "react-notifications",
+  "version": "1.7.4",
+  "description": "Notification component for ReactJS",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "NODE_ENV=development babel-node example/webpack.server.js",
+    "lint": "NODE_ENV=development eslint .",
+    "build": "NODE_ENV=production gulp build"
+  },
+  "keywords": [
+    "react-component",
+    "react",
+    "component",
+    "notifications",
+    "notification"
+  ],
+  "dependencies": {
+    "acorn": "6.4.1",
+    "classnames": "^2.1.1",
+    "prop-types": "^15.5.10",
+    "react-transition-group": "^4.4.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.11.4",
+    "@babel/node": "^7.10.5",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/polyfill": "^7.11.5",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
+    "@babel/register": "^7.10.5",
+    "autoprefixer": "^7.0.1",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "bootstrap": "^3.4.1",
+    "camelcase": "^4.1.0",
+    "clean-webpack-plugin": "^0.1.9",
+    "cross-env": "^4.0.0",
+    "css-loader": "^4.3.0",
+    "cssnano": "^4.1.10",
+    "del": "^3.0.0",
+    "eslint": "^7.7.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.6",
+    "eslint-plugin-react-hooks": "^4.1.0",
+    "express": "^4.15.3",
+    "file-loader": "^1.1.11",
+    "flux": "^3.1.2",
+    "globby": "^6.1.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-postcss": "^7.0.0",
+    "gulp-sass": "^3.1.0",
+    "html-webpack-plugin": "^3.2.0",
+    "http-proxy": "^1.18.1",
+    "lodash.template": "^4.5.0",
+    "mini-css-extract-plugin": "^0.11.0",
+    "node-sass": "^4.13.1",
+    "postcss-loader": "^2.0.5",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-hot-loader": "^4.12.21",
+    "react-router-dom": "^4.1.1",
+    "regenerator-runtime": "^0.13.7",
+    "run-sequence": "^1.2.2",
+    "sass-loader": "^6.0.1",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.44.1",
+    "webpack-dev-server": "^3.11.0",
+    "webpack-livereload-plugin": "^2.3.0",
+    "webpack-stream": "^6.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjrexer/react-notifications.git"
+  },
+  "author": [
+    "Minh Tran",
+    "Tim Rexer"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjrexer/react-notifications/issues"
+  },
+  "homepage": "https://github.com/tjrexer/react-notifications"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "chrome",
+  "version": "0.1.0",
+  "description": "Open chrome in shell",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:afc163/chrome.git"
+  },
+  "main": "index.js",
+  "bin": {
+    "chrome": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "afc163 <afc163@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "exeq": "^2.2.0",
+    "plist": "^1.1.0"
+  },
+  "maintainers": [
+    {
+      "name": "afc163",
+      "email": "afc163@gmail.com"
+    }
+  ]
+}
