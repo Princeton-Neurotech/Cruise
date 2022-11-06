@@ -1,0 +1,9 @@
+services:
+  - name: cruise
+    type: web
+    env: python
+    buildCommand: yarn build
+    startCommand: yarn start
+    envVars:
+      - key: SECRET_KEY_BASE
+        generateValue: true
