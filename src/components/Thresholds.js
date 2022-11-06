@@ -28,7 +28,7 @@ class Thresholds extends React.Component {
     }
 
     instance = axios.create({
-        baseURL:"https://cruise-extension.herokuapp.com:80/api",
+        baseURL:"https://cruise-colr.onrender.com:80/api",
         withCredentials: true,
     });
 
@@ -52,7 +52,7 @@ class Thresholds extends React.Component {
   }
 
   checkWildcard = (() => {
-    axios.post("https://cruise-extension.herokuapp.com:80/api/wildcard", "wildcard").then(res => {
+    axios.post("https://cruise-colr.onrender.com:80/api/wildcard", "wildcard").then(res => {
         console.log("post")                                                    
         console.log(res);
         if (!res.ok) {
@@ -100,7 +100,7 @@ sendThr = (() => {
     }, 300000);
 
     console.log("post1")
-    axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', this.state).then((res) => {
+    axios.post('https://cruise-colr.onrender.com:80/api/thr/', this.state).then((res) => {
         console.log("post2")                                                    
         console.log(res);
         console.log(res.data['wordcount']);
@@ -124,11 +124,11 @@ sendThr = (() => {
 })
 
 sendML = (() => {
- axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port:80})
+ axios.get("https://cruise-colr.onrender.com/api/ml/", {port:80})
 })
 
   checkRoadblock() { 
-    axios.get("https://cruise-extension.herokuapp.com/api/roadblock/", {port:80}) 
+    axios.get("https://cruise-colr.onrender.com/api/roadblock/", {port:80}) 
       .then(res => {
               if (res.data[0] == 'True') {
                   console.log("roadblock notifs");
@@ -158,7 +158,7 @@ sendML = (() => {
       }
 
   checkCompletion() {
-    axios.get("https://cruise-extension.herokuapp.com/api/completion/", {port:80}) 
+    axios.get("https://cruise-colr.onrender.com/api/completion/", {port:80}) 
           .then(res => {
               if (res.data[0] == 'True') {
                   this.state.notRun = true;
