@@ -12,7 +12,7 @@ module.exports = {
     }),
   ],
   devServer: {
-    disableHostCheck: true
+    allowedHosts: 'auto' | 'all' | Array[string]
   },
   module: {
     rules: [
