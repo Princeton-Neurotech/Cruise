@@ -7,3 +7,9 @@ services:
     envVars:
       - key: SECRET_KEY_BASE
         generateValue: true
+      - key: CI
+        value: false
+      - key: EXCIED
+        value: true
+      - key: NODE_VERSION
+        value: 16.13.2
