@@ -123,17 +123,19 @@ sendThr = (() => {
     })
 })
 
-sendML = (() => {
- axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port:80})
+sendML = (() => {   
+    console.log("send ml")
+    axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port:80})
 })
 
-  checkRoadblock() { 
+checkRoadblock() { 
+    console.log("check roadblock")
     axios.get("https://cruise-extension.herokuapp.com/api/roadblock/", {port:80}) 
       .then(res => {
-              if (res.data[0] == 'True') {
-                  console.log("roadblock notifs");
-                  this.state.isRoadblock = true;
-                  if (this.state.isRoadblock == true) {
+            if (res.data[0] == 'True') {
+                console.log("roadblock notifs");
+                this.state.isRoadblock = true;
+                if (this.state.isRoadblock == true) {
                       Swal.fire({
                           title: 'You have approached a roadblock!',
                           text: "",
@@ -158,6 +160,7 @@ sendML = (() => {
       }
 
   checkCompletion() {
+    console.log("check completion")
     axios.get("https://cruise-extension.herokuapp.com/api/completion/", {port:80}) 
           .then(res => {
               if (res.data[0] == 'True') {
