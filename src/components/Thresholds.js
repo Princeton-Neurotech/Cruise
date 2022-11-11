@@ -163,6 +163,7 @@ checkRoadblock() {
     console.log("check completion")
     axios.get("https://cruise-extension.herokuapp.com/api/completion/", {port:80}) 
           .then(res => {
+              console.log(res.data[0])
               if (res.data[0] == 'True') {
                   this.state.notRun = true;
                   console.log("completion notifs");
