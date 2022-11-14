@@ -34,7 +34,7 @@ def getSelenium():
     mySelenium.closeSelenium(myDriver)
 """
 
-@app.route("api/wildcard/", methods=["GET", "POST"])
+@app.route("/api/wildcard/", methods=["GET", "POST"])
 def wildcard():
     print("wildcard handler")
     return sys.stdout('Status: 404 Not Found\r\n\r\n')
@@ -49,6 +49,7 @@ def checkRoadblock():
 def checkCompletion():
     completion_buffer = open("completion.buf", 'r')
     completion = completion_buffer.readlines()
+    print(completion)
     return jsonify(completion if completion is not None else False)
 
 @app.route("/api/url/", methods=["GET","POST"])
@@ -88,9 +89,6 @@ def getThresholds():
         wordCount = requested_json['wordCount']
         pageCount = requested_json['pageCount']
         print(requested_json)
-        f = open("check.buf", "a")
-        f.write("thresholds worked")
-        f.close()
         publication_buffer=open("thr.buf", 'w')
         publication_buffer.write(wordCount + "\n" + pageCount)
         prediction_result = min_time_ml.machine_learning(wordCount)
