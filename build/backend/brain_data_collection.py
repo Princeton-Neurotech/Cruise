@@ -202,7 +202,7 @@ class braindata:
 
 # macos openbci port: /dev/cu.usbserial-DM03H3ZF
 if __name__ == "__main__":
-    myBoard = braindata(-1, "/dev/cu.usbserial-DM03H3ZF")
+    myBoard = braindata(38, "/dev/cu.usbserial-DM03H3ZF")
     myBoard.startStream()
     myBoard.getSamplingRate()
     myBoard.getEEGChannels()

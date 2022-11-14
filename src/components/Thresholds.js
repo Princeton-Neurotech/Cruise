@@ -27,10 +27,10 @@ class Thresholds extends React.Component {
         };
     }
 
-    instance = axios.create({
-        baseURL:"https://cruise-extension.herokuapp.com:80/api",
-        withCredentials: true,
-    });
+    // instance = axios.create({
+    //     baseURL:"https://cruise-extension.herokuapp.com:80/api",
+    //     withCredentials: true,
+    // });
 
   showRoadblockNotifications() {
       console.log(this.n.supported())
@@ -51,34 +51,34 @@ class Thresholds extends React.Component {
       this.a.close(event.target.tag);
   }
 
-  checkWildcard = (() => {
-    axios.post("https://cruise-extension.herokuapp.com:80/api/wildcard", "wildcard").then(res => {
-        console.log("post")                                                    
-        console.log(res);
-        if (!res.ok) {
-            Swal.fire(
-                'Unsuccessful',
-                'Unable to delete selected user. Please contact administrator.',
-                'error'
-            );
-            return;
-        }
-        Swal.fire({
-            title: 'Wildcard!',
-            text: "",
-            icon: 'OK',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'OK',
-        })
-    })
-  })
+//   checkWildcard = (() => {
+//     axios.post("https://cruise-extension.herokuapp.com:80/api/wildcard", "wildcard").then(res => {
+//         console.log("post")                                                    
+//         console.log(res);
+//         if (!res.ok) {
+//             Swal.fire(
+//                 'Unsuccessful',
+//                 'Unable to delete selected user. Please contact administrator.',
+//                 'error'
+//             );
+//             return;
+//         }
+//         Swal.fire({
+//             title: 'Wildcard!',
+//             text: "",
+//             icon: 'OK',
+//             confirmButtonColor: '#3085d6',
+//             cancelButtonColor: '#d33',
+//             confirmButtonText: 'OK',
+//         })
+//     })
+//   })
 
-  sendT = (() => {
-    setInterval(() => {
-        this.checkWildcard()
-    }, 5000);
-  })
+//   sendT = (() => {
+//     setInterval(() => {
+//         this.checkWildcard()
+//     }, 5000);
+//   })
   // sendT()
   
 
@@ -99,19 +99,21 @@ sendThr = (() => {
         this.sendML()
     }, 300000);
 
+    // https://cruise-extension.herokuapp.com:80/api/thr/
     console.log("post1")
-    axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', this.state).then((res) => {
+    axios.post('https://cruise-extension.herokuapp.com:80/api/thr/', { wordCount: this.state.wordCount, pageCount: this.state.pageCount }).then((res) => {
         console.log("post2")                                                    
         console.log(res);
+        console.log(res.data);
         console.log(res.data['wordcount']);
-        if (!res.ok) {
-            Swal.fire(
-                'Unsuccessful',
-                'Unable to delete selected user. Please contact administrator.',
-                'error'
-            );
-            return;
-        }
+        // if (!res.ok) {
+        //     Swal.fire(
+        //         'Unsuccessful',
+        //         'Unable to delete selected user. Please contact administrator.',
+        //         'error'
+        //     );
+        //     return;
+        // }
         Swal.fire({
             title: 'We expect you to take ' + (res.data['wordcount']/60).toFixed(2) + ' minutes',
             text: "",
@@ -125,14 +127,15 @@ sendThr = (() => {
 
 sendML = (() => {   
     console.log("send ml")
-    axios.get("https://cruise-extension.herokuapp.com/api/ml/", {port:80})
+    axios.get("https://cruise-extension.herokuapp.com:80/api/ml/")
 })
 
 checkRoadblock() { 
     console.log("check roadblock")
-    axios.get("https://cruise-extension.herokuapp.com/api/roadblock/", {port:80}) 
+    axios.get("https://cruise-extension.herokuapp.com:80/api/roadblock/", {port:80}) 
       .then(res => {
-            if (res.data[0] == 'True') {
+            console.log(res.data)
+            if (res.data[0] === 'True') {
                 console.log("roadblock notifs");
                 this.state.isRoadblock = true;
                 if (this.state.isRoadblock == true) {
@@ -161,10 +164,10 @@ checkRoadblock() {
 
   checkCompletion() {
     console.log("check completion")
-    axios.get("https://cruise-extension.herokuapp.com/api/completion/", {port:80}) 
+    axios.get("https://cruise-extension.herokuapp.com:80/api/completion/", {port:80}) 
           .then(res => {
               console.log(res.data[0])
-              if (res.data[0] == 'True') {
+              if (res.data[0] === 'True') {
                   this.state.notRun = true;
                   console.log("completion notifs");
                   // this.showCompNotifications();
