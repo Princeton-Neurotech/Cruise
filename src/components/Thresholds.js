@@ -101,7 +101,7 @@ sendThr = (() => {
 
     // https://cruise-extension.herokuapp.com:80/api/thr/
     console.log("post1")
-    axios.post('https://cruise-extension.herokuapp.com/api/thr', { wordCount: this.state.wordCount, pageCount: this.state.pageCount }).then((res) => {
+    axios.post('https://cruise-extension.herokuapp.com:80/api/thr', { wordCount: this.state.wordCount, pageCount: this.state.pageCount }).then((res) => {
         console.log("post2")                                                    
         console.log(res);
         console.log(res.data);
@@ -127,12 +127,12 @@ sendThr = (() => {
 
 sendML = (() => {   
     console.log("send ml")
-    axios.get("https://cruise-extension.herokuapp.com:80/api/ml")
+    axios.get("https://cruise-extension.herokuapp.com/api/ml", {port:80})
 })
 
 checkRoadblock() { 
     console.log("check roadblock")
-    axios.get("https://cruise-extension.herokuapp.com/api/roadblock") 
+    axios.get("https://cruise-extension.herokuapp.com/api/roadblock", {port:80}) 
       .then(res => {
             console.log(res.data)
             if (res.data[0] === 'True') {
@@ -164,7 +164,7 @@ checkRoadblock() {
 
   checkCompletion() {
     console.log("check completion")
-    axios.get("https://cruise-extension.herokuapp.com/api/completion") 
+    axios.get("https://cruise-extension.herokuapp.com/api/completion", {port:80}) 
           .then(res => {
               console.log(res.data[0])
               if (res.data[0] === 'True') {

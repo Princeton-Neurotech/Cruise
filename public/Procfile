@@ -1,2 +1,2 @@
-web: gunicorn public/backend app:app https://cruise-extension.herokuapp.com
-web: python3 public/backend/app.py https://cruise-extension.herokuapp.com
+web: gunicorn public/backend app:app https://cruise-extension.herokuapp.com 80
+web: python3 public/backend/app.py https://cruise-extension.herokuapp.com 80
